@@ -7,9 +7,16 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FIT_Technology.Controllers
 {
+    /// <summary>
+    /// 認証（ログイン・ログアウト）およびメインメニューの制御を行うコントローラーです。
+    /// </summary>
+    /// <param name="service">ユーザー認証サービス</param>
     public class AccountController(AccountService service) : Controller
     {
-        // ログインしていない状態でアクセスしても、FilterがLoginへ飛ばしてくれる
+        /// <summary>
+        /// ルートURLアクセス時のハンドラ。
+        /// SessionCheckフィルタにより、未ログイン時はログイン画面へ、ログイン済みの場合はメニュー画面へ誘導します。
+        /// </summary>
         [HttpGet]
         [SessionCheck]
         public IActionResult Index()
@@ -18,6 +25,9 @@ namespace FIT_Technology.Controllers
             return View(nameof(AccountController.Menu));
         }
 
+        /// <summary>
+        /// ログイン画面を表示します。
+        /// </summary>
         [HttpGet]
         public IActionResult Login()
         {
@@ -25,7 +35,11 @@ namespace FIT_Technology.Controllers
             return View(nameof(AccountController.Login));
         }
 
-        // 重要：[SessionCheck]は付けない（ログイン前なので）
+        /// <summary>
+        /// ログイン認証を実行します。
+        /// </summary>
+        /// <param name="user">入力されたユーザー情報（ID・パスワード）</param>
+        /// <remarks>認証成功時はセッションにIDを保存し、メニュー画面へ遷移します。</remarks>
         [HttpPost]
         public IActionResult Login(UserEntity user)
         {
@@ -40,34 +54,50 @@ namespace FIT_Technology.Controllers
             }
             else
             {
-                ViewBag.ViewTitle = "ログインエラー";
-                ViewBag.Msg = "ログインに失敗しました";
+                // 【修正点】リダイレクト先でも表示できるよう TempData に格納
+                TempData["ViewTitle"] = "ログインエラー";
+                TempData["Msg"] = "ユーザーIDまたはパスワードが正しくありません。";
+                TempData["Caption"] = "入力を確認して再度ログインしてください。";
+
                 return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
             }
         }
 
+        /// <summary>
+        /// ログアウト確認画面を表示します。
+        /// </summary>
         [HttpGet]
         [SessionCheck]
         public IActionResult Logout()
         {
             ViewBag.Title = "ログアウト確認画面";
-            // 💡 セッションチェックはFilterに任せたので、ここはViewを返すだけでOK
             return View(nameof(AccountController.Logout));
         }
 
+        /// <summary>
+        /// ログアウト処理を実行し、セッションを破棄します。
+        /// </summary>
+        /// <param name="btn_action">ボタンアクション（拡張用）</param>
         [HttpPost]
         [SessionCheck]
         public IActionResult Logout(string btn_action)
         {
-            ViewBag.Title = "ログアウト画面";
-
+            // セッションからユーザーIDを取得（クリアする前に行う）
             var userId = HttpContext.Session.GetString(DbConstants.SessionKeys.UserId);
-            ViewBag.Msg = $"{userId}様、お疲れさまでした";
 
+            // 【重要】ViewBagではなくTempDataを使用する
+            TempData["InfoMessage"] = $"{userId}様、お疲れさまでした。";
+
+            // セッションをクリア
             HttpContext.Session.Clear();
+
+            // ログイン画面へリダイレクト
             return RedirectToAction(nameof(AccountController.Login), Ctrl.Get<AccountController>());
         }
 
+        /// <summary>
+        /// メインメニュー画面を表示します。
+        /// </summary>
         [HttpGet]
         [SessionCheck]
         public IActionResult Menu()
@@ -76,6 +106,10 @@ namespace FIT_Technology.Controllers
             return View(nameof(AccountController.Menu));
         }
 
+        /// <summary>
+        /// メニュー画面からの各機能への遷移を制御します。
+        /// </summary>
+        /// <param name="btn_action">押下されたボタンに応じたアクション（logout, insert, list, license）</param>
         [HttpPost]
         [SessionCheck]
         public IActionResult Menu(string btn_action)
@@ -87,13 +121,18 @@ namespace FIT_Technology.Controllers
                 case "logout":
                     return RedirectToAction(nameof(AccountController.Logout), Ctrl.Get<AccountController>());
                 case "insert":
+                    // 従業員登録画面へ
+                    return RedirectToAction(nameof(EmployeeController.Index), Ctrl.Get<EmployeeController>());
                 case "list":
+                    // 従業員管理機能へ
                     return RedirectToAction(nameof(EmployeeController.Index), Ctrl.Get<EmployeeController>());
                 case "license":
+                    // 保有資格管理画面へ
                     return RedirectToAction(nameof(LicenseController.Index), Ctrl.Get<LicenseController>());
                 default:
-                    ViewBag.Caption = "不正な入力を検知";
-                    ViewBag.Msg = "不正コマンドを検出しました";
+                    // 定義外のアクションが送られた場合のエラー処理
+                    TempData["ViewTitle"] = "不正な入力を検知";
+                    TempData["Msg"] = "従業員管理システム画面から不正コマンドを検出しました";
                     return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
             }
         }

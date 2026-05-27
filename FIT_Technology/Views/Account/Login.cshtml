@@ -16,6 +16,14 @@
                     <small>@TempData["ErrorMessage"]</small>
                 </div>
             }
+
+            @* --- 【追加】ログアウトなどの通知メッセージ表示エリア --- *@
+            @if (TempData["InfoMessage"] != null)
+            {
+                <div class="alert alert-info text-center p-2" role="alert">
+                    <small>@TempData["InfoMessage"]</small>
+                </div>
+            }
             @* -------------------------- *@
 
             <form method="post">
