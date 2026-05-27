@@ -1,11 +1,12 @@
 ﻿using DynamicDll.Db;
 using Microsoft.AspNetCore.Mvc;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using FIT_Technology.Models.Daos;
+using FIT_Technology.Models.Services;
+using FIT_Technology.Models.Entities;
+using FIT_Technology.Models.Constants;
 
 namespace FIT_Technology.Controllers
 {
-    public class AccountController : Controller
+    public class AccountController(AccountService service) : Controller
     {
         [HttpGet]
         public IActionResult Index()
@@ -26,26 +27,21 @@ namespace FIT_Technology.Controllers
         }
 
         [HttpPost]
-        public IActionResult Login(string userid, string password)
+        public IActionResult Login(UserEntity user)
         {
-            throw new NotImplementedException();
-
-            using (TranMng tm = TranMng.BeginTransaction("empdb"))
+            if(string.IsNullOrEmpty(user.UserId) || string.IsNullOrEmpty(user.Password))
             {
-                AccountDao accountDao = new AccountDao();
+                return RedirectToAction(nameof(AccountController.Login));
+            }
 
-                var userName = AccountDao.Login(userid, password);
-
-                if (string.IsNullOrEmpty(userName))
-                {
-                    return RedirectToAction(nameof(Error));
-                }
-                else
-                {
-                    HttpContext.Session.SetString(nameof(userName), userName);
-                    HttpContext.Session.SetString(nameof(userid), userid);
-                    return RedirectToAction(nameof(HomeController.Menu));
-                }
+            if (service.Authenticate(user.UserId, user.Password))
+            {
+                HttpContext.Session.SetString(DbConstants.SessionKeys.UserId, user.UserId);
+                return RedirectToAction(nameof(AccountController.Menu));
+            }
+            else
+            {
+                return RedirectToAction(nameof(ResultController.Index));
             }
         }
 

@@ -9,7 +9,7 @@
 
 <div class="text-center">
     <h1 class="display-4">ログイン画面</h1>
-    <form asp-action="Login" method="post">
+    <form method="post">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
         <div>
@@ -26,6 +26,7 @@
 
         <button type="submit">ログイン</button>
     </form>
+
+    <hr />
+    <div class="text-danger"><pre>@ViewData["errorMessage"]</pre></div>
 </div>
-
-

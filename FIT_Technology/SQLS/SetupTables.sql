@@ -161,6 +161,7 @@ GO
 USE [emp_db];
 GO
 /* ユーザマスタINSERT */
+INSERT INTO m_user (user_id, [password]) VALUES('root', 'pass');
 INSERT INTO m_user (user_id, [password]) VALUES('t-yamada', 'taro');
 INSERT INTO m_user (user_id, [password]) VALUES('h-suzuki', 'hanako');
 INSERT INTO m_user (user_id, [password]) VALUES('i-sato', 'ichiro');
