@@ -9,6 +9,15 @@
         <div class="col-md-4">
             <h2 class="text-center">@ViewBag.Title</h2>
 
+            @* --- メッセージ表示エリア --- *@
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger text-center p-2" role="alert">
+                    <small>@TempData["ErrorMessage"]</small>
+                </div>
+            }
+            @* -------------------------- *@
+
             <form method="post">
                 @* 概要エラーの表示場所（省略可） *@
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
