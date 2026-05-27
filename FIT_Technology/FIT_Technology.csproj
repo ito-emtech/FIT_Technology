@@ -6,4 +6,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\Entities\" />
+    <Folder Include="Views\License\" />
+    <Folder Include="Views\Employee\" />
+  </ItemGroup>
+
 </Project>
