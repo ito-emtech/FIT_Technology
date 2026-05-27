@@ -1,5 +1,46 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model FIT_Technology.Models.Entities.UserEntity
+
 @{
+    Layout = "_Layout";
 }
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-4">
+            @* タイトルを中央寄せにし、ログイン画面と余白を合わせる *@
+            <h2 class="text-center mb-4">@ViewBag.Title</h2>
+
+            <div class="list-group">
+                <form asp-action="Menu" method="post">
+                    <div class="d-grid gap-2">
+                        @* ログイン画面のボタンと高さを合わせるため、btn-lg や py-2 を検討しても良いでしょう *@
+                        <button type="submit" name="btn_action" value="insert" class="btn btn-outline-primary">
+                            従業員登録
+                        </button>
+                        <button type="submit" name="btn_action" value="list" class="btn btn-outline-primary">
+                            従業員一覧
+                        </button>
+                        <button type="submit" name="btn_action" value="liscense" class="btn btn-outline-primary">
+                            従業員保有資格管理
+                        </button>
+
+                        <hr class="my-3" />
+
+                        <button type="submit" name="btn_action" value="logout" class="btn btn-outline-danger">
+                            ログアウト
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            @* メッセージエリアも同じ幅の中に収める *@
+            @if (ViewBag.Caption != null)
+            {
+                <div class="alert alert-danger mt-4">
+                    <strong>@ViewBag.Caption</strong><br />
+                    @ViewBag.Msg
+                </div>
+            }
+        </div>
+    </div>
+</div>

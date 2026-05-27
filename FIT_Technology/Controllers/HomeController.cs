@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using FIT_Technology.Models;
 using Microsoft.AspNetCore.Mvc;
+using FIT_Technology.Models.Helpers;
 
 namespace FIT_Technology.Controllers
 {
@@ -15,7 +16,7 @@ namespace FIT_Technology.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            return RedirectToAction(nameof(AccountController.Index), Ctrl.Get<AccountController>());
         }
 
         public IActionResult Privacy()

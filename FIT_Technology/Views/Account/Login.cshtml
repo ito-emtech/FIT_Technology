@@ -1,32 +1,37 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model FIT_Technology.Models.Entities.UserEntity
+
 @{
+    Layout = "_Layout";
 }
 
-@* Views/Account/Login.cshtml *@
-@model FIT_Technology.Models.Entities.UserEntity
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-4">
+            <h2 class="text-center">@ViewBag.Title</h2>
 
-<div class="text-center">
-    <h1 class="display-4">ログイン画面</h1>
-    <form method="post">
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <form method="post">
+                @* 概要エラーの表示場所（省略可） *@
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-        <div>
-            <label>ユーザID</label>
-            <input asp-for="UserId" type="text" class="form-control" />
-            <span asp-validation-for="UserId" class="text-danger"></span>
+                <div class="form-group mb-3">
+                    <label asp-for="UserId" class="form-label"></label>
+                    <input asp-for="UserId" class="form-control" />
+                    @* バリデーションエラーメッセージの表示 *@
+                    <span asp-validation-for="UserId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Password" class="form-label"></label>
+                    <input asp-for="Password" class="form-control" />
+                    @* バリデーションエラーメッセージの表示 *@
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <br />
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">ログイン</button>
+                </div>
+            </form>
         </div>
-
-        <div>
-            <label>パスワード</label>
-            <input asp-for="Password" type="password" class="form-control" />
-            <span asp-validation-for="Password" class="text-danger"></span>
-        </div>
-
-        <button type="submit">ログイン</button>
-    </form>
-
-    <hr />
-    <div class="text-danger"><pre>@ViewData["errorMessage"]</pre></div>
+    </div>
 </div>
