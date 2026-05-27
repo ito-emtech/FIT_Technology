@@ -3,9 +3,9 @@ using FIT_Technology.Models.Entities;
 
 namespace FIT_Technology.Models.Daos
 {
-    public class LicenseDao : BaseDao<UserEntity>
+    public class AccountDao : BaseDao<UserEntity>
     {
-        public LicenseDao() { }
+        public AccountDao() { }
 
         public override UserEntity Find(params object[] pkeys)
         {

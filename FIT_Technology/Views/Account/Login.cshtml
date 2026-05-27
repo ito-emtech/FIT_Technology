@@ -3,3 +3,29 @@
 *@
 @{
 }
+
+@* Views/Account/Login.cshtml *@
+@model FIT_Technology.Models.Entities.UserEntity
+
+<div class="text-center">
+    <h1 class="display-4">ログイン画面</h1>
+    <form asp-action="Login" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div>
+            <label>ユーザID</label>
+            <input asp-for="UserId" type="text" class="form-control" />
+            <span asp-validation-for="UserId" class="text-danger"></span>
+        </div>
+
+        <div>
+            <label>パスワード</label>
+            <input asp-for="Password" type="password" class="form-control" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+        <button type="submit">ログイン</button>
+    </form>
+</div>
+
+
