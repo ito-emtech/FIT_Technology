@@ -88,11 +88,19 @@ namespace FIT_Technology.Controllers
             // 【重要】ViewBagではなくTempDataを使用する
             TempData["InfoMessage"] = $"{userId}様、お疲れさまでした。";
 
-            // セッションをクリア
-            HttpContext.Session.Clear();
-
-            // ログイン画面へリダイレクト
-            return RedirectToAction(nameof(AccountController.Login), Ctrl.Get<AccountController>());
+            switch (btn_action)
+            {
+                case "logout":
+                    HttpContext.Session.Clear();
+                    return RedirectToAction(nameof(AccountController.Login), Ctrl.Get<AccountController>());
+                case "cancel":
+                    return RedirectToAction(nameof(AccountController.Menu), Ctrl.Get<AccountController>());
+                default:
+                    // 定義外のアクションが送られた場合のエラー処理
+                    TempData["ViewTitle"] = "不正な入力を検知";
+                    TempData["Msg"] = "ログアウト画面から不正コマンドを検出しました";
+                    return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
+            }
         }
 
         /// <summary>
