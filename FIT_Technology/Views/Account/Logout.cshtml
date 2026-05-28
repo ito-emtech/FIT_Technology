@@ -1,5 +1,25 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
+    Layout = "_Layout";
+    ViewBag.Title = "ログアウト確認";
 }
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-4">
+            @* タイトルを中央寄せ *@
+            <h2 class="text-center mb-4">@ViewBag.Title</h2>
+
+            @* 警告メッセージ *@
+            <div class="alert alert-warning text-center">
+                本当にログアウトしますか？
+            </div>
+
+            <form asp-action="Logout" method="post">
+                <div class="d-flex justify-content-center gap-2">
+                    <button type="submit" style="min-width: 140px;" class="btn btn-danger">ログアウト実行</button>
+                    <a asp-action="Menu" style="min-width: 140px;" class="btn btn-secondary">メニューに戻る</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

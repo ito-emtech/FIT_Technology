@@ -1,5 +1,43 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model FIT_Technology.Models.Entities.UserEntity
+
 @{
+    Layout = "_Layout";
+    var displayTitle = ViewBag.ViewTitle ?? "システム通知";
 }
+
+<div class="container">
+    <div class="row justify-content-center">
+        @* 他の画面と同じ col-md-4 に統一することで、横幅がピッタリ合います *@
+        <div class="col-md-4">
+
+            @* タイトルを他の画面と同じ形式で表示 *@
+            <h2 class="text-center mb-4">@displayTitle</h2>
+
+            @* カードのデザインを適用（影や枠線） *@
+            <div class="card shadow-sm">
+                <div class="card-body text-center p-4">
+                    <p class="card-text fs-5 mb-4">
+                        @ViewBag.Msg
+                    </p>
+
+                    <form method="post">
+                        <div class="d-grid">
+                            @* ログインボタンと同じサイズ感にするため btn-lg は外してもOK *@
+                            <button type="submit" name="btn_action" value="back" class="btn btn-primary">
+                                次へ進む
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                @if (ViewBag.Caption != null)
+                {
+                    <div class="card-footer bg-light text-danger small">
+                        <strong>補足:</strong> @ViewBag.Caption
+                    </div>
+                }
+            </div>
+
+        </div>
+    </div>
+</div>
