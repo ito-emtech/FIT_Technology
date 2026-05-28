@@ -1,11 +1,11 @@
 ﻿/*C:\Users\user\source\repos\FIT_Technology\FIT_Technology\SQLS\SetupTables.sql*/
 
-/* 処理件数の表示を無効 */
-SET NOCOUNT ON;
-
 /* DB作成 */
 use [master];
 GO
+
+/* 処理件数の表示を無効 */
+SET NOCOUNT ON;
 
 if (EXISTS(SELECT * FROM sysdatabases WHERE name IN('[emp_db]','emp_db')))
 BEGIN
