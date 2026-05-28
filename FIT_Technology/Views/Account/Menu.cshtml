@@ -1,4 +1,5 @@
-﻿@model FIT_Technology.Models.Entities.UserEntity
+﻿@using FIT_Technology.Models.Constants
+@model FIT_Technology.Models.Entities.UserEntity
 
 @{
     Layout = "_Layout";
@@ -14,19 +15,19 @@
                 <form asp-action="Menu" method="post">
                     <div class="d-grid gap-2">
                         @* ログイン画面のボタンと高さを合わせるため、btn-lg や py-2 を検討しても良いでしょう *@
-                        <button type="submit" name="btn_action" value="insert" class="btn btn-outline-primary">
+                        <button type="submit" name="btn_action" value=@(ActionValues.Insert) class="btn btn-outline-primary">
                             従業員登録
                         </button>
-                        <button type="submit" name="btn_action" value="list" class="btn btn-outline-primary">
+                        <button type="submit" name="btn_action" value=@(ActionValues.List) class="btn btn-outline-primary">
                             従業員一覧
                         </button>
-                        <button type="submit" name="btn_action" value="license" class="btn btn-outline-primary">
+                        <button type="submit" name="btn_action" value=@(ActionValues.License) class="btn btn-outline-primary">
                             従業員保有資格管理
                         </button>
 
                         <hr class="my-3" />
 
-                        <button type="submit" name="btn_action" value="logout" class="btn btn-outline-danger">
+                        <button type="submit" name="btn_action" value=@(ActionValues.Logout) class="btn btn-outline-danger">
                             ログアウト
                         </button>
                     </div>

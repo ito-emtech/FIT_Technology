@@ -1,14 +1,11 @@
 ﻿/*C:\Users\user\source\repos\FIT_Technology\FIT_Technology\SQLS\SetupTables.sql*/
 
-/* 処理件数の表示を無効 */
-SET NOCOUNT ON;
-
-/* 暗黙のトランザクションを無効 */
-SET IMPLICIT_TRANSACTIONS OFF;
-
 /* DB作成 */
 use [master];
 GO
+
+/* 処理件数の表示を無効 */
+SET NOCOUNT ON;
 
 if (EXISTS(SELECT * FROM sysdatabases WHERE name IN('[emp_db]','emp_db')))
 BEGIN
@@ -32,8 +29,7 @@ GRANT CONTROL TO [embexU];
 GO
 
 /* 暗黙のトランザクションを有効 */
-SET IMPLICIT_TRANSACTIONS ON;
-
+--SET IMPLICIT_TRANSACTIONS ON;
 
 
 
@@ -108,6 +104,7 @@ CREATE TABLE m_employee (
         REFERENCES m_section (section_cd)
 );
 GO
+
 -- ③ 従業員マスタ更新日時自動入力設定
 CREATE TRIGGER TR_m_employee_Update
 ON m_employee
@@ -159,27 +156,26 @@ END;
 GO
 
 USE [emp_db];
-GO
+
+BEGIN TRANSACTION;
+
 /* ユーザマスタINSERT */
 INSERT INTO m_user (user_id, [password]) VALUES('root', 'pass');
 INSERT INTO m_user (user_id, [password]) VALUES('t-yamada', 'taro');
 INSERT INTO m_user (user_id, [password]) VALUES('h-suzuki', 'hanako');
 INSERT INTO m_user (user_id, [password]) VALUES('i-sato', 'ichiro');
-GO
 
 /* 所属マスタINSERT */
 INSERT INTO m_section (section_cd, section_nm) VALUES('A1', '管理部');
 INSERT INTO m_section (section_cd, section_nm) VALUES('A2', '総務部');
 INSERT INTO m_section (section_cd, section_nm) VALUES('B1', '開発部');
 INSERT INTO m_section (section_cd, section_nm) VALUES('C1', '営業部');
-GO
 
 /* 性別マスタINSERT */
 INSERT INTO m_gender (gender_cd, gender_nm) VALUES(0, '不明');
 INSERT INTO m_gender (gender_cd, gender_nm) VALUES(1, '男性');
 INSERT INTO m_gender (gender_cd, gender_nm) VALUES(2, '女性');
 INSERT INTO m_gender (gender_cd, gender_nm) VALUES(3, 'その他');
-GO
 
 /* 資格マスタINSERT */
 INSERT INTO m_license (license_cd, license_nm) VALUES('L0001', 'ITパスポート');
@@ -189,19 +185,17 @@ INSERT INTO m_license (license_cd, license_nm) VALUES('L0103', 'MCP');
 INSERT INTO m_license (license_cd, license_nm) VALUES('L0201', 'MOS');
 INSERT INTO m_license (license_cd, license_nm) VALUES('L0301', 'LPIC');
 INSERT INTO m_license (license_cd, license_nm) VALUES('L0401', 'OCJ-P');
-GO
 
 /* 従業員マスタINSERT */
 INSERT INTO m_employee (emp_cd, last_nm, first_nm, last_nm_kana, first_nm_kana, gender_cd, birth_date, section_cd, emp_date) VALUES('A123', '山田', '太郎', 'ヤマダ', 'タロウ', 1, '1998-04-30', 'A2', '2026-05-27');
+INSERT INTO m_employee (emp_cd, last_nm, first_nm, last_nm_kana, first_nm_kana, gender_cd, birth_date, section_cd, emp_date) VALUES('B321', '鈴木', '花子', 'スズキ', 'ハナコ', 2, '2002-03-04', 'B1', '2026-05-28');
+INSERT INTO m_employee (emp_cd, last_nm, first_nm, last_nm_kana, first_nm_kana, gender_cd, birth_date, section_cd, emp_date) VALUES('C987', '佐藤', '一郎', 'サトウ', 'イチロウ', 1, '2007-08-25', 'A1', '2026-05-28');
 
 /* 資格取得テーブルINSERT */
 INSERT INTO t_get_license (emp_cd, license_cd, get_license_date) VALUES('A123', 'L0101', '2026-05-27');
-
-
-
+INSERT INTO t_get_license (emp_cd, license_cd, get_license_date) VALUES('A123', 'L0401', '2026-05-28');
+INSERT INTO t_get_license (emp_cd, license_cd, get_license_date) VALUES('B321', 'L0102', '2026-05-28');
+INSERT INTO t_get_license (emp_cd, license_cd, get_license_date) VALUES('C987', 'L0103', '2026-05-28');
 
 /* トランザクションの確定 */
 COMMIT;
-
-/* 暗黙のトランザクションをOFFに戻して初期状態にする */
-SET IMPLICIT_TRANSACTIONS OFF;

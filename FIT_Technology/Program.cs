@@ -19,7 +19,7 @@ builder.Services.AddDistributedMemoryCache();
 // セッションオプションの設定
 builder.Services.AddSession(options => {
     // セッションの有効期限（60分）
-    options.IdleTimeout = TimeSpan.FromMinutes(60);
+    options.IdleTimeout = TimeSpan.FromMinutes(10);
     // クライアントサイドのスクリプトからクッキーへのアクセスを禁止（セキュリティ対策）
     options.Cookie.HttpOnly = true;
     // ユーザーの同意に関わらず、アプリの動作に必須のクッキーとして扱う

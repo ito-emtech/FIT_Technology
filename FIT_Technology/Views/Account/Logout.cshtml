@@ -16,8 +16,12 @@
 
             <form asp-action="Logout" method="post">
                 <div class="d-flex justify-content-center gap-2">
-                    <button type="submit" style="min-width: 140px;" class="btn btn-danger">ログアウト実行</button>
-                    <a asp-action="Menu" style="min-width: 140px;" class="btn btn-secondary">メニューに戻る</a>
+                    <button type="submit" name="btn_action" value="logout" style="min-width: 140px;" class="btn btn-danger">
+                        ログアウト実行
+                    </button>
+                    <button type="submit" name="btn_action" value="cancel" style="min-width: 140px;" class="btn btn-secondary">
+                        メニューに戻る
+                    </button>
                 </div>
             </form>
         </div>
