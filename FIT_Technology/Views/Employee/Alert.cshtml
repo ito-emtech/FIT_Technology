@@ -1,4 +1,5 @@
-﻿@*
+﻿@using FIT_Technology.Models.Entities
+@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
@@ -9,12 +10,14 @@
 
         kanji.Add(kanjiname);
     }
+
 }
 <div class="text-center">
     <h1 class="display-4">削除確認</h1>
     <form method="post">
         @for(int i = 0; i < ViewBag.Info.Count; i++)
         {
+            <input type="hidden" name="deleteEmp[@i].EmpCd" value="@ViewBag.Info[i].EmpCd" />
             <div>従業員コード：@ViewBag.Info[i].EmpCd　氏名：@kanji[i]</div>
         }
         <div>上記の従業員情報を削除します。<br>よろしければ【削除】を押してください。</div>

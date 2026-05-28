@@ -59,12 +59,28 @@ namespace FIT_Technology.Controllers
             // 「変更」ボタンが押された場合
             if (btn_action == "update")
             {
-                return RedirectToAction(nameof(EmployeeController.Update), Ctrl.Get<EmployeeController>());
+                if(empcd.Count == 1)
+                {
+                    TempData["UpdateInfo"] = empcd;
+                    return RedirectToAction(nameof(EmployeeController.Update), Ctrl.Get<EmployeeController>());
+                }
+                else
+                {
+                    return RedirectToAction(nameof(EmployeeController.List), Ctrl.Get<EmployeeController>());
+                }
             }
             // 「削除」ボタンが押された場合（※View側でvalue="alert"になっているボタン）
             else if (btn_action == "alert")
             {
-                return RedirectToAction(nameof(EmployeeController.Alert), Ctrl.Get<EmployeeController>());
+                if(empcd.Count == 0)
+                {
+                    return RedirectToAction(nameof(EmployeeController.List), Ctrl.Get<EmployeeController>());
+                }
+                else
+                {
+                    TempData["DeleteInfo"] = empcd;
+                    return RedirectToAction(nameof(EmployeeController.Alert), Ctrl.Get<EmployeeController>());
+                }
             }
             // 「戻る」ボタン、またはそれ以外が押された場合はメニュー画面へ戻る
             else
@@ -91,6 +107,12 @@ namespace FIT_Technology.Controllers
             // 「登録（結果）」ボタンが押された場合
             if (btn_action == "result")
             {
+                using (TranMng mng = TranMng.BeginTransaction("empdb"))
+                {
+                    EmployeeDao dao = new EmployeeDao();
+                    dao.Insert(employee);
+                    mng.Commit();
+                }
                 return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
             }
             // 「戻る」ボタンなどが押された場合はメニュー画面へ戻る
@@ -106,17 +128,17 @@ namespace FIT_Technology.Controllers
         [HttpGet]
         public IActionResult Alert()
         {
+            string[] dele = TempData["DeleteInfo"] as string[];
             List<EmployeeEntity> info = new List<EmployeeEntity>();
-
-            // 💡 補足: 現状は一覧画面と同じく全件データを表示する動きになっています。
-            // もし「チェックされた人だけ」を表示したい場合は、ここで TempData などから
-            // 従業員コードのリストを受け取り、特定のレコードだけを取得する処理に変えるとバッチリです。
             using (TranMng mng = TranMng.BeginTransaction("empdb"))
             {
-                EmployeeDao dao = new EmployeeDao();
-                info = dao.FindAll();
-                mng.Commit();
+                for (int i = 0; i < dele.Length; i++)
+                    {
+                    EmployeeDao dao = new EmployeeDao();
+                    info.Add(dao.Find(dele[i]));
+                    }
             }
+                
             ViewBag.Info = info;
             return View(nameof(EmployeeController.Alert));
         }
@@ -125,11 +147,20 @@ namespace FIT_Technology.Controllers
         /// [POST] 従業員削除確認画面からのボタン押下時の処理
         /// </summary>
         [HttpPost]
-        public IActionResult Alert(string btn_action)
+        public IActionResult Alert(List<EmployeeEntity> deleteEmp, string btn_action)
         {
             // 「削除確定」などの処理を経て結果画面へ
             if (btn_action == "result")
             {
+                using (TranMng mng = TranMng.BeginTransaction("empdb"))
+                {
+                    EmployeeDao dao = new EmployeeDao();
+                    for (int i = 0; i < deleteEmp.Count; i++)
+                    {
+                        dao.Delete(deleteEmp[i]);
+                    }
+                    mng.Commit();
+                }
                 return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
             }
             // 「キャンセル（戻る）」の場合は一覧画面へ戻る
@@ -145,16 +176,17 @@ namespace FIT_Technology.Controllers
         [HttpGet]
         public IActionResult Update()
         {
+            string[] up = TempData["UpdateInfo"] as string[];
             List<EmployeeEntity> info = new List<EmployeeEntity>();
-
-            // 💡 補足: Alert同様、ここも現状は全件取得になっています。
-            // 変更対象として選ばれた人のデータを初期値として表示する処理を今後入れるとスムーズです。
             using (TranMng mng = TranMng.BeginTransaction("empdb"))
             {
-                EmployeeDao dao = new EmployeeDao();
-                info = dao.FindAll();
-                mng.Commit();
+                for (int i = 0; i < up.Length; i++)
+                {
+                    EmployeeDao dao = new EmployeeDao();
+                    info.Add(dao.Find(up[i]));
+                }
             }
+
             ViewBag.Info = info;
             return View(nameof(EmployeeController.Update));
         }
@@ -163,11 +195,25 @@ namespace FIT_Technology.Controllers
         /// [POST] 従業員情報変更画面からのボタン押下時の処理
         /// </summary>
         [HttpPost]
-        public IActionResult Update(string btn_action)
+        public IActionResult Update(EmployeeEntity employee, string btn_action)
         {
             // 「更新確定」などの処理を経て結果画面へ
             if (btn_action == "result")
             {
+                if (!ModelState.IsValid)
+                {
+                    // 🛑 入力エラー（カタカナじゃない、空っぽなど）がある場合
+                    // そのまま入力内容を保持して登録画面（Insert.cshtml）を再表示
+                    return View(nameof(EmployeeController.Insert), employee);
+                }
+                using (TranMng mng = TranMng.BeginTransaction("empdb"))
+                {
+                    EmployeeDao dao = new EmployeeDao();
+                   
+                    dao.Update(employee);
+                    
+                    mng.Commit();
+                }
                 return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
             }
             // 「キャンセル（戻る）」の場合は一覧画面へ戻る

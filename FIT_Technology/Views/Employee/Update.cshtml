@@ -11,6 +11,7 @@
             <tr>
                 <td style="border:solid">従業員コード</td>
                 <td style="border:solid">@ViewBag.Info[0].EmpCd</td>
+                <input type="hidden" name="empcd" value="@ViewBag.Info[0].EmpCd" />
                 <td style="border:solid"></td>
             </tr>
             <tr>
@@ -38,6 +39,7 @@
             <tr>
                 <td style="border:solid">生年月日</td>
                 <td style="border:solid">@ViewBag.Info[0].BirthDate</td>
+                <input type="hidden" name="birthdate" value="@ViewBag.Info[0].BirthDate" />
                 <td style="border:solid"></td>
             </tr>
             <tr>
@@ -54,7 +56,8 @@
             </tr>
             <tr>
                 <td style="border:solid">入社日</td>
-                <td style="border:solid">@ViewBag.Info[0].SectionCd</td>
+                <td style="border:solid">@ViewBag.Info[0].EmpDate</td>
+                <input type="hidden" name="empdate" value="@ViewBag.Info[0].EmpDate" />
                 <td style="border:solid"></td>
             </tr>
         </table><br />
