@@ -1,0 +1,65 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    
+}
+<div class="text-center">
+    <h1 class="display-4">従業員情報登録</h1>
+    <form method="post">
+        <table style="margin-left: auto; margin-right: auto; border:solid">
+            <tr>
+                <td style ="border:solid">従業員コード</td>
+                <td style="border:solid"><input type="text" name="empcd" /></td>
+                <td style="border:solid"></td>
+            </tr>
+            <tr>
+                <td style="border:solid">氏名（漢字）</td>
+                <td style="border:solid"><input type="text" name="lastnm" /></td>
+                <td style="border:solid"><input type="text" name="firstnm" /></td>
+            </tr>
+            <tr>
+                <td style="border:solid">氏名（カナ）</td>
+                <td style="border:solid"><input type="text" name="lastnmkana" /></td>
+                <td style="border:solid"><input type="text" name="firstnmkana" /></td>
+            </tr>
+            <tr>
+                <td style="border:solid">性別</td>
+                <td style="border:solid">
+                    <select name="gendercd">
+                        <option value="0">不明</option>
+                        <option value="1">男性</option>
+                        <option value="2">女性</option>
+                        <option value="9">その他</option>
+                    </select>
+                </td>
+                <td style="border:solid"></td>
+            </tr>
+            <tr>
+                <td style="border:solid">生年月日</td>
+                <td style="border:solid"><input type="date" name="birthdate" /></td>
+                <td style="border:solid"></td>
+            </tr>
+            <tr>
+                <td style="border:solid">所属</td>
+                <td style="border:solid">
+                    <select name="sectioncd">
+                        <option value="A1">管理部</option>
+                        <option value="A2">総務部</option>
+                        <option value="B1">開発部</option>
+                        <option value="C1">営業部</option>
+                    </select>
+                </td>
+                <td style="border:solid"></td>
+            </tr>
+            <tr>
+                <td style="border:solid">入社日</td>
+                <td style="border:solid"><input type="date" name="empdate" /></td>
+                <td style="border:solid"></td>
+            </tr>
+        </table><br />
+        <button type="submit" name="btn_action" value="result">登録</button>
+        <button type="submit" name="btn_action" value="cancel">戻る</button>
+    </form>
+
+</div>

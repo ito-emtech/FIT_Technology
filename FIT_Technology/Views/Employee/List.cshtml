@@ -1,0 +1,45 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    List<string> kanji = new List<string>();
+    List<string> kana = new List<string>();
+    for(int i = 0; i < ViewBag.Info.Count; i++)
+    {
+        string kanjiname = ViewBag.Info[i].LastNm + ViewBag.Info[i].FirstNm;
+        string kananame = ViewBag.Info[i].LastNmKana + ViewBag.Info[i].FirstNmKana;
+
+        kanji.Add(kanjiname);
+        kana.Add(kananame);
+    }
+}
+<div class="text-center">
+    <h1 class="display-4">従業員情報一覧</h1>
+    <form method="post">
+        <table style="margin-left: auto; margin-right: auto; border:solid">
+            <tr>
+                <th style="border:solid"></th>
+                <th style="border:solid">従業員コード</th>
+                <th style="border:solid">氏名（漢字）</th>
+                <th style="border:solid">氏名（カナ）</th>
+                <th style="border:solid">所属部署</th>
+                <th style="border:solid">入社日</th>
+            </tr>
+            @for (int i = 0; i < ViewBag.Info.Count; i++)
+            {
+                <tr>
+                    <td style="border:solid"><input type="checkbox" name="empcd" value="@ViewBag.Info[i].EmpCd"></input></td>
+                    <td style="border:solid">@ViewBag.Info[i].EmpCd</td>
+                    <td style="border:solid">@kanji[i]</td>
+                    <td style="border:solid">@kana[i]</td>
+                    <td style="border:solid">@ViewBag.Info[i].SectionCd</td>
+                    <td style="border:solid">@ViewBag.Info[i].EmpDate</td>
+                </tr>
+            }
+        </table><br />
+        <button type="submit" name="btn_action" value="update">変更</button>
+        <button type="submit" name="btn_action" value="alert">削除</button><br />
+        <button type="submit" name="btn_action" value="cancel">戻る</button>
+    </form>
+    
+</div>
