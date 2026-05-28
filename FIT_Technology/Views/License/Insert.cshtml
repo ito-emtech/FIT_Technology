@@ -1,0 +1,34 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+<div class="text-center">
+    <h1>保有資格登録</h1>
+    <form action="/License/Insert" method="post">
+
+        @* 従業員コードと名前表示 *@
+
+        <p>従業員コード：　　　　名前：　　　　　　</p><br />
+
+        資格名：
+        <select name="license_cd">
+            
+            <option value="L0001">ITパスポート</option>
+            <option value="L0101">基本情報技術者</option>
+            <option value="L0102">応用情報技術者</option>
+        </select><br />
+
+        取得日：
+        <input type="date" name="get_license_date"><br />
+
+        @* 戻るボタンは左端につけたい *@
+        <button type="submit" name="btn_action" value="cancel">戻る</button>
+
+        <button type="submit" name="btn_action" value="result">登録</button>
+
+       
+
+    </form>
+</div>

@@ -26,5 +26,11 @@ namespace FIT_Technology.Models.Daos
         {
             throw new NotImplementedException();
         }
+
+        ///FindAllを作る
+        //public override int (UserEntity entity)
+        //{
+        //    throw new NotImplementedException();
     }
 }
+

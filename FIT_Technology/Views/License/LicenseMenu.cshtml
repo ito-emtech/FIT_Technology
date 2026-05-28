@@ -1,0 +1,59 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+<div class="text-center">
+    <h1>保有資格管理</h1>
+    <form action="/License/LicenseMenu" method="post">
+      
+        @* ↓ 一覧を表示する+従業員選択ボタンの仮の手書きテーブル *@
+
+        <table>
+            <tr>
+                <th>　</th>
+                <th>従業員コード</th>
+                <th>氏名（漢字）</th>
+                <th>氏名（カナ）</th>
+                <th>所属部署</th>
+                <th>入社日</th>
+            </tr>
+
+            <tr>
+                @* nameとvalueどうする？仮でつけた *@
+                <td><input type="radio" name="emp_code" value="0001"></td>
+                <td>0001</td>
+                <td>山田太郎</td>
+                <td>ヤマダタロウ</td>
+                <td>管理部</td>
+                <td>2015年5月22日</td>
+            </tr>
+
+            <tr>
+                <td><input type="radio" name="emp_code" value="0002"></td>
+                <td>0002</td>
+                <td>伊藤悠馬</td>
+                <td>イトウユウマ</td>
+                <td>総務部</td>
+                <td>1989年8月19日</td>
+            </tr>
+
+            <tr>
+                <td><input type="radio" name="emp_code" value="0003"></td>
+                <td>0003</td>
+                <td>山田花子</td>
+                <td>ヤマダハナコ</td>
+                <td>開発部</td>
+                <td>2002年6月15日</td>
+            </tr>
+        </table><br />
+
+        <button type="submit" name="btn_action" value="list">資格一覧表示</button>
+
+        <button type="submit" name="btn_action" value="insert">登録</button><br />
+
+        @* 戻るボタンは左端につけたい *@
+        <button type="submit" name="btn_action" value="cancel">戻る</button>
+
+    </form>
+</div>
