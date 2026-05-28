@@ -122,13 +122,13 @@ namespace FIT_Technology.Controllers
                     return RedirectToAction(nameof(AccountController.Logout), Ctrl.Get<AccountController>());
                 case "insert":
                     // 従業員登録画面へ
-                    return RedirectToAction(nameof(EmployeeController.Index), Ctrl.Get<EmployeeController>());
+                    return RedirectToAction(nameof(EmployeeController.Insert), Ctrl.Get<EmployeeController>());
                 case "list":
                     // 従業員管理機能へ
-                    return RedirectToAction(nameof(EmployeeController.Index), Ctrl.Get<EmployeeController>());
+                    return RedirectToAction(nameof(EmployeeController.List), Ctrl.Get<EmployeeController>());
                 case "license":
                     // 保有資格管理画面へ
-                    return RedirectToAction(nameof(LicenseController.Index), Ctrl.Get<LicenseController>());
+                    return RedirectToAction(nameof(LicenseController.LicenseMenu), Ctrl.Get<LicenseController>());
                 default:
                     // 定義外のアクションが送られた場合のエラー処理
                     TempData["ViewTitle"] = "不正な入力を検知";
