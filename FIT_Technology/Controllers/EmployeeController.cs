@@ -86,7 +86,7 @@ namespace FIT_Technology.Controllers
         /// [POST] 従業員新規登録画面からのボタン押下時の処理
         /// </summary>
         [HttpPost]
-        public IActionResult Insert(string btn_action)
+        public IActionResult Insert(EmployeeEntity employee, string btn_action)
         {
             // 「登録（結果）」ボタンが押された場合
             if (btn_action == "result")
