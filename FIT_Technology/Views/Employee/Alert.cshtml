@@ -2,14 +2,20 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
+    List<string> kanji = new List<string>();
+    for (int i = 0; i < ViewBag.Info.Count; i++)
+    {
+        string kanjiname = ViewBag.Info[i].LastNm + ViewBag.Info[i].FirstNm;
+
+        kanji.Add(kanjiname);
+    }
 }
 <div class="text-center">
     <h1 class="display-4">削除確認</h1>
     <form method="post">
         @for(int i = 0; i < ViewBag.Info.Count; i++)
         {
-            @* <div>従業員コード：@ViewBag.Info[i].EmpCd　氏名：@ViewBag.Info[i].Name</div> *@
-            <div>従業員コード：@ViewBag.Info[i].EmpCd　氏名：坂本龍馬</div>
+            <div>従業員コード：@ViewBag.Info[i].EmpCd　氏名：@kanji[i]</div>
         }
         <div>上記の従業員情報を削除します。<br>よろしければ【削除】を押してください。</div>
         <button type="submit" name="btn_action" value="result">削除</button>
