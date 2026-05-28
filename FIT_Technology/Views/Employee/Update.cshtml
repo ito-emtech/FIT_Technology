@@ -1,0 +1,65 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+   
+}
+<div class="text-center">
+    <h1 class="display-4">従業員情報変更</h1>
+    <form method="post">
+        <table style="margin-left: auto; margin-right: auto; border:solid">
+            <tr>
+                <td style="border:solid">従業員コード</td>
+                <td style="border:solid">@ViewBag.Info.EmpCd</td>
+                <td style="border:solid"></td>
+            </tr>
+            <tr>
+                <td style="border:solid">氏名（漢字）</td>
+                <td style="border:solid"><input type="text" name="lastnm" value="@ViewBag.Info.LastNm"/></td>
+                <td style="border:solid"><input type="text" name="firstnm" value=" @ViewBag.Info.FirstNm" /></td>
+            </tr>
+            <tr>
+                <td style="border:solid">氏名（カナ）</td>
+                <td style="border:solid"><input type="text" name="lastnmkana" value="@ViewBag.Info.LastNmKana" /></td>
+                <td style="border:solid"><input type="text" name="firstnmkana" value="@ViewBag.Info.FirstNmKana" /></td>
+            </tr>
+            <tr>
+                <td style="border:solid">性別</td>
+                <td style="border:solid">
+                    <select name="gendercd">
+                        <option value="0" selected="@(ViewBag.Info.GenderCd == "0")">不明</option>
+                        <option value="1" selected="@(ViewBag.Info.GenderCd == "1")">男性</option>
+                        <option value="2" selected="@(ViewBag.Info.GenderCd == "2")">女性</option>
+                        <option value="9" selected="@(ViewBag.Info.GenderCd == "9")">その他</option>
+                    </select>
+                </td>
+                <td style="border:solid"></td>
+            </tr>
+            <tr>
+                <td style="border:solid">生年月日</td>
+                <td style="border:solid">@ViewBag.Info.BirthDate</td>
+                <td style="border:solid"></td>
+            </tr>
+            <tr>
+                <td style="border:solid">所属</td>
+                <td style="border:solid">
+                    <select name="sectioncd">
+                        <option value="A1" selected="@(ViewBag.Info.SectionCd == "A1")">管理部</option>
+                        <option value="A2" selected="@(ViewBag.Info.SectionCd == "A2")">総務部</option>
+                        <option value="B1" selected="@(ViewBag.Info.SectionCd == "B1")">開発部</option>
+                        <option value="C1" selected="@(ViewBag.Info.SectionCd == "C1")">営業部</option>
+                    </select>
+                </td>
+                <td style="border:solid"></td>
+            </tr>
+            <tr>
+                <td style="border:solid">入社日</td>
+                <td style="border:solid">@ViewBag.Info.SectionCd</td>
+                <td style="border:solid"></td>
+            </tr>
+        </table><br />
+        <button type="submit" name="btn_action" value="result">登録</button>
+        <button type="submit" name="btn_action" value="cancel">戻る</button>
+    </form>
+
+</div>

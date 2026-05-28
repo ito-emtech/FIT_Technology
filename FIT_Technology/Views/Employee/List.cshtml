@@ -1,0 +1,35 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+<div class="text-center">
+    <h1 class="display-4">従業員情報一覧</h1>
+    <form method="post">
+        <table style="margin-left: auto; margin-right: auto; border:solid">
+            <tr>
+                <th style="border:solid"></th>
+                <th style="border:solid">従業員コード</th>
+                <th style="border:solid">氏名（漢字）</th>
+                <th style="border:solid">氏名（カナ）</th>
+                <th style="border:solid">所属部署</th>
+                <th style="border:solid">入社日</th>
+            </tr>
+            @for (int i = 0; i < ViewBag.Info.Count; i++)
+            {
+                <tr>
+                    <td style="border:solid"><input type="checkbox" name="Entity" value="EmployeeEntity"></input></td>
+                    <td style="border:solid">@ViewBag.Info[i].EnpCd</td>
+                    <td style="border:solid">@ViewBag.Info[i].NameKanji</td>
+                    <td style="border:solid">@ViewBag.Info[i].NameKana</td>
+                    <td style="border:solid">@ViewBag.Info[i].Section</td>
+                    <td style="border:solid">@ViewBag.Info[i].EmpDate</td>
+                </tr>
+            }
+        </table><br />
+        <button type="submit" name="btn_action" value="update">変更</button>
+        <button type="submit" name="btn_action" value="alert">削除</button><br />
+        <button type="submit" name="btn_action" value="cancel">戻る</button>
+    </form>
+    
+</div>
