@@ -27,7 +27,7 @@ namespace FIT_Technology.Models.Entities
         [Column("password", TypeName = "varchar")]
         [Display(Name = "パスワード")]
         [Required(ErrorMessage = "{0}を入力してください。")]
-        [StringLength(32, MinimumLength = 1, ErrorMessage = "{0}は{2}文字以上{1}文字以内で設定してください。")]
+        [StringLength(32, MinimumLength = 4, ErrorMessage = "{0}は{2}文字以上{1}文字以内で設定してください。")]
         [DataType(DataType.Password)]
         public string Password { get; set; } = string.Empty;
 
