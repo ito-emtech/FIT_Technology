@@ -18,11 +18,13 @@
             @for (int i = 0; i < ViewBag.Info.Count; i++)
             {
                 <tr>
-                    <td style="border:solid"><input type="checkbox" name="Entity" value="EmployeeEntity"></input></td>
-                    <td style="border:solid">@ViewBag.Info[i].EnpCd</td>
-                    <td style="border:solid">@ViewBag.Info[i].NameKanji</td>
-                    <td style="border:solid">@ViewBag.Info[i].NameKana</td>
-                    <td style="border:solid">@ViewBag.Info[i].Section</td>
+                    <td style="border:solid"><input type="checkbox" name="empcd" value="@ViewBag.Info[i].EmpCd"></input></td>
+                    <td style="border:solid">@ViewBag.Info[i].EmpCd</td>
+                    @* <td style="border:solid">@ViewBag.Info[i].NameKanji</td>
+                    <td style="border:solid">@ViewBag.Info[i].NameKana</td> *@
+                    <td style="border:solid">坂本龍馬</td>
+                    <td style="border:solid">サカモトリョウマ</td>
+                    <td style="border:solid">@ViewBag.Info[i].SectionCd</td>
                     <td style="border:solid">@ViewBag.Info[i].EmpDate</td>
                 </tr>
             }
