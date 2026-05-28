@@ -188,9 +188,14 @@ INSERT INTO m_license (license_cd, license_nm) VALUES('L0401', 'OCJ-P');
 
 /* 従業員マスタINSERT */
 INSERT INTO m_employee (emp_cd, last_nm, first_nm, last_nm_kana, first_nm_kana, gender_cd, birth_date, section_cd, emp_date) VALUES('A123', '山田', '太郎', 'ヤマダ', 'タロウ', 1, '1998-04-30', 'A2', '2026-05-27');
+INSERT INTO m_employee (emp_cd, last_nm, first_nm, last_nm_kana, first_nm_kana, gender_cd, birth_date, section_cd, emp_date) VALUES('B321', '鈴木', '花子', 'スズキ', 'ハナコ', 2, '2002-03-04', 'B1', '2026-05-28');
+INSERT INTO m_employee (emp_cd, last_nm, first_nm, last_nm_kana, first_nm_kana, gender_cd, birth_date, section_cd, emp_date) VALUES('C987', '佐藤', '一郎', 'サトウ', 'イチロウ', 1, '2007-08-25', 'A1', '2026-05-28');
 
 /* 資格取得テーブルINSERT */
 INSERT INTO t_get_license (emp_cd, license_cd, get_license_date) VALUES('A123', 'L0101', '2026-05-27');
+INSERT INTO t_get_license (emp_cd, license_cd, get_license_date) VALUES('A123', 'L0401', '2026-05-28');
+INSERT INTO t_get_license (emp_cd, license_cd, get_license_date) VALUES('B321', 'L0102', '2026-05-28');
+INSERT INTO t_get_license (emp_cd, license_cd, get_license_date) VALUES('C987', 'L0103', '2026-05-28');
 
 /* トランザクションの確定 */
 COMMIT;
