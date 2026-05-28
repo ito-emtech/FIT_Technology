@@ -118,15 +118,15 @@ namespace FIT_Technology.Controllers
 
             switch (btn_action)
             {
-                case "logout":
+                case ActionValues.Logout:
                     return RedirectToAction(nameof(AccountController.Logout), Ctrl.Get<AccountController>());
-                case "insert":
+                case ActionValues.Insert:
                     // 従業員登録画面へ
                     return RedirectToAction(nameof(EmployeeController.Insert), Ctrl.Get<EmployeeController>());
-                case "list":
+                case ActionValues.List:
                     // 従業員管理機能へ
                     return RedirectToAction(nameof(EmployeeController.List), Ctrl.Get<EmployeeController>());
-                case "license":
+                case ActionValues.License:
                     // 保有資格管理画面へ
                     return RedirectToAction(nameof(LicenseController.LicenseMenu), Ctrl.Get<LicenseController>());
                 default:
