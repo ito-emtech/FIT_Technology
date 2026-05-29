@@ -1,4 +1,5 @@
 ﻿using DynamicDll.Db;
+using FIT_Technology.Filters;
 using FIT_Technology.Models.Daos;
 using FIT_Technology.Models.Entities;
 using FIT_Technology.Models.Helpers;
@@ -10,6 +11,7 @@ namespace FIT_Technology.Controllers
     /// <summary>
     /// 従業員管理に関する画面遷移とビジネスロジックを制御するコントローラー
     /// </summary>
+    [SessionCheck]
     public class EmployeeController : Controller
     {
         /// <summary>
@@ -31,14 +33,26 @@ namespace FIT_Technology.Controllers
             List<EmployeeEntity> info = new List<EmployeeEntity>();
 
             // データベースから全従業員情報を取得
-            using (TranMng mng = TranMng.BeginTransaction("empdb"))
+            try
             {
-                EmployeeDao dao = new EmployeeDao();
-                info = dao.FindAll(); // Dao経由で全件取得
-                mng.Commit();
+                using (TranMng mng = TranMng.BeginTransaction("empdb"))
+                {
+                    EmployeeDao dao = new EmployeeDao();
+                    info = dao.FindAll(); // Dao経由で全件取得
+                    mng.Commit();
+                }
+
+            }catch (Exception ex)
+            {
+                TempData["ViewTitle"] = "エラーが発生しました";
+                TempData["Msg"] = "データベースの制約、または通信エラーにより処理を中断しました。データは変更されていません。";
+
+                return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
             }
 
+
             // 取得したリストをViewBagに格納してView（HTML）側へ渡す
+            ViewBag.ErrorMessage = TempData["ErrorMessage"];
             ViewBag.Info = info;
 
             return View(nameof(EmployeeController.List), Ctrl.Get<EmployeeController>());
@@ -63,9 +77,14 @@ namespace FIT_Technology.Controllers
                 {
                     TempData["UpdateInfo"] = empcd;
                     return RedirectToAction(nameof(EmployeeController.Update), Ctrl.Get<EmployeeController>());
+                }else if(empcd.Count == 0)
+                {
+                    TempData["ErrorMessage"] = "変更したい従業員を1人選択してください。";
+                    return RedirectToAction(nameof(EmployeeController.List), Ctrl.Get<EmployeeController>());
                 }
                 else
                 {
+                    TempData["ErrorMessage"] = "変更は1人しかできません。変更したい従業員を1人だけ選択してください。";
                     return RedirectToAction(nameof(EmployeeController.List), Ctrl.Get<EmployeeController>());
                 }
             }
@@ -74,6 +93,7 @@ namespace FIT_Technology.Controllers
             {
                 if(empcd.Count == 0)
                 {
+                    TempData["ErrorMessage"] = "削除したい従業員を選択してください。";
                     return RedirectToAction(nameof(EmployeeController.List), Ctrl.Get<EmployeeController>());
                 }
                 else
@@ -107,13 +127,56 @@ namespace FIT_Technology.Controllers
             // 「登録（結果）」ボタンが押された場合
             if (btn_action == "result")
             {
-                using (TranMng mng = TranMng.BeginTransaction("empdb"))
+                if (ModelState.ContainsKey("BirthDate") && ModelState["BirthDate"].Errors.Count > 0)
                 {
-                    EmployeeDao dao = new EmployeeDao();
-                    dao.Insert(employee);
-                    mng.Commit();
+                    ModelState["BirthDate"].Errors.Clear(); // 英語のエラーを一旦ゴミ箱に捨てる
+                    ModelState.AddModelError("BirthDate", "生年月日を入力してください。"); // 日本語を入れ直す
                 }
-                return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
+
+                // ②「入社日」のチェック
+                if (ModelState.ContainsKey("EmpDate") && ModelState["EmpDate"].Errors.Count > 0)
+                {
+                    ModelState["EmpDate"].Errors.Clear(); // 英語のエラーを一旦ゴミ箱に捨てる
+                    ModelState.AddModelError("EmpDate", "入社日を入力してください。"); // 日本語を入れ直す
+                }
+                if (!ModelState.IsValid)
+                {
+                    // 🛑 入力エラー（カタカナじゃない、空っぽなど）がある場合
+                    // そのまま入力内容を保持して登録画面（Insert.cshtml）を再表示
+                    return View(nameof(EmployeeController.Insert), employee);
+                }
+              
+                try
+                { 
+                    using (TranMng mng = TranMng.BeginTransaction("empdb"))
+                    {
+                        EmployeeDao dao = new EmployeeDao();
+                        if (dao.Exists(employee.EmpCd))
+                        {
+                            // 🛑 重複していたら、手動でエラーを仕込む！
+                            // 第1引数：Entityのプロパティ名（大文字小文字を合わせる）
+                            // 第2引数：画面に出したいエラーメッセージ
+                            ModelState.AddModelError("EmpCd", "入力された従業員コードは既に登録されています。");
+
+                            // 登録画面（Insert.cshtml）に入力内容を保持したまま戻す
+                            return View(nameof(EmployeeController.Insert), employee);
+                        }
+                        dao.Insert(employee);
+                        mng.Commit();
+                    }
+                    TempData["ViewTitle"] = "登録が完了しました";
+                    TempData["Msg"] = "登録できたよ！！💛";
+                    return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
+                }
+                catch (Exception ex)
+                {
+                    
+                    TempData["ViewTitle"] = "エラーが発生しました";
+                    TempData["Msg"] = "データベースの制約、または通信エラーにより処理を中断しました。データは変更されていません。";
+
+                    return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
+                }
+                
             }
             // 「戻る」ボタンなどが押された場合はメニュー画面へ戻る
             else
@@ -130,7 +193,7 @@ namespace FIT_Technology.Controllers
         {
             string[] dele = TempData["DeleteInfo"] as string[];
             List<EmployeeEntity> info = new List<EmployeeEntity>();
-            using (TranMng mng = TranMng.BeginTransaction("empdb"))
+            try { using (TranMng mng = TranMng.BeginTransaction("empdb"))
             {
                 for (int i = 0; i < dele.Length; i++)
                     {
@@ -138,6 +201,14 @@ namespace FIT_Technology.Controllers
                     info.Add(dao.Find(dele[i]));
                     }
             }
+            }catch (Exception ex)
+            {
+                TempData["ViewTitle"] = "エラーが発生しました";
+                TempData["Msg"] = "データベースの制約、または通信エラーにより処理を中断しました。データは変更されていません。";
+
+                return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
+            }
+            
                 
             ViewBag.Info = info;
             return View(nameof(EmployeeController.Alert));
@@ -152,16 +223,34 @@ namespace FIT_Technology.Controllers
             // 「削除確定」などの処理を経て結果画面へ
             if (btn_action == "result")
             {
-                using (TranMng mng = TranMng.BeginTransaction("empdb"))
+                try
                 {
-                    EmployeeDao dao = new EmployeeDao();
-                    for (int i = 0; i < deleteEmp.Count; i++)
+                    using (TranMng mng = TranMng.BeginTransaction("empdb"))
                     {
-                        dao.Delete(deleteEmp[i]);
+                        EmployeeDao dao = new EmployeeDao();
+                        for (int i = 0; i < deleteEmp.Count; i++)
+                        {
+                            dao.Delete(deleteEmp[i]);
+                        }
+                        mng.Commit();
                     }
-                    mng.Commit();
+                    TempData["ViewTitle"] = "削除が完了しました";
+                    string msg = "";
+                    for(int i = 0;i < deleteEmp.Count; i++)
+                    {
+                        msg = msg + deleteEmp[i].EmpCd + " " + deleteEmp[i].LastNm + deleteEmp[i].FirstNm + "　";
+                    }
+                    TempData["Msg"] = msg + "の削除が完了しました";
+                    return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
                 }
-                return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
+                catch (Exception ex)
+                {
+                    TempData["ViewTitle"] = "エラーが発生しました";
+                    TempData["Msg"] = "データベースの制約、または通信エラーにより処理を中断しました。データは変更されていません。";
+
+                    return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
+                }
+                
             }
             // 「キャンセル（戻る）」の場合は一覧画面へ戻る
             else
@@ -176,9 +265,11 @@ namespace FIT_Technology.Controllers
         [HttpGet]
         public IActionResult Update()
         {
+            ViewBag.Title = "変更画面";
+
             string[] up = TempData["UpdateInfo"] as string[];
             List<EmployeeEntity> info = new List<EmployeeEntity>();
-            using (TranMng mng = TranMng.BeginTransaction("empdb"))
+            try { using (TranMng mng = TranMng.BeginTransaction("empdb"))
             {
                 for (int i = 0; i < up.Length; i++)
                 {
@@ -186,6 +277,12 @@ namespace FIT_Technology.Controllers
                     info.Add(dao.Find(up[i]));
                 }
             }
+            }catch (Exception ex)
+            {
+                TempData["ViewTitle"] = "エラーが発生しました";
+                TempData["Msg"] = "データベースの制約、または通信エラーにより処理を中断しました。データは変更されていません。";
+            }
+            
 
             ViewBag.Info = info;
             return View(nameof(EmployeeController.Update));
@@ -197,6 +294,8 @@ namespace FIT_Technology.Controllers
         [HttpPost]
         public IActionResult Update(EmployeeEntity employee, string btn_action)
         {
+            ViewBag.Title = "再入力画面";
+
             // 「更新確定」などの処理を経て結果画面へ
             if (btn_action == "result")
             {
@@ -204,9 +303,9 @@ namespace FIT_Technology.Controllers
                 {
                     // 🛑 入力エラー（カタカナじゃない、空っぽなど）がある場合
                     // そのまま入力内容を保持して登録画面（Insert.cshtml）を再表示
-                    return View(nameof(EmployeeController.Insert), employee);
+                    return View(nameof(EmployeeController.Update), employee);
                 }
-                using (TranMng mng = TranMng.BeginTransaction("empdb"))
+                try { using (TranMng mng = TranMng.BeginTransaction("empdb"))
                 {
                     EmployeeDao dao = new EmployeeDao();
                    
@@ -214,7 +313,18 @@ namespace FIT_Technology.Controllers
                     
                     mng.Commit();
                 }
-                return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
+                    TempData["ViewTitle"] = "変更が完了しました";
+                    TempData["Msg"] = employee.EmpCd + " " + employee.LastNm + employee.FirstNm + "の変更が完了しました";
+                    return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
+                }
+                catch (Exception ex)
+                {
+                    TempData["ViewTitle"] = "エラーが発生しました";
+                    TempData["Msg"] = "データベースの制約、または通信エラーにより処理を中断しました。データは変更されていません。";
+
+                    return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
+                }
+                
             }
             // 「キャンセル（戻る）」の場合は一覧画面へ戻る
             else

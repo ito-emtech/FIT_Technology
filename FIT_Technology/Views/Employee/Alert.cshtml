@@ -18,6 +18,9 @@
         @for(int i = 0; i < ViewBag.Info.Count; i++)
         {
             <input type="hidden" name="deleteEmp[@i].EmpCd" value="@ViewBag.Info[i].EmpCd" />
+            <input type="hidden" name="deleteEmp[@i].LastNm" value="@ViewBag.Info[i].LastNm" />
+            <input type="hidden" name="deleteEmp[@i].FirstNm" value="@ViewBag.Info[i].FirstNm" />
+
             <div>従業員コード：@ViewBag.Info[i].EmpCd　氏名：@kanji[i]</div>
         }
         <div>上記の従業員情報を削除します。<br>よろしければ【削除】を押してください。</div>

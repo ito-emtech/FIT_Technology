@@ -161,5 +161,32 @@ namespace FIT_Technology.Models.Daos
                 return result;
             }
         }
+
+        public bool Exists(string empcd)
+        {
+            int count = 0;
+            string query = "SELECT COUNT(*) FROM m_employee WHERE emp_cd = @EmpCd";
+
+            using (SqlCommand cmd = new SqlCommand(query, con))
+            {
+                // 💡 【超重要】この1行を追加してください！
+                // 親クラス（BaseDao）が持っているトランザクションオブジェクト（trn）をコマンドにセットします
+                cmd.Transaction = trn;
+
+                cmd.Parameters.Add("@EmpCd", SqlDbType.Char).Value = empcd;
+
+                try
+                {
+                    count = (int)cmd.ExecuteScalar();
+                }
+                catch (Exception ex)
+                {
+                    throw;
+                }
+            }
+
+            // 1件以上見つかったら true (重複している)
+            return count > 0;
+        }
     }
 }

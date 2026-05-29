@@ -15,8 +15,16 @@
 }
 <div class="text-center">
     <h1 class="display-4">従業員情報一覧</h1>
+    @if (ViewBag.ErrorMessage != null)
+    {
+        <div class="alert alert-danger" role="alert" style="max-width: 600px; margin: 10px auto; text-align: left;">
+            @ViewBag.ErrorMessage
+        </div>
+    }
     <form method="post">
-        <table style="margin-left: auto; margin-right: auto; border:solid">
+        @if(ViewBag.Info.Count != 0)
+        {
+            <table style="margin-left: auto; margin-right: auto; border:solid">
             <tr>
                 <th style="border:solid"></th>
                 <th style="border:solid">従業員コード</th>
@@ -36,9 +44,16 @@
                     <td style="border:solid">@ViewBag.Info[i].EmpDate</td>
                 </tr>
             }
-        </table><br />
-        <button type="submit" name="btn_action" value="update">変更</button>
-        <button type="submit" name="btn_action" value="alert">削除</button><br />
+            </table><br />
+        
+            <button type="submit" name="btn_action" value="update">変更</button>
+            <button type="submit" name="btn_action" value="alert">削除</button><br />
+        }
+        else
+        {
+            <div>該当する従業員データが見つかりませんでした</div>
+        }
+
         <button type="submit" name="btn_action" value="cancel">戻る</button>
     </form>
     
