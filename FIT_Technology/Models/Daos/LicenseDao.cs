@@ -3,34 +3,29 @@ using FIT_Technology.Models.Entities;
 
 namespace FIT_Technology.Models.Daos
 {
-    public class LicenseDao : BaseDao<UserEntity>
+    public class LicenseDao : BaseDao<EmployeeEntity>
     {
         public LicenseDao() { }
 
-        public override UserEntity Find(params object[] pkeys)
+        public override EmployeeEntity Find(params object[] pkeys)
         {
             throw new NotImplementedException();
         }
 
-        public override int Insert(UserEntity entity)
+        public override int Insert(EmployeeEntity entity)
         {
             throw new NotImplementedException();
         }
 
-        public override int Update(UserEntity entity)
+        public override int Update(EmployeeEntity entity)
         {
             throw new NotImplementedException();
         }
 
-        public override int Delete(UserEntity entity)
+        public override int Delete(EmployeeEntity entity)
         {
             throw new NotImplementedException();
         }
-
-        ///FindAllを作る
-        //public override int (UserEntity entity)
-        //{
-        //    throw new NotImplementedException();
     }
 }
 
