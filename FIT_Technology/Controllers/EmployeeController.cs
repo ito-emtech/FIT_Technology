@@ -202,7 +202,7 @@ namespace FIT_Technology.Controllers
             {
                 if (!ModelState.IsValid)
                 {
-                    // 🛑 入力エラー（カタカナじゃない、空っぽなど）がある場合
+                    // 入力エラー（カタカナじゃない、空っぽなど）がある場合
                     // そのまま入力内容を保持して登録画面（Insert.cshtml）を再表示
                     return View(nameof(EmployeeController.Insert), employee);
                 }

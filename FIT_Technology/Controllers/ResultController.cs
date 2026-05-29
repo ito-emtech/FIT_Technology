@@ -37,8 +37,9 @@ namespace FIT_Technology.Controllers
         public IActionResult Index(string btn_action)
         {
             // ViewBagが空の場合のフォールバック処理
-            ViewBag.Title = ViewBag.Title ?? "案内画面";
-            ViewBag.Msg = ViewBag.Msg ?? "表示するメッセージはありません";
+            ViewBag.ViewTitle = TempData["ViewTitle"] ?? "案内";
+            ViewBag.Msg = TempData["Msg"] ?? "表示するメッセージはありません。";
+            ViewBag.Caption = TempData["Caption"];
 
             // Ctrlヘルパーを使用して型安全にメニュー画面（Account/Menu）へリダイレクト
             return RedirectToAction(
