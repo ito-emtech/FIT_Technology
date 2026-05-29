@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Data;
 using System.Reflection;
 
 namespace FIT_Technology.Models.Helpers
@@ -34,5 +35,24 @@ namespace FIT_Technology.Models.Helpers
         public static string GetColumnName(PropertyInfo prop) =>
             // ColumnAttributeが存在すればそのNameを、なければプロパティ名を返す
             prop.GetCustomAttribute<ColumnAttribute>()?.Name ?? prop.Name;
+        
+        /// <summary>
+        /// プロパティの型から対応する SqlDbType を取得します。
+        /// </summary>
+        public static SqlDbType GetSqlType(PropertyInfo prop)
+        {
+            var type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
+
+            return type switch
+            {
+                var t when t == typeof(string) => SqlDbType.VarChar,
+                var t when t == typeof(int) => SqlDbType.Int,
+                var t when t == typeof(long) => SqlDbType.BigInt,
+                var t when t == typeof(DateTime) => SqlDbType.DateTime,
+                var t when t == typeof(bool) => SqlDbType.Bit,
+                var t when t == typeof(decimal) => SqlDbType.Decimal,
+                _ => SqlDbType.VarChar // デフォルト
+            };
+        }
     }
 }
