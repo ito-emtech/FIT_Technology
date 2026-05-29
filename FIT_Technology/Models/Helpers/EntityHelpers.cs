@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Microsoft.Data.SqlClient;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Reflection;
 
@@ -53,6 +54,55 @@ namespace FIT_Technology.Models.Helpers
                 var t when t == typeof(decimal) => SqlDbType.Decimal,
                 _ => SqlDbType.VarChar // デフォルト
             };
+        }
+
+        /// <summary>
+        /// SqlDataReader の現在の行から、エンティティのインスタンスを生成し値を格納します。
+        /// </summary>
+        public static T MapEntity<T>(SqlDataReader reader) where T : new()
+        {
+            T entity = new T();
+            var properties = typeof(T).GetProperties();
+
+            foreach (var prop in properties)
+            {
+                // プロパティからカラム名を取得
+                string columnName = GetColumnName(prop);
+
+                // Readerに該当するカラム名が存在するかチェック
+                // (SELECT句に含まれていないプロパティはスキップ)
+                if (!HasColumn(reader, columnName)) continue;
+
+                object value = reader[columnName];
+
+                if (value != DBNull.Value)
+                {
+                    // 型変換を考慮して値をセット
+                    // 文字列の場合は .Trim() をかけるなどの調整もここで行える
+                    if (prop.PropertyType == typeof(string))
+                    {
+                        prop.SetValue(entity, value.ToString()?.Trim());
+                    }
+                    else
+                    {
+                        prop.SetValue(entity, value);
+                    }
+                }
+            }
+            return entity;
+        }
+
+        /// <summary>
+        /// Readerの中に指定したカラム名が存在するか判定します。
+        /// </summary>
+        private static bool HasColumn(SqlDataReader reader, string columnName)
+        {
+            for (int i = 0; i < reader.FieldCount; i++)
+            {
+                if (reader.GetName(i).Equals(columnName, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+            return false;
         }
     }
 }
