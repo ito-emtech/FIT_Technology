@@ -25,6 +25,8 @@ namespace FIT_Technology.Models.Daos
             string col1 = EntityHelpers.GetColumnName(prop1);
             string col2 = EntityHelpers.GetColumnName(prop2);
 
+            SqlDbType sqlTyp1 = EntityHelpers.GetSqlType(prop1);
+
             // 文字列補完を使ってクエリを構築（リテラルを排除）
             string query = $@"
                 SELECT {col1}, {col2}
@@ -34,18 +36,13 @@ namespace FIT_Technology.Models.Daos
             using (SqlCommand cmd = new SqlCommand(query, con))
             {
                 cmd.Transaction = trn;
-                // パラメータ名もプロパティ名から生成可能
-                cmd.Parameters.Add("@PKey", SqlDbType.VarChar).Value = pkeys[0];
+                cmd.Parameters.Add("@PKey", sqlTyp1).Value = pkeys[0];
 
                 using (SqlDataReader reader = cmd.ExecuteReader())
                 {
                     if (reader.Read())
                     {
-                        return new LicenseEntity
-                        {
-                            LicenseCd = reader[col1].ToString()?.Trim() ?? string.Empty,
-                            LicenseNm = reader[col2].ToString()?.Trim() ?? string.Empty
-                        };
+                        return EntityHelpers.MapEntity<LicenseEntity>(reader);
                     }
                 }
             }
