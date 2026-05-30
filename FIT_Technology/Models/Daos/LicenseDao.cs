@@ -1,68 +1,58 @@
 ﻿using DynamicDll.Db;
 using FIT_Technology.Models.Entities;
-using FIT_Technology.Models.Helpers;
+using FIT_Technology.Models.Helpers; // 拡張メソッド(MapToEntity)の利用に必要
 using Microsoft.Data.SqlClient;
 using System.Data;
 
 namespace FIT_Technology.Models.Daos
 {
+    /// <summary>
+    /// ライセンス情報に関するデータアクセスオブジェクト（DAO）です。
+    /// </summary>
     public class LicenseDao : BaseDao<LicenseEntity>
     {
         public LicenseDao() { }
 
+        /// <summary>
+        /// 主キーを使用して、特定のライセンスエンティティを検索します。
+        /// </summary>
         public override LicenseEntity Find(params object[] pkeys)
         {
             if (pkeys == null || pkeys.Length == 0 || pkeys[0] == null) return null;
 
-            // 型情報からテーブル名とプロパティを取得
-            var type = typeof(LicenseEntity);
-            string tableName = EntityHelpers.GetTableName<LicenseEntity>();
+            // 1. EntityMetaHelperを使用してメタデータを取得
+            string tableName = EntityMetaHelper.GetTableName<LicenseEntity>();
+            var propCd = typeof(LicenseEntity).GetProperty(nameof(LicenseEntity.LicenseCd))!;
+            string colCd = EntityMetaHelper.GetColumnName(propCd);
 
-            // 特定のプロパティ（UserId）のカラム名を取得
-            var prop1 = type.GetProperty(nameof(LicenseEntity.LicenseCd))!;
-            var prop2 = type.GetProperty(nameof(LicenseEntity.LicenseNm))!;
-
-            string col1 = EntityHelpers.GetColumnName(prop1);
-            string col2 = EntityHelpers.GetColumnName(prop2);
-
-            SqlDbType sqlTyp1 = EntityHelpers.GetSqlType(prop1);
-
-            // 文字列補完を使ってクエリを構築（リテラルを排除）
+            // 2. クエリの構築
+            // カラム指定を SELECT * にすることで、エンティティの変更に強いコードにします
             string query = $@"
-                SELECT {col1}, {col2}
+                SELECT *
                 FROM {tableName}
-                WHERE {col1} = @PKey";
+                WHERE {colCd} = @PKey";
 
             using (SqlCommand cmd = new SqlCommand(query, con))
             {
                 cmd.Transaction = trn;
-                cmd.Parameters.Add("@PKey", sqlTyp1).Value = pkeys[0];
+
+                // 3. パラメータ設定 (型もヘルパーから動的に取得)
+                cmd.Parameters.Add("@PKey", EntityMetaHelper.GetSqlType(propCd)).Value = pkeys[0];
 
                 using (SqlDataReader reader = cmd.ExecuteReader())
                 {
                     if (reader.Read())
                     {
-                        return EntityHelpers.MapEntity<LicenseEntity>(reader);
+                        // 4. ★拡張メソッドを適用：自動マッピング
+                        return reader.MapToEntity<LicenseEntity>();
                     }
                 }
             }
             return null;
         }
 
-        public override int Insert(LicenseEntity entity)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override int Update(LicenseEntity entity)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override int Delete(LicenseEntity entity)
-        {
-            throw new NotImplementedException();
-        }
+        public override int Insert(LicenseEntity entity) => throw new NotImplementedException();
+        public override int Update(LicenseEntity entity) => throw new NotImplementedException();
+        public override int Delete(LicenseEntity entity) => throw new NotImplementedException();
     }
 }
-
