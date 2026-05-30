@@ -1,0 +1,200 @@
+@startuml
+class "AddScoped`1"<T> {
+}
+class AccountController {
+    + Index() : IActionResult
+    + Login() : IActionResult
+    + Login(user:UserEntity) : IActionResult
+    + Logout() : IActionResult
+    + Logout(btn_action:string) : IActionResult
+    + Menu() : IActionResult
+    + Menu(btn_action:string) : IActionResult
+}
+Controller <|-- AccountController
+class EmployeeController {
+    + Index() : IActionResult
+    + List() : IActionResult
+    + List(empcd:List<string>, btn_action:string) : IActionResult
+    + Insert() : IActionResult
+    + Insert(employee:EmployeeEntity, btn_action:string) : IActionResult
+    + Alert() : IActionResult
+    + Alert(deleteEmp:List<EmployeeEntity>, btn_action:string) : IActionResult
+    + Update() : IActionResult
+    + Update(employee:EmployeeEntity, btn_action:string) : IActionResult
+}
+Controller <|-- EmployeeController
+class HomeController {
+    + HomeController(logger:ILogger<HomeController>)
+    + Index() : IActionResult
+    + Privacy() : IActionResult
+    + Error() : IActionResult
+}
+class "ILogger`1"<T> {
+}
+Controller <|-- HomeController
+HomeController --> "_logger<HomeController>" "ILogger`1"
+class LicenseController {
+    + Index() : IActionResult
+    + LicenseMenu() : IActionResult
+    + LicenseMenu(btn_action:string) : IActionResult
+    + Insert() : IActionResult
+    + Insert(btn_action:string) : IActionResult
+    + List() : IActionResult
+    + List(btn_action:string) : IActionResult
+    + Alert() : IActionResult
+    + Alert(btn_action:string) : IActionResult
+}
+Controller <|-- LicenseController
+class ResultController {
+    + Index() : IActionResult
+    + Index(btn_action:string) : IActionResult
+}
+Controller <|-- ResultController
+class SessionCheckAttribute {
+    + <<override>> OnActionExecuting(context:ActionExecutingContext) : void
+}
+ActionFilterAttribute <|-- SessionCheckAttribute
+class ErrorViewModel {
+    + RequestId : string? <<get>> <<set>>
+    + ShowRequestId : bool <<get>>
+}
+class ActionValues <<static>> {
+    + <<const>> Logout : string = "logout"
+    + <<const>> Insert : string = "insert"
+    + <<const>> List : string = "list"
+    + <<const>> License : string = "license"
+}
+class DbConstants <<static>> {
+    + <<const>> EmpDbConnection : string = "local"
+}
+class SessionKeys <<static>> {
+    + <<const>> UserId : string = "UserId"
+}
+DbConstants +-- SessionKeys
+class AccountDao {
+    + AccountDao()
+    + <<override>> Find(pkeys:object[]) : UserEntity
+    + <<override>> Insert(entity:UserEntity) : int
+    + <<override>> Update(entity:UserEntity) : int
+    + <<override>> Delete(entity:UserEntity) : int
+}
+class "BaseDao`1"<T> {
+}
+"BaseDao`1" "<UserEntity>" <|-- AccountDao
+class EmployeeDao {
+    + EmployeeDao()
+    + <<override>> Find(pkeys:object[]) : EmployeeEntity
+    + <<override>> Insert(entity:EmployeeEntity) : int
+    + <<override>> Update(entity:EmployeeEntity) : int
+    + <<override>> Delete(entity:EmployeeEntity) : int
+    + FindAll() : List<EmployeeEntity>
+    + Exists(empcd:string) : bool
+}
+class "BaseDao`1"<T> {
+}
+"BaseDao`1" "<EmployeeEntity>" <|-- EmployeeDao
+class GenderDao {
+    + GenderDao()
+    + <<override>> Find(pkeys:object[]) : GenderEntity
+    + <<override>> Insert(entity:GenderEntity) : int
+    + <<override>> Update(entity:GenderEntity) : int
+    + <<override>> Delete(entity:GenderEntity) : int
+}
+class "BaseDao`1"<T> {
+}
+"BaseDao`1" "<GenderEntity>" <|-- GenderDao
+class GetLicenseDao {
+    + GetLicenseDao()
+    + <<override>> Find(pkeys:object[]) : UserEntity
+    + FindAll() : List<GetLicenseEntity>
+    + FindWhere(emp_cd:string) : List<GetLicenseEntity>
+    + <<override>> Insert(entity:UserEntity) : int
+    + <<override>> Update(entity:UserEntity) : int
+    + <<override>> Delete(entity:UserEntity) : int
+}
+class "BaseDao`1"<T> {
+}
+"BaseDao`1" "<UserEntity>" <|-- GetLicenseDao
+class LicenseDao {
+    + LicenseDao()
+    + <<override>> Find(pkeys:object[]) : LicenseEntity
+    + <<override>> Insert(entity:LicenseEntity) : int
+    + <<override>> Update(entity:LicenseEntity) : int
+    + <<override>> Delete(entity:LicenseEntity) : int
+}
+class "BaseDao`1"<T> {
+}
+"BaseDao`1" "<LicenseEntity>" <|-- LicenseDao
+class SectionDao {
+    + SectionDao()
+    + <<override>> Find(pkeys:object[]) : SectionEntity
+    + <<override>> Insert(entity:SectionEntity) : int
+    + <<override>> Update(entity:SectionEntity) : int
+    + <<override>> Delete(entity:SectionEntity) : int
+}
+class "BaseDao`1"<T> {
+}
+"BaseDao`1" "<SectionEntity>" <|-- SectionDao
+class Class {
+}
+class EmployeeEntity {
+    + EmpCd : string <<get>> <<set>>
+    + LastNm : string <<get>> <<set>>
+    + FirstNm : string <<get>> <<set>>
+    + LastNmKana : string <<get>> <<set>>
+    + FirstNmKana : string <<get>> <<set>>
+    + GenderCd : int <<get>> <<set>>
+    + SectionCd : string <<get>> <<set>>
+}
+EmployeeEntity --> "BirthDate" DateTime
+EmployeeEntity --> "EmpDate" DateTime
+EmployeeEntity --> "Created" DateTime
+EmployeeEntity --> "Updated" DateTime
+class GenderEntity {
+    + GenderCd : int <<get>> <<set>>
+    + GenderNm : string <<get>> <<set>>
+}
+class GetLicenseEntity {
+    + EmpCd : string <<get>> <<set>>
+    + LicenseCd : string <<get>> <<set>>
+}
+GetLicenseEntity --> "GetLicenseDate" DateTime
+GetLicenseEntity --> "Created" DateTime
+GetLicenseEntity --> "Updated" DateTime
+class LicenseEntity {
+    + LicenseCd : string <<get>> <<set>>
+    + LicenseNm : string <<get>> <<set>>
+}
+class SectionEntity {
+    + SectionCd : string <<get>> <<set>>
+    + SectionNm : string <<get>> <<set>>
+}
+class UserEntity {
+    + UserId : string <<get>> <<set>>
+    + Password : string <<get>> <<set>>
+}
+UserEntity --> "Created" DateTime
+UserEntity --> "Updated" DateTime
+class Ctrl <<static>> {
+    + {static} Get() : string
+}
+class EntityHelpers <<static>> {
+    + {static} GetTableName() : string
+    + {static} GetColumnName(prop:PropertyInfo) : string
+    + {static} GetSqlType(prop:PropertyInfo) : SqlDbType
+    + {static} MapEntity(reader:SqlDataReader) : T
+    - {static} HasColumn(reader:SqlDataReader, columnName:string) : bool
+}
+class EntityMetaHelper <<static>> {
+    + {static} GetTableName() : string
+    + {static} GetColumnName(prop:PropertyInfo) : string
+    + {static} GetSqlType(prop:PropertyInfo) : SqlDbType
+}
+class SqlReaderExtensions <<static>> {
+    + {static} MapToEntity(reader:SqlDataReader) : T
+    + {static} HasColumn(reader:SqlDataReader, columnName:string) : bool
+}
+class AccountService {
+    + Authenticate(userid:string, password:string) : bool
+}
+@enduml
