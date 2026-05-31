@@ -22,14 +22,21 @@ namespace FIT_Technology.Models.Services
         {
             if (string.IsNullOrEmpty(userid) || string.IsNullOrEmpty(password)) { return false; }
 
-            // トランザクションを開始する
-            using (TranMng tm = TranMng.BeginTransaction(DbConstants.EmpDbConnection))
+            try
             {
-                var dao = new AccountDao();
-                var user = dao.Find(userid);
+                // トランザクションを開始する
+                using (TranMng tm = TranMng.BeginTransaction(DbConstants.EmpDbConnection))
+                {
+                    var dao = new AccountDao();
+                    var user = dao.Find(userid);
 
-                if (user == null) { return false; }
-                return user.Password == password;
+                    if (user == null) { return false; }
+                    return user.Password == password;
+                }
+            }
+            catch
+            {
+                return false;
             }
         }
     }
