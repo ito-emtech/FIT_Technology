@@ -96,5 +96,43 @@ namespace FIT_Technology.Models.Services
                 return false;
             }
         }
+
+        /// <summary>
+        /// 全ての部署マスタ情報を取得します。
+        /// </summary>
+        public List<SectionEntity> GetSections()
+        {
+            try
+            {
+                using (TranMng tm = TranMng.BeginTransaction(DbConstants.EmpDbConnection))
+                {
+                    var dao = new SectionDao();
+                    return dao.FindAll() ?? new List<SectionEntity>();
+                }
+            }
+            catch
+            {
+                return new List<SectionEntity>();
+            }
+        }
+
+        /// <summary>
+        /// すべての性別マスタ情報を取得します。
+        /// </summary>
+        public List<GenderEntity> GetGenders()
+        {
+            try
+            {
+                using (TranMng tm = TranMng.BeginTransaction(DbConstants.EmpDbConnection))
+                {
+                    var dao = new GenderDao();
+                    return dao.FindAll() ?? new List<GenderEntity>();
+                }
+            }
+            catch
+            {
+                return new List<GenderEntity>();
+            }
+        }
     }
 }

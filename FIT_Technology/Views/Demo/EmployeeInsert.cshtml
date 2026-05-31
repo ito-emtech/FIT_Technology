@@ -1,7 +1,10 @@
-﻿@model FIT_Technology.Models.Entities.EmployeeEntity
+﻿@using FIT_Technology.Models.Entities
+@model FIT_Technology.Models.Entities.EmployeeEntity
 
 @{
     Layout = "_Layout";
+    var sections = ViewBag.Sections as List<SectionEntity> ?? new List<SectionEntity>();
+    var genders = ViewBag.Genders as List<GenderEntity> ?? new List<GenderEntity>();
 }
 
 <div class="container">
@@ -56,14 +59,15 @@
                     </div>
                 </div>
 
-                @* --- 性別 --- *@
+                @* --- 性別ドロップダウン --- *@
                 <div class="form-group mb-3">
                     <label asp-for="GenderCd" class="form-label"></label>
                     <select asp-for="GenderCd" class="form-select">
                         <option value="">-- 性別を選択してください --</option>
-                        <option value="1">男性</option>
-                        <option value="2">女性</option>
-                        <option value="9">その他</option>
+                        @foreach (var g in genders)
+                        {
+                            <option value="@g.GenderCd">@g.GenderNm</option>
+                        }
                     </select>
                     <span asp-validation-for="GenderCd" class="text-danger small"></span>
                 </div>
@@ -75,14 +79,16 @@
                     <span asp-validation-for="BirthDate" class="text-danger small"></span>
                 </div>
 
-                @* --- 所属コード（部署） --- *@
+
+                @* --- 部署ドロップダウン --- *@
                 <div class="form-group mb-3">
                     <label asp-for="SectionCd" class="form-label"></label>
                     <select asp-for="SectionCd" class="form-select">
                         <option value="">-- 部署を選択してください --</option>
-                        <option value="01">開発部</option>
-                        <option value="02">営業部</option>
-                        <option value="03">総務部</option>
+                        @foreach (var s in sections)
+                        {
+                            <option value="@s.SectionCd">@s.SectionNm</option>
+                        }
                     </select>
                     <span asp-validation-for="SectionCd" class="text-danger small"></span>
                 </div>

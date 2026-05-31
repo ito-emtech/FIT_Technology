@@ -122,6 +122,10 @@ namespace FIT_Technology.Controllers
             ViewBag.Title = "従業員新規登録";
             ViewBag.ViewTitle = "従業員新規登録";
 
+            // 【追加】Viewのドロップダウンに渡すマスタデータを取得して格納
+            ViewBag.Sections = _employeeService.GetSections();
+            ViewBag.Genders = _employeeService.GetGenders();
+
             return View(new EmployeeEntity());
         }
 
@@ -134,27 +138,31 @@ namespace FIT_Technology.Controllers
             ViewBag.Title = "再入力画面";
             ViewBag.ViewTitle = "従業員新規登録";
 
-            // 1. 引数オブジェクト自体の null チェック
             if (entity == null)
             {
                 ViewBag.ErrorMsg = "入力データが不正です。";
+                // 再表示用にマスタを再取得
+                ViewBag.Sections = _employeeService.GetSections();
+                ViewBag.Genders = _employeeService.GetGenders();
                 return View(new EmployeeEntity());
             }
 
-            // 2. DataAnnotations に基づく入力検証 (ModelState.IsValid)
             if (!ModelState.IsValid)
             {
-                // 検証エラーがある場合は、入力内容を保持したまま登録画面へ戻す
+                // 【追加】入力エラーで画面に戻る際も、セレクトボックスが空にならないよう再取得
+                ViewBag.Sections = _employeeService.GetSections();
+                ViewBag.Genders = _employeeService.GetGenders();
                 return View(entity);
             }
 
-            // 【サービス適用】DBに新従業員を登録する
             bool isSuccess = _employeeService.RegisterEmployee(entity);
 
             if (!isSuccess)
             {
-                // 重複コードやシステムエラーがあった場合のハンドリング
                 ViewBag.ErrorMsg = "従業員コードが既に登録されているか、登録処理中にエラーが発生しました。";
+                // 【追加】エラー画面に戻るため再取得
+                ViewBag.Sections = _employeeService.GetSections();
+                ViewBag.Genders = _employeeService.GetGenders();
                 return View(entity);
             }
 
