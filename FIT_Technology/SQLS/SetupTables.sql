@@ -170,20 +170,12 @@ INSERT INTO m_section (section_cd, section_nm) VALUES('A1', '管理部');
 INSERT INTO m_section (section_cd, section_nm) VALUES('A2', '総務部');
 INSERT INTO m_section (section_cd, section_nm) VALUES('B1', '開発部');
 INSERT INTO m_section (section_cd, section_nm) VALUES('C1', '営業部');
-INSERT INTO m_section (section_cd, section_nm) VALUES('A3', '人事部');
-INSERT INTO m_section (section_cd, section_nm) VALUES('A4', '経理部');
-INSERT INTO m_section (section_cd, section_nm) VALUES('D1', '企画情報部');
-INSERT INTO m_section (section_cd, section_nm) VALUES('E1', '法務・コンプライアンス部');
 
 /* 性別マスタINSERT */
 INSERT INTO m_gender (gender_cd, gender_nm) VALUES(0, '不明');
 INSERT INTO m_gender (gender_cd, gender_nm) VALUES(1, '男性');
 INSERT INTO m_gender (gender_cd, gender_nm) VALUES(2, '女性');
 INSERT INTO m_gender (gender_cd, gender_nm) VALUES(3, 'その他');
-INSERT INTO m_gender (gender_cd, gender_nm) VALUES(4, '回答拒否');
-INSERT INTO m_gender (gender_cd, gender_nm) VALUES(5, '未回答');
-INSERT INTO m_gender (gender_cd, gender_nm) VALUES(6, '非開示');
-INSERT INTO m_gender (gender_cd, gender_nm) VALUES(9, '適用不能（組織・法人等）');
 
 /* 資格マスタINSERT */
 INSERT INTO m_license (license_cd, license_nm) VALUES('L0001', 'ITパスポート');
