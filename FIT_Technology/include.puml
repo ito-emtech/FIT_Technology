@@ -11,6 +11,29 @@ class AccountController {
     + Menu(btn_action:string) : IActionResult
 }
 Controller <|-- AccountController
+class DemoController {
+    + DemoController()
+    + Index() : IActionResult
+    + LicenseMenu() : IActionResult
+    + LicenseMenu(btn_action:string, emp_cd:string) : IActionResult
+    + EmployeeInsert() : IActionResult
+    + EmployeeInsert(entity:EmployeeEntity) : IActionResult
+    + Insert() : IActionResult
+    + Insert(entity:GetLicenseEntity) : IActionResult
+    + List() : IActionResult
+    + List(btn_action:string, license_cd:string[]) : IActionResult
+    + Alert() : IActionResult
+    + Alert(entities:List<GetLicenseEntity>) : IActionResult
+}
+class TempKeys <<static>> {
+    + <<const>> CreateEmployee : string = "createEmployee"
+    + <<const>> DeleteLicense : string = "deleteLicense"
+    + <<const>> TargetEmpCd : string = "targetEmpCd"
+}
+Controller <|-- DemoController
+DemoController --> "_employeeService" DemoEmployeeService
+DemoController --> "_licenseService" DemoGetLicenseService
+DemoController +-- TempKeys
 class EmployeeController {
     + Index() : IActionResult
     + List() : IActionResult
@@ -47,7 +70,6 @@ class LicenseController {
 Controller <|-- LicenseController
 class ResultController {
     + Index() : IActionResult
-    + Index(btn_action:string) : IActionResult
 }
 Controller <|-- ResultController
 class SessionCheckAttribute {
@@ -63,14 +85,25 @@ class ActionValues <<static>> {
     + <<const>> Insert : string = "insert"
     + <<const>> List : string = "list"
     + <<const>> License : string = "license"
+    + <<const>> Alert : string = "alert"
+    + <<const>> Demo : string = "Demo"
 }
 class DbConstants <<static>> {
-    + <<const>> EmpDbConnection : string = "local"
+    + <<const>> EmpDbConnection : string = "empdb"
 }
 class SessionKeys <<static>> {
     + <<const>> UserId : string = "UserId"
 }
 DbConstants +-- SessionKeys
+class ResultConstants <<static>> {
+}
+class TempDataKeys <<static>> {
+    + <<const>> ViewTitle : string = "ViewTitle"
+    + <<const>> Msg : string = "Msg"
+    + <<const>> Caption : string = "Caption"
+    + <<const>> ButtonView : string = "ButtonView"
+}
+ResultConstants +-- TempDataKeys
 class AccountDao {
     + AccountDao()
     + <<override>> Find(pkeys:object[]) : UserEntity
@@ -81,6 +114,27 @@ class AccountDao {
 class "BaseDao`1"<T> {
 }
 "BaseDao`1" "<UserEntity>" <|-- AccountDao
+class DemoGetLicenseDao {
+    + DemoGetLicenseDao()
+    + <<override>> Find(pkeys:object[]) : GetLicenseEntity
+    + FindByEmpCd(empCd:string) : List<GetLicenseEntity>
+    + <<override>> Insert(entity:GetLicenseEntity) : int
+    + <<override>> Update(entity:GetLicenseEntity) : int
+    + <<override>> Delete(entity:GetLicenseEntity) : int
+}
+class DemoEmployeeDao {
+    + DemoEmployeeDao()
+    + <<override>> Find(pkeys:object[]) : EmployeeEntity
+    + FindAll() : List<EmployeeEntity>
+    + FindAllForLicenseMenu() : List<LicenseMenuRowViewModel>
+    + <<override>> Insert(entity:EmployeeEntity) : int
+    + <<override>> Update(entity:EmployeeEntity) : int
+    + <<override>> Delete(entity:EmployeeEntity) : int
+}
+class "BaseDao`1"<T> {
+}
+"BaseDao`1" "<GetLicenseEntity>" <|-- DemoGetLicenseDao
+"BaseDao`1" "<EmployeeEntity>" <|-- DemoEmployeeDao
 class EmployeeDao {
     + EmployeeDao()
     + <<override>> Find(pkeys:object[]) : EmployeeEntity
@@ -96,6 +150,7 @@ class "BaseDao`1"<T> {
 class GenderDao {
     + GenderDao()
     + <<override>> Find(pkeys:object[]) : GenderEntity
+    + FindAll() : List<GenderEntity>
     + <<override>> Insert(entity:GenderEntity) : int
     + <<override>> Update(entity:GenderEntity) : int
     + <<override>> Delete(entity:GenderEntity) : int
@@ -118,6 +173,7 @@ class "BaseDao`1"<T> {
 class LicenseDao {
     + LicenseDao()
     + <<override>> Find(pkeys:object[]) : LicenseEntity
+    + FindAll() : List<LicenseEntity>
     + <<override>> Insert(entity:LicenseEntity) : int
     + <<override>> Update(entity:LicenseEntity) : int
     + <<override>> Delete(entity:LicenseEntity) : int
@@ -128,6 +184,7 @@ class "BaseDao`1"<T> {
 class SectionDao {
     + SectionDao()
     + <<override>> Find(pkeys:object[]) : SectionEntity
+    + FindAll() : List<SectionEntity>
     + <<override>> Insert(entity:SectionEntity) : int
     + <<override>> Update(entity:SectionEntity) : int
     + <<override>> Delete(entity:SectionEntity) : int
@@ -157,6 +214,8 @@ class GenderEntity {
 class GetLicenseEntity {
     + EmpCd : string <<get>> <<set>>
     + LicenseCd : string <<get>> <<set>>
+    + LicenseNm : string <<get>> <<set>>
+    + DisplayLicenseText : string <<get>>
 }
 GetLicenseEntity --> "GetLicenseDate" DateTime
 GetLicenseEntity --> "Created" DateTime
@@ -164,6 +223,7 @@ GetLicenseEntity --> "Updated" DateTime
 class LicenseEntity {
     + LicenseCd : string <<get>> <<set>>
     + LicenseNm : string <<get>> <<set>>
+    + DisplayLicenseText : string <<get>>
 }
 class SectionEntity {
     + SectionCd : string <<get>> <<set>>
@@ -175,6 +235,9 @@ class UserEntity {
 }
 UserEntity --> "Created" DateTime
 UserEntity --> "Updated" DateTime
+class ControllerExtensions <<static>> {
+    + {static} RedirectToResult(controller:Controller, viewTitle:string, msg:string, caption:string?, buttonView:string?) : RedirectToActionResult
+}
 class Ctrl <<static>> {
     + {static} Get() : string
 }
@@ -197,4 +260,34 @@ class SqlReaderExtensions <<static>> {
 class AccountService {
     + Authenticate(userid:string, password:string) : bool
 }
+class DemoGetLicenseService {
+    + GetLicense(empCd:string, licenseCd:string) : GetLicenseEntity
+    + GetLicensesByEmpCd(empCd:string) : List<GetLicenseEntity>
+    + RegisterLicense(entity:GetLicenseEntity) : bool
+    + RemoveLicense(entity:GetLicenseEntity) : bool
+    + RemoveLicenses(entities:List<GetLicenseEntity>) : bool
+    + GetLicenses() : List<LicenseEntity>
+}
+class DemoEmployeeService {
+    + GetLicenseMenuRows() : List<LicenseMenuRowViewModel>
+    + GetEmployees() : List<EmployeeEntity>
+    + GetEmployee(empCd:string) : EmployeeEntity
+    + RegisterEmployee(entity:EmployeeEntity) : bool
+    + GetSections() : List<SectionEntity>
+    + GetGenders() : List<GenderEntity>
+}
+class LicenseMenuRowViewModel {
+    + EmpCd : string <<get>> <<set>>
+    + LastNm : string <<get>> <<set>>
+    + FirstNm : string <<get>> <<set>>
+    + LastNmKana : string <<get>> <<set>>
+    + FirstNmKana : string <<get>> <<set>>
+    + GenderCd : int <<get>> <<set>>
+    + GenderNm : string <<get>> <<set>>
+    + SectionCd : string <<get>> <<set>>
+    + SectionNm : string <<get>> <<set>>
+    + DisplaySection : string <<get>>
+}
+LicenseMenuRowViewModel --> "BirthDate" DateTime
+LicenseMenuRowViewModel --> "EmpDate" DateTime
 @enduml
