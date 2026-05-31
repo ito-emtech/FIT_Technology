@@ -1,5 +1,4 @@
-﻿using FIT_Technology.Filters;
-using FIT_Technology.Models.Helpers;
+﻿using FIT_Technology.Models.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FIT_Technology.Controllers
@@ -17,10 +16,10 @@ namespace FIT_Technology.Controllers
         public IActionResult Index()
         {
             ViewBag.Title = "案内画面";
-            ViewBag.ViewTitle = TempData["ViewTitle"] ?? "システム通知";
-            ViewBag.Msg = TempData["Msg"] ?? "表示するメッセージはありません。";
-            ViewBag.Caption = TempData["Caption"];
-            ViewBag.ButtonView = TempData["ButtonView"] ?? "次に進む";
+            ViewBag.ViewTitle = TempData[ResultConstants.TempDataKeys.ViewTitle] ?? "システム通知";
+            ViewBag.Msg = TempData[ResultConstants.TempDataKeys.Msg] ?? "表示するメッセージはありません。";
+            ViewBag.Caption = TempData[ResultConstants.TempDataKeys.Caption];
+            ViewBag.ButtonView = TempData[ResultConstants.TempDataKeys.ButtonView] ?? "次に進む";
 
             return View(nameof(ResultController.Index));
         }
