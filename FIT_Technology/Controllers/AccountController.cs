@@ -57,7 +57,9 @@ namespace FIT_Technology.Controllers
                 // 【修正点】リダイレクト先でも表示できるよう TempData に格納
                 TempData["ViewTitle"] = "ログインエラー";
                 TempData["Msg"] = "ユーザーIDまたはパスワードが正しくありません。";
-                TempData["Caption"] = "入力を確認して再度ログインしてください。";
+                TempData["Caption"] = "入力を確認して再度ログインしてください。" +
+                    "テスト" +
+                    "改行なう";
 
                 return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
             }
