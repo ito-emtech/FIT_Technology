@@ -31,7 +31,6 @@ namespace FIT_Technology.Controllers
         [HttpGet]
         public IActionResult Login()
         {
-            HttpContext.Session.Clear();
             ViewBag.Title = "ログイン画面";
             return View(nameof(AccountController.Login));
         }
@@ -51,18 +50,17 @@ namespace FIT_Technology.Controllers
             if (service.Authenticate(user.UserId, user.Password))
             {
                 HttpContext.Session.SetString(DbConstants.SessionKeys.UserId, user.UserId);
-                return RedirectToAction(nameof(AccountController.Menu), Ctrl.Get<AccountController>());
+                return RedirectToAction(
+                    nameof(AccountController.Menu),
+                    Ctrl.Get<AccountController>()
+                    );
             }
             else
             {
-                // 【修正点】リダイレクト先でも表示できるよう TempData に格納
-                TempData["ViewTitle"] = "ログインエラー";
-                TempData["Msg"] = "ユーザーIDまたはパスワードが正しくありません。";
-                TempData["Caption"] = "入力を確認して再度ログインしてください。" +
-                    "テスト" +
-                    "改行なう";
-
-                return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
+                return this.RedirectToResult(
+                    viewTitle: "ログインエラー",
+                    msg: "ユーザーIDまたはパスワードが正しくありません。",
+                    caption: "入力を確認して再度ログインしてください。");
             }
         }
 
@@ -85,20 +83,29 @@ namespace FIT_Technology.Controllers
         [SessionCheck]
         public IActionResult Logout(string btn_action)
         {
+            // セッションからユーザーIDを取得（クリアする前に行う）
+            var userId = HttpContext.Session.GetString(DbConstants.SessionKeys.UserId);
+
+            // 【重要】ViewBagではなくTempDataを使用する
+            TempData["InfoMessage"] = $"{userId}様、お疲れさまでした。";
+
             switch (btn_action)
             {
                 case "logout":
-                    var userId = HttpContext.Session.GetString(DbConstants.SessionKeys.UserId);
-                    TempData["InfoMessage"] = $"{userId}様、お疲れさまでした。";
                     HttpContext.Session.Clear();
-                    return RedirectToAction(nameof(AccountController.Login), Ctrl.Get<AccountController>());
+                    return RedirectToAction(
+                        nameof(AccountController.Login),
+                        Ctrl.Get<AccountController>());
                 case "cancel":
-                    return RedirectToAction(nameof(AccountController.Menu), Ctrl.Get<AccountController>());
+                    return RedirectToAction(
+                        nameof(AccountController.Menu),
+                        Ctrl.Get<AccountController>());
                 default:
                     // 定義外のアクションが送られた場合のエラー処理
-                    TempData["ViewTitle"] = "不正な入力を検知";
-                    TempData["Msg"] = "ログアウト画面から不正コマンドを検出しました";
-                    return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
+                    return this.RedirectToResult(
+                        viewTitle: "不正な入力を検知",
+                        msg: "ログアウト画面から不正コマンドを検出しました。",
+                        caption: "再度メニュー画面から操作を行ってください");
             }
         }
 
@@ -126,21 +133,30 @@ namespace FIT_Technology.Controllers
             switch (btn_action)
             {
                 case ActionValues.Logout:
-                    return RedirectToAction(nameof(AccountController.Logout), Ctrl.Get<AccountController>());
+                    return RedirectToAction(
+                        nameof(AccountController.Logout),
+                        Ctrl.Get<AccountController>());
                 case ActionValues.Insert:
                     // 従業員登録画面へ
-                    return RedirectToAction(nameof(EmployeeController.Insert), Ctrl.Get<EmployeeController>());
+                    return RedirectToAction(
+                        nameof(EmployeeController.Insert),
+                        Ctrl.Get<EmployeeController>());
                 case ActionValues.List:
                     // 従業員管理機能へ
-                    return RedirectToAction(nameof(EmployeeController.List), Ctrl.Get<EmployeeController>());
+                    return RedirectToAction(
+                        nameof(EmployeeController.List),
+                        Ctrl.Get<EmployeeController>());
                 case ActionValues.License:
                     // 保有資格管理画面へ
-                    return RedirectToAction(nameof(LicenseController.LicenseMenu), Ctrl.Get<LicenseController>());
+                    return RedirectToAction(
+                        nameof(LicenseController.LicenseMenu),
+                        Ctrl.Get<LicenseController>());
                 default:
                     // 定義外のアクションが送られた場合のエラー処理
-                    TempData["ViewTitle"] = "不正な入力を検知";
-                    TempData["Msg"] = "従業員管理システム画面から不正コマンドを検出しました";
-                    return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
+                    return this.RedirectToResult(
+                        viewTitle: "不正な入力を検知",
+                        msg: "従業員管理システム画面から不正コマンドを検出しました。",
+                        caption: "再度メニュー画面から操作を行ってください");
             }
         }
     }
