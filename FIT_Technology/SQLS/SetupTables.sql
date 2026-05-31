@@ -197,5 +197,39 @@ INSERT INTO t_get_license (emp_cd, license_cd, get_license_date) VALUES('A123', 
 INSERT INTO t_get_license (emp_cd, license_cd, get_license_date) VALUES('B321', 'L0102', '2026-05-28');
 INSERT INTO t_get_license (emp_cd, license_cd, get_license_date) VALUES('C987', 'L0103', '2026-05-28');
 
+/* === 追加の従業員マスタINSERT（10人分） === */
+INSERT INTO m_employee (emp_cd, last_nm, first_nm, last_nm_kana, first_nm_kana, gender_cd, birth_date, section_cd, emp_date) 
+VALUES('D001', '高橋', '健太', 'タカハシ', 'ケンタ', 1, '1995-12-15', 'B1', '2026-06-01');
+INSERT INTO m_employee (emp_cd, last_nm, first_nm, last_nm_kana, first_nm_kana, gender_cd, birth_date, section_cd, emp_date) 
+VALUES('D002', '田中', '裕子', 'タナカ', 'ユウコ', 2, '1991-07-22', 'A1', '2026-06-01');
+INSERT INTO m_employee (emp_cd, last_nm, first_nm, last_nm_kana, first_nm_kana, gender_cd, birth_date, section_cd, emp_date) 
+VALUES('D003', '伊藤', '純', 'イトウ', 'ジュン', 3, '1999-03-11', 'C1', '2026-06-01');
+INSERT INTO m_employee (emp_cd, last_nm, first_nm, last_nm_kana, first_nm_kana, gender_cd, birth_date, section_cd, emp_date) 
+VALUES('D004', '渡辺', '直樹', 'ワタナベ', 'ナオキ', 1, '1988-11-05', 'B1', '2026-06-01');
+INSERT INTO m_employee (emp_cd, last_nm, first_nm, last_nm_kana, first_nm_kana, gender_cd, birth_date, section_cd, emp_date) 
+VALUES('D005', '山本', '美穂', 'ヤマモト', 'ミホ', 2, '2001-05-19', 'A2', '2026-06-01');
+INSERT INTO m_employee (emp_cd, last_nm, first_nm, last_nm_kana, first_nm_kana, gender_cd, birth_date, section_cd, emp_date) 
+VALUES('D006', '中村', '大輔', 'ナカムラ', 'ダイスケ', 1, '1994-02-28', 'C1', '2026-06-01');
+INSERT INTO m_employee (emp_cd, last_nm, first_nm, last_nm_kana, first_nm_kana, gender_cd, birth_date, section_cd, emp_date) 
+VALUES('D007', '小林', '沙織', 'コバヤシ', 'サオリ', 2, '1996-09-04', 'B1', '2026-06-01');
+INSERT INTO m_employee (emp_cd, last_nm, first_nm, last_nm_kana, first_nm_kana, gender_cd, birth_date, section_cd, emp_date) 
+VALUES('D008', '加藤', '拓海', 'カトウ', 'タクミ', 1, '2003-01-30', 'B1', '2026-06-01');
+INSERT INTO m_employee (emp_cd, last_nm, first_nm, last_nm_kana, first_nm_kana, gender_cd, birth_date, section_cd, emp_date) 
+VALUES('D009', '吉田', '真央', 'ヨシダ', 'マオ', 2, '2000-10-12', 'A2', '2026-06-01');
+INSERT INTO m_employee (emp_cd, last_nm, first_nm, last_nm_kana, first_nm_kana, gender_cd, birth_date, section_cd, emp_date) 
+VALUES('D010', '佐々木', '翔', 'ササキ', 'ショウ', 1, '1992-06-25', 'C1', '2026-06-01');
+
+/* === 追加の資格取得テーブルINSERT === */
+INSERT INTO t_get_license (emp_cd, license_cd, get_license_date) VALUES('D001', 'L0001', '2025-04-15');
+INSERT INTO t_get_license (emp_cd, license_cd, get_license_date) VALUES('D001', 'L0101', '2025-10-20');
+INSERT INTO t_get_license (emp_cd, license_cd, get_license_date) VALUES('D003', 'L0201', '2024-08-11');
+INSERT INTO t_get_license (emp_cd, license_cd, get_license_date) VALUES('D004', 'L0102', '2023-12-01');
+INSERT INTO t_get_license (emp_cd, license_cd, get_license_date) VALUES('D004', 'L0301', '2025-02-18');
+INSERT INTO t_get_license (emp_cd, license_cd, get_license_date) VALUES('D006', 'L0001', '2026-01-15');
+INSERT INTO t_get_license (emp_cd, license_cd, get_license_date) VALUES('D007', 'L0101', '2024-05-25');
+INSERT INTO t_get_license (emp_cd, license_cd, get_license_date) VALUES('D007', 'L0401', '2025-07-14');
+INSERT INTO t_get_license (emp_cd, license_cd, get_license_date) VALUES('D008', 'L0103', '2026-03-10');
+INSERT INTO t_get_license (emp_cd, license_cd, get_license_date) VALUES('D010', 'L0201', '2023-11-05');
+
 /* トランザクションの確定 */
 COMMIT;
