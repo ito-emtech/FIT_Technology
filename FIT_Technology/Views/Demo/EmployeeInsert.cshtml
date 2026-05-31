@@ -1,0 +1,33 @@
+﻿@model FIT_Technology.Models.Entities.EmployeeEntity
+
+@{
+    Layout = "_Layout";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h2 class="text-center mb-4">@ViewBag.Title</h2>
+
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group mb-3">
+                    <label class="form-label">従業員コード</label>
+                    <input type="text" class="form-control" placeholder="例: EMP001" />
+                </div>
+
+                <div class="form-group mb-3">
+                    <label class="form-label">氏名</label>
+                    <input type="text" class="form-control" placeholder="例: 山田 太郎" />
+                </div>
+
+                <br />
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary">登録する</button>
+                    <a asp-action="LicenseMenu" class="btn btn-outline-secondary">LicenseMenuに戻る</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

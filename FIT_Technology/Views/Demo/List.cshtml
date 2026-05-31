@@ -1,0 +1,69 @@
+﻿@using FIT_Technology.Models.Constants
+@model List<FIT_Technology.Models.Entities.GetLicenseEntity>
+
+@{
+    Layout = "_Layout";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h2 class="text-center mb-4">保有資格一覧</h2>
+
+            @if (ViewBag.ErrorMsg != null)
+            {
+                <div class="alert alert-danger text-center p-2" role="alert">
+                    <small>@ViewBag.ErrorMsg</small>
+                </div>
+            }
+
+            <form method="post">
+                <div class="table-responsive mb-4">
+                    <table class="table table-bordered table-hover align-middle">
+                        <thead class="table-light">
+                            <tr class="text-center">
+                                <th style="width: 10%;" class="text-center">選択</th>
+                                <th style="width: 30%;">資格コード</th>
+                                <th style="width: 60%;">資格名</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @* --- ダミーデータ1 --- *@
+                            <tr>
+                                <td class="text-center">
+                                    <input type="checkbox" name="license_cd" value="LIC001" id="lic_LIC001" class="form-check-input" />
+                                </td>
+                                <td>
+                                    <label for="lic_LIC001" class="w-100 m-0 d-block" style="cursor: pointer;">LIC001</label>
+                                </td>
+                                <td>
+                                    <label for="lic_LIC001" class="w-100 m-0 d-block" style="cursor: pointer;">基本情報技術者</label>
+                                </td>
+                            </tr>
+
+                            @* --- ダミーデータ2 --- *@
+                            <tr>
+                                <td class="text-center">
+                                    <input type="checkbox" name="license_cd" value="LIC002" id="lic_LIC002" class="form-check-input" />
+                                </td>
+                                <td>
+                                    <label for="lic_LIC002" class="w-100 m-0 d-block" style="cursor: pointer;">LIC002</label>
+                                </td>
+                                <td>
+                                    <label for="lic_LIC002" class="w-100 m-0 d-block" style="cursor: pointer;">応用情報技術者</label>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" name="btn_action" value="@ActionValues.Alert" class="btn btn-danger">
+                        選択した資格の削除確認画面へ
+                    </button>
+                    <a asp-action="LicenseMenu" class="btn btn-outline-secondary">LicenseMenuに戻る</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

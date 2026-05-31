@@ -151,6 +151,11 @@ namespace FIT_Technology.Controllers
                     return RedirectToAction(
                         nameof(LicenseController.LicenseMenu),
                         Ctrl.Get<LicenseController>());
+                case ActionValues.Demo:
+                    // テスト用メニューリストを表示
+                    return RedirectToAction(
+                        nameof(DemoController.LicenseMenu),
+                        Ctrl.Get<DemoController>());
                 default:
                     // 定義外のアクションが送られた場合のエラー処理
                     return this.RedirectToResult(

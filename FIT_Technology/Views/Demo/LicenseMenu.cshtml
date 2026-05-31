@@ -1,0 +1,86 @@
+﻿@using FIT_Technology.Models.Constants
+@model List<FIT_Technology.Models.Entities.EmployeeEntity>
+
+@{
+    Layout = "_Layout";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h2 class="text-center mb-4">@ViewBag.ViewTitle</h2>
+
+            @if (ViewBag.ErrorMsg != null)
+            {
+                <div class="alert alert-danger text-center p-2" role="alert">
+                    <small>@ViewBag.ErrorMsg</small>
+                </div>
+            }
+
+            <form method="post">
+                <div class="table-responsive mb-4">
+                    <table class="table table-bordered table-hover align-middle">
+                        <thead class="table-light">
+                            <tr class="text-center">
+                                <th style="width: 10%;" class="text-center">選択</th>
+                                <th style="width: 30%;">従業員コード</th>
+                                <th style="width: 60%;">氏名</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @* --- ダミーデータ1 --- *@
+                            <tr>
+                                <td class="text-center">
+                                    @* inputに一意の id を設定 *@
+                                    <input type="radio" name="emp_cd" value="EMP001" id="emp_EMP001" class="form-check-input" />
+                                </td>
+                                <td>
+                                    @* labelの for を inputの id と一致させる *@
+                                    <label for="emp_EMP001" class="w-100 m-0 d-block" style="cursor: pointer;">EMP001</label>
+                                </td>
+                                <td>
+                                    <label for="emp_EMP001" class="w-100 m-0 d-block" style="cursor: pointer;">山田 太郎</label>
+                                </td>
+                            </tr>
+
+                            @* --- ダミーデータ2 --- *@
+                            <tr>
+                                <td class="text-center">
+                                    <input type="radio" name="emp_cd" value="EMP002" id="emp_EMP002" class="form-check-input" />
+                                </td>
+                                <td>
+                                    <label for="emp_EMP002" class="w-100 m-0 d-block" style="cursor: pointer;">EMP002</label>
+                                </td>
+                                <td>
+                                    <label for="emp_EMP002" class="w-100 m-0 d-block" style="cursor: pointer;">鈴木 花子</label>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <div class="row g-2">
+                        <div class="col">
+                            <button type="submit" name="btn_action" value="@ActionValues.List" class="btn btn-outline-primary w-100">
+                                選択者の資格一覧を表示
+                            </button>
+                        </div>
+                        <div class="col">
+                            <button type="submit" name="btn_action" value="@ActionValues.Insert" class="btn btn-outline-primary w-100">
+                                選択者の資格登録
+                            </button>
+                        </div>
+                    </div>
+                    <hr class="my-3" />
+                    <button type="submit" name="btn_action" value="employeeInsert" class="btn btn-primary">
+                        従業員の新規登録へ
+                    </button>
+                    <a asp-controller="Account" asp-action="Menu" class="btn btn-outline-secondary mt-2">
+                        戻る（トップメニューへ）
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

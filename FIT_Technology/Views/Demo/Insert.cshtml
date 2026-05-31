@@ -1,0 +1,37 @@
+﻿@model FIT_Technology.Models.Entities.GetLicenseEntity
+
+@{
+    Layout = "_Layout";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h2 class="text-center">@ViewBag.ViewTitle</h2>
+
+            @* 選択された従業員情報の表示エリア *@
+            <div class="alert alert-light border text-center mb-4">
+                <span class="text-muted">対象従業員：</span>
+                <strong>@ViewBag.ViewName</strong>
+            </div>
+
+            <form method="post">
+                <div class="form-group mb-3">
+                    <label class="form-label">資格コード</label>
+                    <input type="text" class="form-control" placeholder="例: LIC05" />
+                </div>
+
+                <div class="form-group mb-3">
+                    <label class="form-label">取得日</label>
+                    <input type="date" class="form-control" />
+                </div>
+
+                <br />
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary">資格を登録する</button>
+                    <a asp-action="LicenseMenu" class="btn btn-outline-secondary">LicenseMenuに戻る</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
