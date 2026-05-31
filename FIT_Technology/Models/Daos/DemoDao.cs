@@ -12,25 +12,29 @@ namespace FIT_Technology.Models.Daos
         public DemoGetLicenseDao() { }
 
         /// <summary>
-        /// 複合主キー（従業員コード、資格コード）を使用して、特定の資格取得情報を検索します。
+        /// 複合主キー（従業員コード、資格コード）を使用して、特定の資格取得情報を検索します（資格名付き）。
         /// </summary>
-        /// <param name="pkeys">pkeys[0]: 従業員コード(char(4)), pkeys[1]: 資格コード(char(5))</param>
         public override GetLicenseEntity Find(params object[] pkeys)
         {
-            // 複合キーのため、2つの引数が正しく渡されているかチェック
             if (pkeys == null || pkeys.Length < 2 || pkeys[0] == null || pkeys[1] == null) return null;
 
+            // 動的なテーブル名取得（t_get_license等）
             string tableName = EntityMetaHelper.GetTableName<GetLicenseEntity>();
 
+            // ★修正：m_license テーブルと JOIN して資格名(license_nm)も取得
             string query = $@"
-                SELECT *
-                FROM {tableName}
-                WHERE emp_cd = @EmpCd AND license_cd = @LicenseCd";
+                SELECT 
+                    gl.emp_cd,
+                    gl.license_cd,
+                    gl.get_license_date,
+                    l.license_nm
+                FROM {tableName} gl
+                INNER JOIN m_license l ON gl.license_cd = l.license_cd
+                WHERE gl.emp_cd = @EmpCd AND gl.license_cd = @LicenseCd";
 
             using (SqlCommand cmd = new SqlCommand(query, con))
             {
                 cmd.Transaction = trn;
-                // それぞれの型（char(4), char(5)）を明示的に指定
                 cmd.Parameters.Add("@EmpCd", SqlDbType.Char, 4).Value = pkeys[0];
                 cmd.Parameters.Add("@LicenseCd", SqlDbType.Char, 5).Value = pkeys[1];
 
@@ -38,6 +42,7 @@ namespace FIT_Technology.Models.Daos
                 {
                     if (reader.Read())
                     {
+                        // MapToEntity 拡張メソッドにより、追加した LicenseNm にも自動で値が入ります
                         return reader.MapToEntity<GetLicenseEntity>();
                     }
                 }
@@ -46,16 +51,26 @@ namespace FIT_Technology.Models.Daos
         }
 
         /// <summary>
-        /// 特定の従業員が保有する資格取得レコードをすべて取得します。
+        /// 特定の従業員が保有する資格取得レコードをすべて取得します（資格名付き）。
         /// </summary>
-        /// <param name="empCd">従業員コード</param>
         public List<GetLicenseEntity> FindByEmpCd(string empCd)
         {
             var list = new List<GetLicenseEntity>();
             if (string.IsNullOrEmpty(empCd)) return list;
 
             string tableName = EntityMetaHelper.GetTableName<GetLicenseEntity>();
-            string query = $"SELECT * FROM {tableName} WHERE emp_cd = @EmpCd";
+
+            // ★修正：ここが保有資格一覧画面（List.cshtml）のデータソースになります
+            string query = $@"
+                SELECT 
+                    gl.emp_cd,
+                    gl.license_cd,
+                    gl.get_license_date,
+                    l.license_nm
+                FROM {tableName} gl
+                INNER JOIN m_license l ON gl.license_cd = l.license_cd
+                WHERE gl.emp_cd = @EmpCd
+                ORDER BY gl.license_cd"; // 画面で見やすいよう資格コード順にソート
 
             using (SqlCommand cmd = new SqlCommand(query, con))
             {

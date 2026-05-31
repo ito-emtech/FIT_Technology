@@ -12,6 +12,32 @@ namespace FIT_Technology.Models.Services
     public class DemoGetLicenseService
     {
         /// <summary>
+        /// 指定された従業員コードと資格コードを基に、特定の資格取得情報を取得します（資格名付き）。
+        /// </summary>
+        /// <param name="empCd">従業員コード</param>
+        /// <param name="licenseCd">資格コード</param>
+        /// <returns>合致する資格取得エンティティ。見つからない、または例外発生時は null を返します。</returns>
+        public GetLicenseEntity GetLicense(string empCd, string licenseCd)
+        {
+            if (string.IsNullOrEmpty(empCd) || string.IsNullOrEmpty(licenseCd)) { return null; }
+
+            try
+            {
+                using (TranMng tm = TranMng.BeginTransaction(DbConstants.EmpDbConnection))
+                {
+                    var dao = new DemoGetLicenseDao();
+                    // 引数をparams object[]に合わせて、[0]: 従業員コード, [1]: 資格コード の順で渡します
+                    return dao.Find(empCd, licenseCd);
+                }
+            }
+            catch
+            {
+                // 必要に応じてロギング処理をここに記述
+                return null;
+            }
+        }
+
+        /// <summary>
         /// 指定された従業員コードに紐づく、保有資格レコードの一覧を取得します。
         /// </summary>
         /// <param name="empCd">従業員コード</param>
@@ -142,6 +168,25 @@ namespace FIT_Technology.Models.Services
             catch
             {
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// すべての資格マスタ情報を取得します。
+        /// </summary>
+        public List<LicenseEntity> GetLicenses()
+        {
+            try
+            {
+                using (TranMng tm = TranMng.BeginTransaction(DbConstants.EmpDbConnection))
+                {
+                    var dao = new LicenseDao();
+                    return dao.FindAll() ?? new List<LicenseEntity>();
+                }
+            }
+            catch
+            {
+                return new List<LicenseEntity>();
             }
         }
     }

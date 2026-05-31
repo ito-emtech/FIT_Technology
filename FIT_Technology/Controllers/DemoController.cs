@@ -176,10 +176,12 @@ namespace FIT_Technology.Controllers
 
             string emp_cd = (string)(TempData[TempKeys.CreateEmployee] ?? string.Empty);
 
-            // ★モック固定値を廃止: 選択された従業員の本物の情報を取得してヘッダー表示
             EmployeeEntity emp = _employeeService.GetEmployee(emp_cd);
             string name = emp != null ? $"{emp.LastNm} {emp.FirstNm}" : "未知の従業員";
             ViewBag.ViewName = $"［{emp_cd}］{name}";
+
+            // ★追加：セレクトボックス用の資格マスタ一覧を取得して渡す
+            ViewBag.Licenses = _licenseService.GetLicenses();
 
             TempData.Keep(TempKeys.CreateEmployee);
             TempData.Keep(TempKeys.TargetEmpCd);
@@ -187,7 +189,7 @@ namespace FIT_Technology.Controllers
             var entity = new GetLicenseEntity
             {
                 EmpCd = emp_cd,
-                GetLicenseDate = DateTime.Today // 初期値として本日の日付を設定
+                GetLicenseDate = DateTime.Today
             };
 
             return View(entity);
@@ -205,6 +207,7 @@ namespace FIT_Technology.Controllers
             if (entity == null)
             {
                 ViewBag.ErrorMsg = "入力データが不正です。";
+                ViewBag.Licenses = _licenseService.GetLicenses(); // ★追加
                 return View(new GetLicenseEntity());
             }
 
@@ -215,10 +218,12 @@ namespace FIT_Technology.Controllers
                 string name = emp != null ? $"{emp.LastNm} {emp.FirstNm}" : "未知の従業員";
                 ViewBag.ViewName = $"［{emp_cd}］{name}";
 
+                // ★追加：入力エラーで画面に戻る際も選択肢が消えないよう再取得
+                ViewBag.Licenses = _licenseService.GetLicenses();
+
                 return View(entity);
             }
 
-            // ★サービスを適用してDBに資格登録を実行
             bool isSuccess = _licenseService.RegisterLicense(entity);
             if (!isSuccess)
             {
@@ -228,6 +233,9 @@ namespace FIT_Technology.Controllers
                 EmployeeEntity emp = _employeeService.GetEmployee(emp_cd);
                 string name = emp != null ? $"{emp.LastNm} {emp.FirstNm}" : "未知の従業員";
                 ViewBag.ViewName = $"［{emp_cd}］{name}";
+
+                // ★追加：エラーで画面に戻る際も選択肢が消えないよう再取得
+                ViewBag.Licenses = _licenseService.GetLicenses();
 
                 return View(entity);
             }
@@ -299,7 +307,7 @@ namespace FIT_Technology.Controllers
         }
 
         /// <summary>
-        /// 保有資格の削除確認画面を表示します
+        /// 保有資格の削除確認画面を表示します（資格名・正確な取得日付き）
         /// </summary>
         [HttpGet]
         public IActionResult Alert()
@@ -307,16 +315,21 @@ namespace FIT_Technology.Controllers
             string[] license_codes = (string[])(TempData[TempKeys.DeleteLicense] ?? Array.Empty<string>());
             string emp_cd = (string)(TempData[TempKeys.TargetEmpCd] ?? string.Empty);
 
+            EmployeeEntity emp = _employeeService.GetEmployee(emp_cd);
+            string name = emp != null ? $"{emp.LastNm} {emp.FirstNm}" : "未知の従業員";
+            ViewBag.ViewName = $"［{emp_cd}］{name}";
+
             List<GetLicenseEntity> entities = new List<GetLicenseEntity>();
+
             foreach (string code in license_codes)
             {
-                var entity = new GetLicenseEntity
+                // ★修正点: new ではなく、DAO(サービス経由)でDBから資格名や正しい取得日が入った完全なデータを取得します
+                GetLicenseEntity entity = _licenseService.GetLicense(emp_cd, code);
+
+                if (entity != null)
                 {
-                    LicenseCd = code,
-                    EmpCd = emp_cd, // ★固定値を廃止し、TempDataから引き継いだコードを設定
-                    GetLicenseDate = DateTime.Now
-                };
-                entities.Add(entity);
+                    entities.Add(entity);
+                }
             }
 
             TempData.Keep(TempKeys.DeleteLicense);

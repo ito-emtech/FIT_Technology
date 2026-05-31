@@ -51,6 +51,31 @@ namespace FIT_Technology.Models.Daos
             return null;
         }
 
+        /// <summary>
+        /// 全ての資格マスタレコードを取得します。
+        /// </summary>
+        public List<LicenseEntity> FindAll()
+        {
+            var list = new List<LicenseEntity>();
+            string tableName = EntityMetaHelper.GetTableName<LicenseEntity>();
+
+            string query = $"SELECT * FROM {tableName} ORDER BY license_cd";
+
+            using (SqlCommand cmd = new SqlCommand(query, con))
+            {
+                cmd.Transaction = trn;
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        list.Add(reader.MapToEntity<LicenseEntity>());
+                    }
+                }
+            }
+            return list;
+        }
+
         public override int Insert(LicenseEntity entity) => throw new NotImplementedException();
         public override int Update(LicenseEntity entity) => throw new NotImplementedException();
         public override int Delete(LicenseEntity entity) => throw new NotImplementedException();

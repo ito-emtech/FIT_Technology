@@ -8,7 +8,6 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-9">
-            @* 項目が増えたため、横幅を少し広げました (col-md-8 -> 9) *@
             <h2 class="text-center mb-4">@ViewBag.ViewTitle</h2>
 
             @if (ViewBag.ErrorMsg != null)
@@ -26,7 +25,7 @@
                                 <th style="width: 10%;">選択</th>
                                 <th style="width: 20%;">従業員コード</th>
                                 <th style="width: 50%;">氏名</th>
-                                <th style="width: 20%;">部署</th> @* 部署ヘッダを追加 *@
+                                <th style="width: 20%;">部署</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -45,7 +44,7 @@
                                         </td>
                                         <td>
                                             <label for="@domId" class="w-100 m-0 d-block" style="cursor: pointer;">
-                                                @item.LastNm @item.FirstNm（@item.LastNmKana @item.FirstNmKana）
+                                                @item.LastNm @item.FirstNm （@item.LastNmKana @item.FirstNmKana）
                                             </label>
                                         </td>
                                         <td>
@@ -58,33 +57,10 @@
                             }
                             else
                             {
-                                @* --- 画面遷移確認用のデモデータ --- *@
+                                @* ★デモデータを廃止し、本番仕様の「データなし」行に差し替え *@
                                 <tr>
-                                    <td class="text-center">
-                                        <input type="radio" name="emp_cd" value="EMP001" id="emp_EMP001" class="form-check-input" />
-                                    </td>
-                                    <td>
-                                        <label for="emp_EMP001" class="w-100 m-0 d-block text-center" style="cursor: pointer;">EMP001</label>
-                                    </td>
-                                    <td>
-                                        <label for="emp_EMP001" class="w-100 m-0 d-block" style="cursor: pointer;">山田 太郎（ヤマダ タロウ）</label>
-                                    </td>
-                                    <td>
-                                        <label for="emp_EMP001" class="w-100 m-0 d-block text-center" style="cursor: pointer;">01</label>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="text-center">
-                                        <input type="radio" name="emp_cd" value="EMP002" id="emp_EMP002" class="form-check-input" />
-                                    </td>
-                                    <td>
-                                        <label for="emp_EMP002" class="w-100 m-0 d-block text-center" style="cursor: pointer;">EMP002</label>
-                                    </td>
-                                    <td>
-                                        <label for="emp_EMP002" class="w-100 m-0 d-block" style="cursor: pointer;">鈴木 花子（スズキ ハナコ）</label>
-                                    </td>
-                                    <td>
-                                        <label for="emp_EMP002" class="w-100 m-0 d-block text-center" style="cursor: pointer;">02</label>
+                                    <td colspan="4" class="text-center text-muted py-4">
+                                        対象の従業員データが登録されていません。
                                     </td>
                                 </tr>
                             }

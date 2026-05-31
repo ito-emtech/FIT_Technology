@@ -55,5 +55,15 @@ namespace FIT_Technology.Models.Entities
         [Column("updated", TypeName = "datetime2")]
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime Updated { get; set; }
+
+        // 既存の GetLicenseEntity クラス内に追記
+        [Column("license_nm")] // SQLで結合して取得した列名とマッピング
+        public string LicenseNm { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 画面のテーブル表示用（例：［L0001］ITパスポート）
+        /// </summary>
+        [NotMapped]
+        public string DisplayLicenseText => $"［{LicenseCd.Trim()}］{LicenseNm}";
     }
 }

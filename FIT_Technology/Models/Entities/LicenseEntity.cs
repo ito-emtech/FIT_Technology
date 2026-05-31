@@ -30,5 +30,12 @@ namespace FIT_Technology.Models.Entities
         [Required(ErrorMessage = "{0}は必須項目です。")]
         [StringLength(100, ErrorMessage = "{0}は{1}文字以内で入力してください。")]
         public string LicenseNm { get; set; } = string.Empty;
+
+        /// <summary>
+        /// ★追加：画面のセレクトボックス表示用の整形テキスト
+        /// DBのテーブルとは連動させないため [NotMapped] を付与します
+        /// </summary>
+        [NotMapped]
+        public string DisplayLicenseText => $"［{LicenseCd.Trim()}］{LicenseNm}";
     }
 }

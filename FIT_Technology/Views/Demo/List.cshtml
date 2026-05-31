@@ -7,7 +7,9 @@
 
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col-md-8">
+        <div class="col-md-9">
+            @* ★列が増えたため、横幅を少し広げました (col-md-8 -> 9) *@
+            <h5 class="text-muted text-center mb-1">@ViewBag.ViewName</h5>
             <h2 class="text-center mb-4">保有資格一覧</h2>
 
             @if (ViewBag.ErrorMsg != null)
@@ -23,8 +25,9 @@
                         <thead class="table-light">
                             <tr class="text-center">
                                 <th style="width: 15%;">削除選択</th>
-                                <th style="width: 35%;">資格コード</th>
-                                <th style="width: 50%;">取得日</th>
+                                <th style="width: 20%;">資格コード</th>
+                                <th style="width: 40%;">資格名</th> @* ★ヘッダー追加 *@
+                                <th style="width: 25%;">取得日</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -32,20 +35,23 @@
                             {
                                 @foreach (var item in Model)
                                 {
-                                    @* 複合キーを意識し、一意になるDOM IDを生成 *@
                                     var domId = $"lic_{item.EmpCd}_{item.LicenseCd}";
 
                                     <tr>
                                         <td class="text-center">
-                                            @* コントローラーの引数 string[] license_cd にバインドさせるため name="license_cd" *@
                                             <input type="checkbox" name="license_cd" value="@item.LicenseCd" id="@domId" class="form-check-input" />
                                         </td>
                                         <td>
                                             <label for="@domId" class="w-100 m-0 d-block text-center" style="cursor: pointer;">@item.LicenseCd</label>
                                         </td>
                                         <td>
-                                            @* 日付を YYYY-MM-DD 形式で綺麗に整形して表示 *@
-                                            <label for="@domId" class="w-100 m-0 d-block text-center" style="cursor: pointer;">
+                                            @* ★結合した資格名を表示（クリックで行選択できるようlabel化） *@
+                                            <label for="@domId" class="w-100 m-0 d-block text-start ps-2" style="cursor: pointer;">
+                                                @item.LicenseNm
+                                            </label>
+                                        </td>
+                                        <td>
+                                            <label for="@domId" class="w-100 m-0 d-block text-center" style="cursor: pointer(" yyyy-MM-dd")">
                                                 @item.GetLicenseDate.ToString("yyyy-MM-dd")
                                             </label>
                                         </td>
@@ -54,27 +60,10 @@
                             }
                             else
                             {
-                                @* --- 画面遷移確認用のデモデータ --- *@
                                 <tr>
-                                    <td class="text-center">
-                                        <input type="checkbox" name="license_cd" value="L0001" id="lic_demo_L0001" class="form-check-input" />
-                                    </td>
-                                    <td>
-                                        <label for="lic_demo_L0001" class="w-100 m-0 d-block text-center" style="cursor: pointer;">L0001</label>
-                                    </td>
-                                    <td>
-                                        <label for="lic_demo_L0001" class="w-100 m-0 d-block text-center" style="cursor: pointer;">2026-05-10</label>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="text-center">
-                                        <input type="checkbox" name="license_cd" value="L0002" id="lic_demo_L0002" class="form-check-input" />
-                                    </td>
-                                    <td>
-                                        <label for="lic_demo_L0002" class="w-100 m-0 d-block text-center" style="cursor: pointer;">L0002</label>
-                                    </td>
-                                    <td>
-                                        <label for="lic_demo_L0002" class="w-100 m-0 d-block text-center" style="cursor: pointer;">2026-05-31</label>
+                                    @* ★colspanを 3 から 4 に変更 *@
+                                    <td colspan="4" class="text-center text-muted py-4">
+                                        保有している資格はありません。
                                     </td>
                                 </tr>
                             }
@@ -83,7 +72,7 @@
                 </div>
 
                 <div class="d-grid gap-2">
-                    <button type="submit" name="btn_action" value="@ActionValues.Alert" class="btn btn-danger">
+                    <button type="submit" name="btn_action" value="@ActionValues.Alert" class="btn btn-danger" @(Model != null && Model.Any() ? "" : "disabled")>
                         選択した資格の削除確認画面へ
                     </button>
                     <a asp-action="LicenseMenu" class="btn btn-outline-secondary">LicenseMenuに戻る</a>
