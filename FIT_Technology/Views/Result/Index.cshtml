@@ -3,29 +3,34 @@
 @{
     Layout = "_Layout";
     var displayTitle = ViewBag.ViewTitle ?? "システム通知";
+    var btnView = ViewBag.ButtonView ?? "次に進む";
 }
+
+<style>
+    .view-msg{
+        white-space: pre-line;
+        word-break: break-all;
+    }
+</style>
 
 <div class="container">
     <div class="row justify-content-center">
-        @* 他の画面と同じ col-md-4 に統一することで、横幅がピッタリ合います *@
         <div class="col-md-4">
 
-            @* タイトルを他の画面と同じ形式で表示 *@
-            <h2 class="text-center mb-4">@displayTitle</h2>
+            <h2 class="text-center mb-4">@(displayTitle)</h2>
 
-            @* カードのデザインを適用（影や枠線） *@
             <div class="card shadow-sm">
-                <div class="card-body text-center p-4">
-                    <pre class="card-text fs-5 mb-4">@ViewBag.Msg</pre>
+                <div class="card-body p-4">
 
-                    <form method="post">
-                        <div class="d-grid">
-                            @* ログインボタンと同じサイズ感にするため btn-lg は外してもOK *@
-                            <button type="submit" name="btn_action" value="back" class="btn btn-primary">
-                                次へ進む
-                            </button>
-                        </div>
-                    </form>
+                    @* メッセージ本文：左寄せ・自動折り返し *@
+                    <div class="card-text fs-5 mb-4 text-start view-msg">@ViewBag.Msg</div>
+
+                    @* ボタン：カード中央寄りに配置（d-gridで横幅いっぱい） *@
+                    <div class="d-grid">
+                        <a asp-controller="Account" asp-action="Menu" class="btn btn-primary">
+                            @(btnView)
+                        </a>
+                    </div>
                 </div>
 
                 @if (ViewBag.Caption != null)
