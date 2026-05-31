@@ -2,6 +2,7 @@
 using FIT_Technology.Models.Constants;
 using FIT_Technology.Models.Entities;
 using FIT_Technology.Models.Helpers;
+using FIT_Technology.Models.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Runtime.CompilerServices;
 
@@ -10,6 +11,19 @@ namespace FIT_Technology.Controllers
     [SessionCheck]
     public class DemoController : Controller
     {
+        // 従業員サービスを保持するプライベート変数
+        private readonly DemoEmployeeService _employeeService;
+
+        /// <summary>
+        /// コンストラクタでサービスを注入します
+        /// </summary>
+        public DemoController()
+        {
+            // DIコンテナを導入していないシンプルな構造を想定し、手動でインスタンス化
+            // （DIが設定されている環境であれば、引数に DemoEmployeeService service を定義してください）
+            _employeeService = new DemoEmployeeService();
+        }
+
         public static class TempKeys
         {
             public const string CreateEmployee = "createEmployee";
@@ -29,7 +43,7 @@ namespace FIT_Technology.Controllers
         }
 
         /// <summary>
-        /// 保有資格の管理メニュー画面を表示します
+        /// 保有資格の管理メニュー画面を表示します（従業員一覧表示）
         /// </summary>
         [HttpGet]
         public IActionResult LicenseMenu()
@@ -37,7 +51,8 @@ namespace FIT_Technology.Controllers
             ViewBag.Title = "保有資格管理システム画面";
             ViewBag.ViewTitle = "保有資格管理システム";
 
-            List<EmployeeEntity> entities = new List<EmployeeEntity>();
+            // 【サービス適用】データベースから本物の従業員一覧を取得してViewに渡す
+            List<EmployeeEntity> entities = _employeeService.GetEmployees();
 
             return View(entities);
         }
@@ -55,8 +70,8 @@ namespace FIT_Technology.Controllers
             if (string.IsNullOrEmpty(btn_action))
             {
                 ViewBag.ErrorMsg = "操作を選択してください";
-                // 再表示用に空の一覧を渡す
-                return View(new List<EmployeeEntity>());
+                // 再表示用に現在の最新一覧を渡す
+                return View(_employeeService.GetEmployees());
             }
 
             // デモとして追加
@@ -71,8 +86,8 @@ namespace FIT_Technology.Controllers
             if (string.IsNullOrEmpty(emp_cd))
             {
                 ViewBag.ErrorMsg = "従業員が選択されていません";
-                // 再表示用に空の一覧を渡す
-                return View(new List<EmployeeEntity>());
+                // 再表示用に現在の最新一覧を渡す
+                return View(_employeeService.GetEmployees());
             }
 
             switch (btn_action)
@@ -133,6 +148,16 @@ namespace FIT_Technology.Controllers
                 return View(entity);
             }
 
+            // 【サービス適用】DBに新従業員を登録する
+            bool isSuccess = _employeeService.RegisterEmployee(entity);
+
+            if (!isSuccess)
+            {
+                // 重複コードやシステムエラーがあった場合のハンドリング
+                ViewBag.ErrorMsg = "従業員コードが既に登録されているか、登録処理中にエラーが発生しました。";
+                return View(entity);
+            }
+
             return this.RedirectToResult(
                 viewTitle: "従業員新規登録",
                 msg: "従業員の新規登録が完了しました。",
@@ -156,7 +181,6 @@ namespace FIT_Technology.Controllers
             // TempData は一度読み込むと消えるため、再入力に備えてキープしておく
             TempData.Keep(TempKeys.CreateEmployee);
 
-            // 【ここを修正】
             var entity = new GetLicenseEntity
             {
                 EmpCd = emp_cd
