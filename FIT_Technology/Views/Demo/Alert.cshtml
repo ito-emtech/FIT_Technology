@@ -16,10 +16,45 @@
             <form method="post">
                 @* 削除対象のリスト表示 *@
                 <ul class="list-group mb-4">
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        基本情報技術者
-                        <span class="badge bg-secondary rounded-pill">LIC001</span>
-                    </li>
+                    @if (Model != null && Model.Any())
+                    {
+                        @for (int i = 0; i < Model.Count; i++)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="bi bi-exclamation-triangle text-danger me-2"></i>
+                                    @* 【重要】POST時にControllerの引数「List<GetLicenseEntity> entities」へ
+                                      データをバインドさせるため、インデックス付きの隠しフィールド（hidden）を用意します
+                                    *@
+                                    <input type="hidden" name="[@i].EmpCd" value="@Model[i].EmpCd" />
+                                    <input type="hidden" name="[@i].LicenseCd" value="@Model[i].LicenseCd" />
+
+                                    @* 画面表示用のテキスト（取得日などがあれば一緒に添える） *@
+                                    <span>取得日: @Model[i].GetLicenseDate.ToString("yyyy-MM-dd")</span>
+                                </div>
+                                @* 右側に資格コードをバッジとして表示 *@
+                                <span class="badge bg-danger rounded-pill">@Model[i].LicenseCd</span>
+                            </li>
+                        }
+                    }
+                    else
+                    {
+                        @* --- 画面遷移確認用のデモデータ --- *@
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="bi bi-exclamation-triangle text-danger me-2"></i>
+                                <span>取得日: 2026-05-10 (デモ用)</span>
+                            </div>
+                            <span class="badge bg-danger rounded-pill">L0001</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="bi bi-exclamation-triangle text-danger me-2"></i>
+                                <span>取得日: 2026-05-31 (デモ用)</span>
+                            </div>
+                            <span class="badge bg-danger rounded-pill">L0002</span>
+                        </li>
+                    }
                 </ul>
 
                 <div class="d-grid gap-2">

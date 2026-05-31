@@ -19,9 +19,6 @@ namespace FIT_Technology.Controllers
         /// <summary>
         /// 従業員管理システムのデフォルト入り口
         /// </summary>
-        /// <remarks>
-        /// トップ画面にリダイレクトします
-        /// </remarks>
         [HttpGet]
         public IActionResult Index()
         {
@@ -29,29 +26,15 @@ namespace FIT_Technology.Controllers
             return RedirectToAction(
                 nameof(DemoController.LicenseMenu),
                 Ctrl.Get<DemoController>());
-
-            /* トップメニュー画面 */
-            //return RedirectToAction(
-            //    nameof(AccountController.Menu),
-            //    Ctrl.Get<AccountController>()
-            //    );
         }
 
         /// <summary>
         /// 保有資格の管理メニュー画面を表示します
         /// </summary>
-        /// <remarks>
-        /// 従業員の一覧を表示します
-        /// チェックボタンで従業員の選択が行えます
-        /// 選択された従業員に対する処理を送信ボタンで決定します
-        /// 戻るボタンでトップメニューに戻れます
-        /// </remarks>
         [HttpGet]
         public IActionResult LicenseMenu()
         {
-            // タグに表示されるタイトル
             ViewBag.Title = "保有資格管理システム画面";
-            // 画面上に表示されるタイトル
             ViewBag.ViewTitle = "保有資格管理システム";
 
             List<EmployeeEntity> entities = new List<EmployeeEntity>();
@@ -62,53 +45,49 @@ namespace FIT_Technology.Controllers
         /// <summary>
         /// 保有資格の管理メニュー画面からのアクション振り分け
         /// </summary>
-        /// <remarks>
-        /// 従業員の一覧を表示します
-        /// チェックボタンで従業員の選択が行えます
-        /// 選択された従業員に対する処理を送信ボタンで決定します
-        /// ・従業員の新規登録
-        /// ・選択者の保有資格一覧を表示
-        /// </remarks>
         [HttpPost]
         public IActionResult LicenseMenu(string btn_action, string emp_cd)
         {
             ViewBag.Title = "保有資格管理システム";
+            ViewBag.ViewTitle = "保有資格管理システム";
 
+            // btn_action の null または 空チェック
             if (string.IsNullOrEmpty(btn_action))
             {
                 ViewBag.ErrorMsg = "操作を選択してください";
-                return View();
+                // 再表示用に空の一覧を渡す
+                return View(new List<EmployeeEntity>());
             }
 
             // デモとして追加
-            if(btn_action == "employeeInsert")
+            if (btn_action == "employeeInsert")
             {
-                // 従業員の新規登録
                 return RedirectToAction(
                     nameof(DemoController.EmployeeInsert),
                     Ctrl.Get<DemoController>());
             }
 
-            if(string.IsNullOrEmpty(emp_cd))
+            // emp_cd の null または 空チェック
+            if (string.IsNullOrEmpty(emp_cd))
             {
-                // ErrorMsgがある時はタイトルの下に表示
                 ViewBag.ErrorMsg = "従業員が選択されていません";
-                View();
+                // 再表示用に空の一覧を渡す
+                return View(new List<EmployeeEntity>());
             }
 
             switch (btn_action)
             {
                 case ActionValues.Insert:
-                    // 選択者の資格登録
-                    TempData[TempKeys.CreateEmployee] = emp_cd ?? "D001";
+                    TempData[TempKeys.CreateEmployee] = emp_cd;
                     return RedirectToAction(
-                        nameof(DemoController.Insert), 
+                        nameof(DemoController.Insert),
                         Ctrl.Get<DemoController>());
 
                 case ActionValues.List:
-                    // 選択者の資格一覧
+                    // 本来は選択された emp_cd を次画面に引き継ぐため TempData やクエリパラメータにセットするべきですが、
+                    // 現状の構成を維持しています。
                     return RedirectToAction(
-                        nameof(DemoController.List), 
+                        nameof(DemoController.List),
                         Ctrl.Get<DemoController>());
 
                 default:
@@ -122,32 +101,37 @@ namespace FIT_Technology.Controllers
         /// <summary>
         /// 従業員新規登録画面を表示
         /// </summary>
-        /// <remarks>
-        /// 新規従業員の入力を行う画面です
-        /// リンクで"LicenseMenu"に戻れます
-        /// </remarks>
         [HttpGet]
         public IActionResult EmployeeInsert()
         {
             ViewBag.Title = "従業員新規登録";
+            ViewBag.ViewTitle = "従業員新規登録";
 
-            return View();
+            return View(new EmployeeEntity());
         }
 
         /// <summary>
         /// 従業員新規登録を行う
         /// </summary>
-        /// <remarks>
-        /// 入力項目のチェックを行います
-        /// 従業員の登録を行います
-        /// </remarks>
         [HttpPost]
         public IActionResult EmployeeInsert(EmployeeEntity entity)
         {
             ViewBag.Title = "再入力画面";
             ViewBag.ViewTitle = "従業員新規登録";
 
-            //if (!ModelState.IsValid) { return View(); }
+            // 1. 引数オブジェクト自体の null チェック
+            if (entity == null)
+            {
+                ViewBag.ErrorMsg = "入力データが不正です。";
+                return View(new EmployeeEntity());
+            }
+
+            // 2. DataAnnotations に基づく入力検証 (ModelState.IsValid)
+            if (!ModelState.IsValid)
+            {
+                // 検証エラーがある場合は、入力内容を保持したまま登録画面へ戻す
+                return View(entity);
+            }
 
             return this.RedirectToResult(
                 viewTitle: "従業員新規登録",
@@ -158,36 +142,55 @@ namespace FIT_Technology.Controllers
         /// <summary>
         /// 保有資格の登録画面
         /// </summary>
-        /// <remarks>
-        /// 選択された従業員に対して、新規資格の登録を行います
-        /// 登録資格の入力を行う画面です
-        /// リンクで"LicenseMenu"に戻れます
-        /// </remarks>
         [HttpGet]
         public IActionResult Insert()
         {
             ViewBag.Title = "資格登録画面";
             ViewBag.ViewTitle = "資格登録";
 
-            // タイトルの下に登録者名を表示
-            // 従業員コード[NNNN] : 氏名（フリガナ）
+            // 1. TempDataから4文字の純粋な従業員コードを取得
             string emp_cd = (string)(TempData[TempKeys.CreateEmployee] ?? string.Empty);
-            ViewBag.ViewName = emp_cd;
+            string name = "田中 太郎";
+            ViewBag.ViewName = $"［{emp_cd}］{name}";
 
-            return View();
+            // TempData は一度読み込むと消えるため、再入力に備えてキープしておく
+            TempData.Keep(TempKeys.CreateEmployee);
+
+            // 【ここを修正】
+            var entity = new GetLicenseEntity
+            {
+                EmpCd = emp_cd
+            };
+
+            return View(entity);
         }
 
         /// <summary>
-        /// 保有資格の登録画面
+        /// 保有資格の登録を行う
         /// </summary>
-        /// <remarks>
-        /// 選択された従業員に対して、新規資格の登録を行います
-        /// 登録資格の入力を行う画面です
-        /// </remarks>
         [HttpPost]
         public IActionResult Insert(GetLicenseEntity entity)
         {
-            //if (!ModelState.IsValid) { return View(); }
+            ViewBag.Title = "資格登録画面";
+            ViewBag.ViewTitle = "資格登録";
+
+            // 1. 引数オブジェクト自体の null チェック
+            if (entity == null)
+            {
+                ViewBag.ErrorMsg = "入力データが不正です。";
+                return View(new GetLicenseEntity());
+            }
+
+            // 2. 入力検証 (ModelState.IsValid)
+            if (!ModelState.IsValid)
+            {
+                // 再表示用に表示名（ViewBag.ViewName）を再構築
+                string emp_cd = entity.EmpCd ?? string.Empty;
+                string name = "田中 太郎";
+                ViewBag.ViewName = $"［{emp_cd}］{name}";
+
+                return View(entity);
+            }
 
             return this.RedirectToResult(
                 viewTitle: "資格登録完了",
@@ -196,43 +199,43 @@ namespace FIT_Technology.Controllers
         }
 
         /// <summary>
-        /// 保有資格の管理メニュー画面を表示します
+        /// 保有資格の一覧画面を表示します
         /// </summary>
-        /// <remarks>
-        /// 選択された従業員の資格一覧を表示します
-        /// チェックボタンで保有資格の選択が行えます
-        /// 選択された資格に対する処理を送信ボタンで決定します
-        /// リンクで"LicenseMenu"に戻れます
-        /// </remarks>
         [HttpGet]
         public IActionResult List()
         {
+            string emp_cd = "D001";
+            string name = "田中 太郎";
+            ViewBag.ViewName = $"［{emp_cd}］{name}";
+
             List<GetLicenseEntity> entities = new List<GetLicenseEntity>();
             return View(entities);
         }
 
         /// <summary>
-        /// 保有資格の管理メニュー画面を表示します
+        /// 保有資格の一覧画面からのアクション振り分け
         /// </summary>
-        /// <remarks>
-        /// 選択された資格に対する処理を送信ボタンで決定します
-        /// </remarks>
         [HttpPost]
         public IActionResult List(string btn_action, string[] license_cd)
         {
+            string emp_cd = "D001";
+            string name = "田中 太郎";
+            ViewBag.ViewName = $"［{emp_cd}］{name}";
+
+            // btn_action および 配列自体の null チェック
             if (string.IsNullOrEmpty(btn_action) || license_cd == null)
             {
                 ViewBag.ErrorMsg = "操作を選択してください";
-                return View();
+                return View(new List<GetLicenseEntity>());
             }
 
-            if(license_cd.Length <= 0)
+            // 配列の要素数チェック
+            if (license_cd.Length <= 0)
             {
                 ViewBag.ErrorMsg = "資格が選択されていません";
-                return View();
+                return View(new List<GetLicenseEntity>());
             }
 
-            // 現在は削除ボタンのみ実装予定
             switch (btn_action)
             {
                 case ActionValues.Alert:
@@ -252,21 +255,26 @@ namespace FIT_Technology.Controllers
         /// <summary>
         /// 保有資格の削除確認画面を表示します
         /// </summary>
-        /// <remarks>
-        /// 選択された資格を表示します
-        /// リンクで"List"に戻れます
-        /// </remarks>
         [HttpGet]
         public IActionResult Alert()
         {
-            string[] license_codes = (string[])(TempData[TempKeys.DeleteLicense] ?? string.Empty);
+            // TempDataの null チェックと取り出し
+            string[] license_codes = (string[])(TempData[TempKeys.DeleteLicense] ?? Array.Empty<string>());
 
             List<GetLicenseEntity> entities = new List<GetLicenseEntity>();
             foreach (string code in license_codes)
             {
-                var entity = new GetLicenseEntity();
+                var entity = new GetLicenseEntity
+                {
+                    LicenseCd = code,
+                    EmpCd = "D001", // デモ用固定値
+                    GetLicenseDate = DateTime.Now
+                };
                 entities.Add(entity);
             }
+
+            // 再入力やリフレッシュに備えてTempDataを保持
+            TempData.Keep(TempKeys.DeleteLicense);
 
             return View(entities);
         }
@@ -274,12 +282,25 @@ namespace FIT_Technology.Controllers
         /// <summary>
         /// 保有資格の削除を行います
         /// </summary>
-        /// <remarks>
-        /// 選択された資格に対する処理を送信ボタンで決定します
-        /// </remarks>
         [HttpPost]
         public IActionResult Alert(List<GetLicenseEntity> entities)
         {
+            // 1. 引数リスト自体の null チェック
+            if (entities == null || entities.Count == 0)
+            {
+                return this.RedirectToResult(
+                    viewTitle: "エラー",
+                    msg: "削除対象の情報が正常に送信されませんでした。",
+                    caption: "再度一覧画面からやり直してください");
+            }
+
+            // 2. リスト内各オブジェクトの検証 (ModelState.IsValid)
+            if (!ModelState.IsValid)
+            {
+                // 削除確認画面でエラーになるケースは稀ですが、安全のために追加
+                return View(entities);
+            }
+
             return this.RedirectToResult(
                 viewTitle: "資格削除完了",
                 msg: "保有資格の削除が完了しました。",

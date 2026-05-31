@@ -22,37 +22,62 @@
                     <table class="table table-bordered table-hover align-middle">
                         <thead class="table-light">
                             <tr class="text-center">
-                                <th style="width: 10%;" class="text-center">選択</th>
-                                <th style="width: 30%;">資格コード</th>
-                                <th style="width: 60%;">資格名</th>
+                                <th style="width: 15%;">削除選択</th>
+                                <th style="width: 35%;">資格コード</th>
+                                <th style="width: 50%;">取得日</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @* --- ダミーデータ1 --- *@
-                            <tr>
-                                <td class="text-center">
-                                    <input type="checkbox" name="license_cd" value="LIC001" id="lic_LIC001" class="form-check-input" />
-                                </td>
-                                <td>
-                                    <label for="lic_LIC001" class="w-100 m-0 d-block" style="cursor: pointer;">LIC001</label>
-                                </td>
-                                <td>
-                                    <label for="lic_LIC001" class="w-100 m-0 d-block" style="cursor: pointer;">基本情報技術者</label>
-                                </td>
-                            </tr>
+                            @if (Model != null && Model.Any())
+                            {
+                                @foreach (var item in Model)
+                                {
+                                    @* 複合キーを意識し、一意になるDOM IDを生成 *@
+                                    var domId = $"lic_{item.EmpCd}_{item.LicenseCd}";
 
-                            @* --- ダミーデータ2 --- *@
-                            <tr>
-                                <td class="text-center">
-                                    <input type="checkbox" name="license_cd" value="LIC002" id="lic_LIC002" class="form-check-input" />
-                                </td>
-                                <td>
-                                    <label for="lic_LIC002" class="w-100 m-0 d-block" style="cursor: pointer;">LIC002</label>
-                                </td>
-                                <td>
-                                    <label for="lic_LIC002" class="w-100 m-0 d-block" style="cursor: pointer;">応用情報技術者</label>
-                                </td>
-                            </tr>
+                                    <tr>
+                                        <td class="text-center">
+                                            @* コントローラーの引数 string[] license_cd にバインドさせるため name="license_cd" *@
+                                            <input type="checkbox" name="license_cd" value="@item.LicenseCd" id="@domId" class="form-check-input" />
+                                        </td>
+                                        <td>
+                                            <label for="@domId" class="w-100 m-0 d-block text-center" style="cursor: pointer;">@item.LicenseCd</label>
+                                        </td>
+                                        <td>
+                                            @* 日付を YYYY-MM-DD 形式で綺麗に整形して表示 *@
+                                            <label for="@domId" class="w-100 m-0 d-block text-center" style="cursor: pointer;">
+                                                @item.GetLicenseDate.ToString("yyyy-MM-dd")
+                                            </label>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                @* --- 画面遷移確認用のデモデータ --- *@
+                                <tr>
+                                    <td class="text-center">
+                                        <input type="checkbox" name="license_cd" value="L0001" id="lic_demo_L0001" class="form-check-input" />
+                                    </td>
+                                    <td>
+                                        <label for="lic_demo_L0001" class="w-100 m-0 d-block text-center" style="cursor: pointer;">L0001</label>
+                                    </td>
+                                    <td>
+                                        <label for="lic_demo_L0001" class="w-100 m-0 d-block text-center" style="cursor: pointer;">2026-05-10</label>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-center">
+                                        <input type="checkbox" name="license_cd" value="L0002" id="lic_demo_L0002" class="form-check-input" />
+                                    </td>
+                                    <td>
+                                        <label for="lic_demo_L0002" class="w-100 m-0 d-block text-center" style="cursor: pointer;">L0002</label>
+                                    </td>
+                                    <td>
+                                        <label for="lic_demo_L0002" class="w-100 m-0 d-block text-center" style="cursor: pointer;">2026-05-31</label>
+                                    </td>
+                                </tr>
+                            }
                         </tbody>
                     </table>
                 </div>

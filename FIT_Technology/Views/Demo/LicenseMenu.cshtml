@@ -7,7 +7,8 @@
 
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col-md-8">
+        <div class="col-md-9">
+            @* 項目が増えたため、横幅を少し広げました (col-md-8 -> 9) *@
             <h2 class="text-center mb-4">@ViewBag.ViewTitle</h2>
 
             @if (ViewBag.ErrorMsg != null)
@@ -22,39 +23,71 @@
                     <table class="table table-bordered table-hover align-middle">
                         <thead class="table-light">
                             <tr class="text-center">
-                                <th style="width: 10%;" class="text-center">選択</th>
-                                <th style="width: 30%;">従業員コード</th>
-                                <th style="width: 60%;">氏名</th>
+                                <th style="width: 10%;">選択</th>
+                                <th style="width: 20%;">従業員コード</th>
+                                <th style="width: 50%;">氏名</th>
+                                <th style="width: 20%;">部署</th> @* 部署ヘッダを追加 *@
                             </tr>
                         </thead>
                         <tbody>
-                            @* --- ダミーデータ1 --- *@
-                            <tr>
-                                <td class="text-center">
-                                    @* inputに一意の id を設定 *@
-                                    <input type="radio" name="emp_cd" value="EMP001" id="emp_EMP001" class="form-check-input" />
-                                </td>
-                                <td>
-                                    @* labelの for を inputの id と一致させる *@
-                                    <label for="emp_EMP001" class="w-100 m-0 d-block" style="cursor: pointer;">EMP001</label>
-                                </td>
-                                <td>
-                                    <label for="emp_EMP001" class="w-100 m-0 d-block" style="cursor: pointer;">山田 太郎</label>
-                                </td>
-                            </tr>
+                            @if (Model != null && Model.Any())
+                            {
+                                @foreach (var item in Model)
+                                {
+                                    var domId = $"emp_{item.EmpCd}";
 
-                            @* --- ダミーデータ2 --- *@
-                            <tr>
-                                <td class="text-center">
-                                    <input type="radio" name="emp_cd" value="EMP002" id="emp_EMP002" class="form-check-input" />
-                                </td>
-                                <td>
-                                    <label for="emp_EMP002" class="w-100 m-0 d-block" style="cursor: pointer;">EMP002</label>
-                                </td>
-                                <td>
-                                    <label for="emp_EMP002" class="w-100 m-0 d-block" style="cursor: pointer;">鈴木 花子</label>
-                                </td>
-                            </tr>
+                                    <tr>
+                                        <td class="text-center">
+                                            <input type="radio" name="emp_cd" value="@item.EmpCd" id="@domId" class="form-check-input" />
+                                        </td>
+                                        <td>
+                                            <label for="@domId" class="w-100 m-0 d-block text-center" style="cursor: pointer;">@item.EmpCd</label>
+                                        </td>
+                                        <td>
+                                            @* 漢字氏名（フリガナ）の形式で表示 *@
+                                            <label for="@domId" class="w-100 m-0 d-block" style="cursor: pointer;">
+                                                @item.LastNm @item.FirstNm（@item.LastNmKana @item.FirstNmKana）
+                                            </label>
+                                        </td>
+                                        <td>
+                                            @* 部署（所属コード）を表示 *@
+                                            <label for="@domId" class="w-100 m-0 d-block text-center" style="cursor: pointer;">@item.SectionCd</label>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                @* --- 画面遷移確認用のデモデータ --- *@
+                                <tr>
+                                    <td class="text-center">
+                                        <input type="radio" name="emp_cd" value="EMP001" id="emp_EMP001" class="form-check-input" />
+                                    </td>
+                                    <td>
+                                        <label for="emp_EMP001" class="w-100 m-0 d-block text-center" style="cursor: pointer;">EMP001</label>
+                                    </td>
+                                    <td>
+                                        <label for="emp_EMP001" class="w-100 m-0 d-block" style="cursor: pointer;">山田 太郎（ヤマダ タロウ）</label>
+                                    </td>
+                                    <td>
+                                        <label for="emp_EMP001" class="w-100 m-0 d-block text-center" style="cursor: pointer;">01</label>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-center">
+                                        <input type="radio" name="emp_cd" value="EMP002" id="emp_EMP002" class="form-check-input" />
+                                    </td>
+                                    <td>
+                                        <label for="emp_EMP002" class="w-100 m-0 d-block text-center" style="cursor: pointer;">EMP002</label>
+                                    </td>
+                                    <td>
+                                        <label for="emp_EMP002" class="w-100 m-0 d-block" style="cursor: pointer;">鈴木 花子（スズキ ハナコ）</label>
+                                    </td>
+                                    <td>
+                                        <label for="emp_EMP002" class="w-100 m-0 d-block text-center" style="cursor: pointer;">02</label>
+                                    </td>
+                                </tr>
+                            }
                         </tbody>
                     </table>
                 </div>
