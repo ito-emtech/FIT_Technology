@@ -1,6 +1,7 @@
 ﻿using DynamicDll.Db;
 using FIT_Technology.Models.Entities;
 using FIT_Technology.Models.Helpers;
+using FIT_Technology.Models.ViewModels;
 using Microsoft.Data.SqlClient;
 using System.Data;
 
@@ -73,6 +74,47 @@ namespace FIT_Technology.Models.Daos
                     while (reader.Read())
                     {
                         list.Add(reader.MapToEntity<EmployeeEntity>());
+                    }
+                }
+            }
+            return list;
+        }
+
+        /// <summary>
+        /// 保有資格管理メニュー一覧用のデータを取得します（部署名・性別名付き）
+        /// </summary>
+        public List<LicenseMenuRowViewModel> FindAllForLicenseMenu()
+        {
+            var list = new List<LicenseMenuRowViewModel>();
+
+            // 必要なカラムを明示的に指定してINNER JOINします
+            string query = @"
+                SELECT 
+                    e.emp_cd,
+                    e.last_nm,
+                    e.first_nm,
+                    e.last_nm_kana,
+                    e.first_nm_kana,
+                    e.gender_cd,
+                    g.gender_nm,
+                    e.birth_date,
+                    e.section_cd,
+                    s.section_nm,
+                    e.emp_date
+                FROM m_employee e
+                INNER JOIN m_section s ON e.section_cd = s.section_cd
+                INNER JOIN m_gender g ON e.gender_cd = g.gender_cd
+                ORDER BY e.emp_cd";
+
+            using (SqlCommand cmd = new SqlCommand(query, con))
+            {
+                cmd.Transaction = trn;
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        list.Add(reader.MapToEntity<LicenseMenuRowViewModel>());
                     }
                 }
             }

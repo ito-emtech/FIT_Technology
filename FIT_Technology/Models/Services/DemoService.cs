@@ -2,6 +2,7 @@
 using FIT_Technology.Models.Constants;
 using FIT_Technology.Models.Daos;
 using FIT_Technology.Models.Entities;
+using FIT_Technology.Models.ViewModels; // ★ViewModelのネームスペースを追加
 
 namespace FIT_Technology.Models.Services
 {
@@ -11,6 +12,30 @@ namespace FIT_Technology.Models.Services
     public class DemoEmployeeService
     {
         /// <summary>
+        /// 保有資格管理メニュー一覧用のデータを取得します（部署名・性別名付き）
+        /// </summary>
+        /// <returns>資格メニュー用表示データのリスト。例外発生時は空のリストを返します。</returns>
+        public List<LicenseMenuRowViewModel> GetLicenseMenuRows()
+        {
+            try
+            {
+                // 既存のアーキテクチャ方針（トランザクション管理）に従いTranMngを生成
+                using (TranMng tm = TranMng.BeginTransaction(DbConstants.EmpDbConnection))
+                {
+                    var dao = new DemoEmployeeDao();
+
+                    // 先ほどDAOに作成した、結合クエリ＆MapToEntityを実行するメソッドを呼び出す
+                    return dao.FindAllForLicenseMenu() ?? new List<LicenseMenuRowViewModel>();
+                }
+            }
+            catch
+            {
+                // 必要に応じてロギング処理をここに記述
+                return new List<LicenseMenuRowViewModel>();
+            }
+        }
+
+        /// <summary>
         /// 全ての従業員レコードを取得します。
         /// </summary>
         /// <returns>従業員エンティティのリスト。例外発生時は空のリストを返します。</returns>
@@ -18,7 +43,6 @@ namespace FIT_Technology.Models.Services
         {
             try
             {
-                // 読み取り専用であっても、既存のアーキテクチャ方針に従いTranMngを生成
                 using (TranMng tm = TranMng.BeginTransaction(DbConstants.EmpDbConnection))
                 {
                     var dao = new DemoEmployeeDao();
@@ -27,7 +51,6 @@ namespace FIT_Technology.Models.Services
             }
             catch
             {
-                // ロギング処理などが必要な場合はここに記述
                 return new List<EmployeeEntity>();
             }
         }
@@ -74,7 +97,6 @@ namespace FIT_Technology.Models.Services
                     var existing = dao.Find(entity.EmpCd);
                     if (existing != null)
                     {
-                        // 既に存在する場合は一意制約違反を避けるため登録処理を中断
                         return false;
                     }
 
@@ -83,7 +105,7 @@ namespace FIT_Technology.Models.Services
 
                     if (result > 0)
                     {
-                        tm.Commit(); // 影響行数が1行以上あればコミット
+                        tm.Commit();
                         return true;
                     }
 
@@ -92,7 +114,6 @@ namespace FIT_Technology.Models.Services
             }
             catch
             {
-                // 例外発生時は TranMng の Dispose により自動でロールバックされます
                 return false;
             }
         }

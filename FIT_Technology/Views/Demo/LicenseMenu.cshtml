@@ -1,5 +1,5 @@
 ﻿@using FIT_Technology.Models.Constants
-@model List<FIT_Technology.Models.Entities.EmployeeEntity>
+@model List<FIT_Technology.Models.ViewModels.LicenseMenuRowViewModel>
 
 @{
     Layout = "_Layout";
@@ -44,14 +44,14 @@
                                             <label for="@domId" class="w-100 m-0 d-block text-center" style="cursor: pointer;">@item.EmpCd</label>
                                         </td>
                                         <td>
-                                            @* 漢字氏名（フリガナ）の形式で表示 *@
                                             <label for="@domId" class="w-100 m-0 d-block" style="cursor: pointer;">
                                                 @item.LastNm @item.FirstNm（@item.LastNmKana @item.FirstNmKana）
                                             </label>
                                         </td>
                                         <td>
-                                            @* 部署（所属コード）を表示 *@
-                                            <label for="@domId" class="w-100 m-0 d-block text-center" style="cursor: pointer;">@item.SectionCd</label>
+                                            <label for="@domId" class="w-100 m-0 d-block text-start ps-2" style="cursor: pointer;">
+                                                @item.DisplaySection
+                                            </label>
                                         </td>
                                     </tr>
                                 }
