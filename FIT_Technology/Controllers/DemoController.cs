@@ -5,23 +5,32 @@ using FIT_Technology.Models.Helpers;
 using FIT_Technology.Models.Services;
 using FIT_Technology.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
 
 namespace FIT_Technology.Controllers
 {
     [SessionCheck]
     public class DemoController : Controller
     {
+        // 2つのサービスをプライベート変数として保持
         private readonly DemoEmployeeService _employeeService;
+        private readonly DemoGetLicenseService _licenseService; // ★追加
 
+        /// <summary>
+        /// コンストラクタで各サービスをインスタンス化
+        /// </summary>
         public DemoController()
         {
             _employeeService = new DemoEmployeeService();
+            _licenseService = new DemoGetLicenseService(); // ★追加
         }
 
         public static class TempKeys
         {
             public const string CreateEmployee = "createEmployee";
             public const string DeleteLicense = "deleteLicense";
+            public const string TargetEmpCd = "targetEmpCd"; // ★遷移先での表示名構築用キー
         }
 
         /// <summary>
@@ -45,9 +54,7 @@ namespace FIT_Technology.Controllers
             ViewBag.Title = "保有資格管理システム画面";
             ViewBag.ViewTitle = "保有資格管理システム";
 
-            // 【変更】サービスからViewModel（結合データ入り）の一覧を取得してViewに渡す
             List<LicenseMenuRowViewModel> model = _employeeService.GetLicenseMenuRows();
-
             return View(model);
         }
 
@@ -60,15 +67,12 @@ namespace FIT_Technology.Controllers
             ViewBag.Title = "保有資格管理システム";
             ViewBag.ViewTitle = "保有資格管理システム";
 
-            // btn_action の null または 空チェック
             if (string.IsNullOrEmpty(btn_action))
             {
                 ViewBag.ErrorMsg = "操作を選択してください";
-                // 【変更】再表示用に現在の最新「ViewModel」一覧を渡す
                 return View(_employeeService.GetLicenseMenuRows());
             }
 
-            // デモとして追加
             if (btn_action == "employeeInsert")
             {
                 return RedirectToAction(
@@ -76,13 +80,14 @@ namespace FIT_Technology.Controllers
                     Ctrl.Get<DemoController>());
             }
 
-            // emp_cd の null または 空チェック
             if (string.IsNullOrEmpty(emp_cd))
             {
                 ViewBag.ErrorMsg = "従業員が選択されていません";
-                // 【変更】再表示用に現在の最新「ViewModel」一覧を渡す
                 return View(_employeeService.GetLicenseMenuRows());
             }
+
+            // 後続の「資格登録」「資格一覧」画面で、誰の情報を扱っているか識別・表示するためにTempDataに保存
+            TempData[TempKeys.TargetEmpCd] = emp_cd;
 
             switch (btn_action)
             {
@@ -93,8 +98,6 @@ namespace FIT_Technology.Controllers
                         Ctrl.Get<DemoController>());
 
                 case ActionValues.List:
-                    // 次画面（List等）への引き継ぎにemp_cdをTempDataに退避させる場合はここで処理します。
-                    TempData["SelectedEmpCd"] = emp_cd;
                     return RedirectToAction(
                         nameof(DemoController.List),
                         Ctrl.Get<DemoController>());
@@ -119,7 +122,6 @@ namespace FIT_Technology.Controllers
             ViewBag.Sections = _employeeService.GetSections();
             ViewBag.Genders = _employeeService.GetGenders();
 
-            // 登録時はDBと1対1で対応するEntityクラスの空オブジェクトをそのまま使用します
             return View(new EmployeeEntity());
         }
 
@@ -135,7 +137,6 @@ namespace FIT_Technology.Controllers
             if (entity == null)
             {
                 ViewBag.ErrorMsg = "入力データが不正です。";
-                // 再表示用にマスタを再取得
                 ViewBag.Sections = _employeeService.GetSections();
                 ViewBag.Genders = _employeeService.GetGenders();
                 return View(new EmployeeEntity());
@@ -143,7 +144,6 @@ namespace FIT_Technology.Controllers
 
             if (!ModelState.IsValid)
             {
-                // 【追加】入力エラーで画面に戻る際も、セレクトボックスが空にならないよう再取得
                 ViewBag.Sections = _employeeService.GetSections();
                 ViewBag.Genders = _employeeService.GetGenders();
                 return View(entity);
@@ -154,7 +154,6 @@ namespace FIT_Technology.Controllers
             if (!isSuccess)
             {
                 ViewBag.ErrorMsg = "従業員コードが既に登録されているか、登録処理中にエラーが発生しました。";
-                // 【追加】エラー画面に戻るため再取得
                 ViewBag.Sections = _employeeService.GetSections();
                 ViewBag.Genders = _employeeService.GetGenders();
                 return View(entity);
@@ -175,17 +174,20 @@ namespace FIT_Technology.Controllers
             ViewBag.Title = "資格登録画面";
             ViewBag.ViewTitle = "資格登録";
 
-            // 1. TempDataから4文字の純粋な従業員コードを取得
             string emp_cd = (string)(TempData[TempKeys.CreateEmployee] ?? string.Empty);
-            string name = "田中 太郎";
+
+            // ★モック固定値を廃止: 選択された従業員の本物の情報を取得してヘッダー表示
+            EmployeeEntity emp = _employeeService.GetEmployee(emp_cd);
+            string name = emp != null ? $"{emp.LastNm} {emp.FirstNm}" : "未知の従業員";
             ViewBag.ViewName = $"［{emp_cd}］{name}";
 
-            // TempData は一度読み込むと消えるため、再入力に備えてキープしておく
             TempData.Keep(TempKeys.CreateEmployee);
+            TempData.Keep(TempKeys.TargetEmpCd);
 
             var entity = new GetLicenseEntity
             {
-                EmpCd = emp_cd
+                EmpCd = emp_cd,
+                GetLicenseDate = DateTime.Today // 初期値として本日の日付を設定
             };
 
             return View(entity);
@@ -200,19 +202,31 @@ namespace FIT_Technology.Controllers
             ViewBag.Title = "資格登録画面";
             ViewBag.ViewTitle = "資格登録";
 
-            // 1. 引数オブジェクト自体の null チェック
             if (entity == null)
             {
                 ViewBag.ErrorMsg = "入力データが不正です。";
                 return View(new GetLicenseEntity());
             }
 
-            // 2. 入力検証 (ModelState.IsValid)
             if (!ModelState.IsValid)
             {
-                // 再表示用に表示名（ViewBag.ViewName）を再構築
                 string emp_cd = entity.EmpCd ?? string.Empty;
-                string name = "田中 太郎";
+                EmployeeEntity emp = _employeeService.GetEmployee(emp_cd);
+                string name = emp != null ? $"{emp.LastNm} {emp.FirstNm}" : "未知の従業員";
+                ViewBag.ViewName = $"［{emp_cd}］{name}";
+
+                return View(entity);
+            }
+
+            // ★サービスを適用してDBに資格登録を実行
+            bool isSuccess = _licenseService.RegisterLicense(entity);
+            if (!isSuccess)
+            {
+                ViewBag.ErrorMsg = "この資格は既に登録されているか、登録処理中にエラーが発生しました。";
+
+                string emp_cd = entity.EmpCd ?? string.Empty;
+                EmployeeEntity emp = _employeeService.GetEmployee(emp_cd);
+                string name = emp != null ? $"{emp.LastNm} {emp.FirstNm}" : "未知の従業員";
                 ViewBag.ViewName = $"［{emp_cd}］{name}";
 
                 return View(entity);
@@ -230,11 +244,17 @@ namespace FIT_Technology.Controllers
         [HttpGet]
         public IActionResult List()
         {
-            string emp_cd = "D001";
-            string name = "田中 太郎";
+            // ★モック固定値「D001」を廃止し、メニューで選ばれた従業員コードを取得
+            string emp_cd = (string)(TempData[TempKeys.TargetEmpCd] ?? string.Empty);
+
+            EmployeeEntity emp = _employeeService.GetEmployee(emp_cd);
+            string name = emp != null ? $"{emp.LastNm} {emp.FirstNm}" : "未知の従業員";
             ViewBag.ViewName = $"［{emp_cd}］{name}";
 
-            List<GetLicenseEntity> entities = new List<GetLicenseEntity>();
+            TempData.Keep(TempKeys.TargetEmpCd);
+
+            // ★サービスを呼び出して、この従業員が持つリアルな保有資格リストをViewに渡す
+            List<GetLicenseEntity> entities = _licenseService.GetLicensesByEmpCd(emp_cd);
             return View(entities);
         }
 
@@ -244,29 +264,29 @@ namespace FIT_Technology.Controllers
         [HttpPost]
         public IActionResult List(string btn_action, string[] license_cd)
         {
-            string emp_cd = "D001";
-            string name = "田中 太郎";
+            string emp_cd = (string)(TempData[TempKeys.TargetEmpCd] ?? string.Empty);
+            EmployeeEntity emp = _employeeService.GetEmployee(emp_cd);
+            string name = emp != null ? $"{emp.LastNm} {emp.FirstNm}" : "未知の従業員";
             ViewBag.ViewName = $"［{emp_cd}］{name}";
 
-            // btn_action および 配列自体の null チェック
+            TempData.Keep(TempKeys.TargetEmpCd);
+
             if (string.IsNullOrEmpty(btn_action) || license_cd == null)
             {
                 ViewBag.ErrorMsg = "操作を選択してください";
-                return View(new List<GetLicenseEntity>());
+                return View(_licenseService.GetLicensesByEmpCd(emp_cd));
             }
 
-            // 配列の要素数チェック
             if (license_cd.Length <= 0)
             {
                 ViewBag.ErrorMsg = "資格が選択されていません";
-                return View(new List<GetLicenseEntity>());
+                return View(_licenseService.GetLicensesByEmpCd(emp_cd));
             }
 
             switch (btn_action)
             {
                 case ActionValues.Alert:
                     TempData[TempKeys.DeleteLicense] = license_cd;
-
                     return RedirectToAction(
                         nameof(DemoController.Alert),
                         Ctrl.Get<DemoController>());
@@ -284,8 +304,8 @@ namespace FIT_Technology.Controllers
         [HttpGet]
         public IActionResult Alert()
         {
-            // TempDataの null チェックと取り出し
             string[] license_codes = (string[])(TempData[TempKeys.DeleteLicense] ?? Array.Empty<string>());
+            string emp_cd = (string)(TempData[TempKeys.TargetEmpCd] ?? string.Empty);
 
             List<GetLicenseEntity> entities = new List<GetLicenseEntity>();
             foreach (string code in license_codes)
@@ -293,14 +313,14 @@ namespace FIT_Technology.Controllers
                 var entity = new GetLicenseEntity
                 {
                     LicenseCd = code,
-                    EmpCd = "D001", // デモ用固定値
+                    EmpCd = emp_cd, // ★固定値を廃止し、TempDataから引き継いだコードを設定
                     GetLicenseDate = DateTime.Now
                 };
                 entities.Add(entity);
             }
 
-            // 再入力やリフレッシュに備えてTempDataを保持
             TempData.Keep(TempKeys.DeleteLicense);
+            TempData.Keep(TempKeys.TargetEmpCd);
 
             return View(entities);
         }
@@ -311,7 +331,6 @@ namespace FIT_Technology.Controllers
         [HttpPost]
         public IActionResult Alert(List<GetLicenseEntity> entities)
         {
-            // 1. 引数リスト自体の null チェック
             if (entities == null || entities.Count == 0)
             {
                 return this.RedirectToResult(
@@ -320,11 +339,19 @@ namespace FIT_Technology.Controllers
                     caption: "再度一覧画面からやり直してください");
             }
 
-            // 2. リスト内各オブジェクトの検証 (ModelState.IsValid)
             if (!ModelState.IsValid)
             {
-                // 削除確認画面でエラーになるケースは稀ですが、安全のために追加
                 return View(entities);
+            }
+
+            // ★サービスの一括削除メソッド（トランザクション制御付き）を適用！
+            bool isSuccess = _licenseService.RemoveLicenses(entities);
+            if (!isSuccess)
+            {
+                return this.RedirectToResult(
+                    viewTitle: "エラー",
+                    msg: "対象の資格を削除できませんでした。既に削除されている可能性があります。",
+                    caption: "再度一覧画面から確認を行ってください");
             }
 
             return this.RedirectToResult(

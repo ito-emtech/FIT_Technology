@@ -11,11 +11,146 @@ namespace FIT_Technology.Models.Daos
     {
         public DemoGetLicenseDao() { }
 
+        /// <summary>
+        /// 複合主キー（従業員コード、資格コード）を使用して、特定の資格取得情報を検索します。
+        /// </summary>
+        /// <param name="pkeys">pkeys[0]: 従業員コード(char(4)), pkeys[1]: 資格コード(char(5))</param>
         public override GetLicenseEntity Find(params object[] pkeys)
-            => throw new NotImplementedException();
-        public override int Insert(GetLicenseEntity entity) => throw new NotImplementedException();
-        public override int Update(GetLicenseEntity entity) => throw new NotImplementedException();
-        public override int Delete(GetLicenseEntity entity) => throw new NotImplementedException();
+        {
+            // 複合キーのため、2つの引数が正しく渡されているかチェック
+            if (pkeys == null || pkeys.Length < 2 || pkeys[0] == null || pkeys[1] == null) return null;
+
+            string tableName = EntityMetaHelper.GetTableName<GetLicenseEntity>();
+
+            string query = $@"
+                SELECT *
+                FROM {tableName}
+                WHERE emp_cd = @EmpCd AND license_cd = @LicenseCd";
+
+            using (SqlCommand cmd = new SqlCommand(query, con))
+            {
+                cmd.Transaction = trn;
+                // それぞれの型（char(4), char(5)）を明示的に指定
+                cmd.Parameters.Add("@EmpCd", SqlDbType.Char, 4).Value = pkeys[0];
+                cmd.Parameters.Add("@LicenseCd", SqlDbType.Char, 5).Value = pkeys[1];
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        return reader.MapToEntity<GetLicenseEntity>();
+                    }
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// 特定の従業員が保有する資格取得レコードをすべて取得します。
+        /// </summary>
+        /// <param name="empCd">従業員コード</param>
+        public List<GetLicenseEntity> FindByEmpCd(string empCd)
+        {
+            var list = new List<GetLicenseEntity>();
+            if (string.IsNullOrEmpty(empCd)) return list;
+
+            string tableName = EntityMetaHelper.GetTableName<GetLicenseEntity>();
+            string query = $"SELECT * FROM {tableName} WHERE emp_cd = @EmpCd";
+
+            using (SqlCommand cmd = new SqlCommand(query, con))
+            {
+                cmd.Transaction = trn;
+                cmd.Parameters.Add("@EmpCd", SqlDbType.Char, 4).Value = empCd;
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        list.Add(reader.MapToEntity<GetLicenseEntity>());
+                    }
+                }
+            }
+            return list;
+        }
+
+        /// <summary>
+        /// 資格取得テーブルに新規レコードを登録します。
+        /// </summary>
+        public override int Insert(GetLicenseEntity entity)
+        {
+            if (entity == null) return 0;
+
+            string tableName = EntityMetaHelper.GetTableName<GetLicenseEntity>();
+
+            string query = $@"
+                INSERT INTO {tableName} (
+                    emp_cd, license_cd, get_license_date
+                ) VALUES (
+                    @EmpCd, @LicenseCd, @GetLicenseDate
+                )";
+
+            using (SqlCommand cmd = new SqlCommand(query, con))
+            {
+                cmd.Transaction = trn;
+
+                // Entityの特性（char(4), char(5), date）に合わせて正確にバインド
+                cmd.Parameters.Add("@EmpCd", SqlDbType.Char, 4).Value = entity.EmpCd;
+                cmd.Parameters.Add("@LicenseCd", SqlDbType.Char, 5).Value = entity.LicenseCd;
+                cmd.Parameters.Add("@GetLicenseDate", SqlDbType.Date).Value = entity.GetLicenseDate;
+
+                return cmd.ExecuteNonQuery();
+            }
+        }
+
+        /// <summary>
+        /// 資格取得レコードを更新します（主に取得日の変更を想定）。
+        /// </summary>
+        public override int Update(GetLicenseEntity entity)
+        {
+            if (entity == null) return 0;
+
+            string tableName = EntityMetaHelper.GetTableName<GetLicenseEntity>();
+
+            string query = $@"
+                UPDATE {tableName}
+                SET get_license_date = @GetLicenseDate
+                WHERE emp_cd = @EmpCd AND license_cd = @LicenseCd";
+
+            using (SqlCommand cmd = new SqlCommand(query, con))
+            {
+                cmd.Transaction = trn;
+
+                cmd.Parameters.Add("@EmpCd", SqlDbType.Char, 4).Value = entity.EmpCd;
+                cmd.Parameters.Add("@LicenseCd", SqlDbType.Char, 5).Value = entity.LicenseCd;
+                cmd.Parameters.Add("@GetLicenseDate", SqlDbType.Date).Value = entity.GetLicenseDate;
+
+                return cmd.ExecuteNonQuery();
+            }
+        }
+
+        /// <summary>
+        /// 複合主キーを基に、資格取得レコードを削除します。
+        /// </summary>
+        public override int Delete(GetLicenseEntity entity)
+        {
+            if (entity == null) return 0;
+
+            string tableName = EntityMetaHelper.GetTableName<GetLicenseEntity>();
+
+            string query = $@"
+                DELETE FROM {tableName}
+                WHERE emp_cd = @EmpCd AND license_cd = @LicenseCd";
+
+            using (SqlCommand cmd = new SqlCommand(query, con))
+            {
+                cmd.Transaction = trn;
+
+                cmd.Parameters.Add("@EmpCd", SqlDbType.Char, 4).Value = entity.EmpCd;
+                cmd.Parameters.Add("@LicenseCd", SqlDbType.Char, 5).Value = entity.LicenseCd;
+
+                return cmd.ExecuteNonQuery();
+            }
+        }
     }
 
     public class DemoEmployeeDao : BaseDao<EmployeeEntity>
