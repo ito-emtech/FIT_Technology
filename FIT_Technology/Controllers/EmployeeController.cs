@@ -1,5 +1,6 @@
 ﻿using DynamicDll.Db;
 using FIT_Technology.Filters;
+using FIT_Technology.Models.Constants;
 using FIT_Technology.Models.Daos;
 using FIT_Technology.Models.Entities;
 using FIT_Technology.Models.Helpers;
@@ -35,7 +36,7 @@ namespace FIT_Technology.Controllers
             // データベースから全従業員情報を取得
             try
             {
-                using (TranMng mng = TranMng.BeginTransaction("empdb"))
+                using (TranMng mng = TranMng.BeginTransaction(DbConstants.EmpDbConnection))
                 {
                     EmployeeDao dao = new EmployeeDao();
                     info = dao.FindAll(); // Dao経由で全件取得
@@ -148,7 +149,7 @@ namespace FIT_Technology.Controllers
               
                 try
                 { 
-                    using (TranMng mng = TranMng.BeginTransaction("empdb"))
+                    using (TranMng mng = TranMng.BeginTransaction(DbConstants.EmpDbConnection))
                     {
                         EmployeeDao dao = new EmployeeDao();
                         if (dao.Exists(employee.EmpCd))
@@ -193,7 +194,7 @@ namespace FIT_Technology.Controllers
         {
             string[] dele = TempData["DeleteInfo"] as string[];
             List<EmployeeEntity> info = new List<EmployeeEntity>();
-            try { using (TranMng mng = TranMng.BeginTransaction("empdb"))
+            try { using (TranMng mng = TranMng.BeginTransaction(DbConstants.EmpDbConnection))
             {
                 for (int i = 0; i < dele.Length; i++)
                     {
@@ -225,7 +226,7 @@ namespace FIT_Technology.Controllers
             {
                 try
                 {
-                    using (TranMng mng = TranMng.BeginTransaction("empdb"))
+                    using (TranMng mng = TranMng.BeginTransaction(DbConstants.EmpDbConnection))
                     {
                         EmployeeDao dao = new EmployeeDao();
                         for (int i = 0; i < deleteEmp.Count; i++)
@@ -269,7 +270,7 @@ namespace FIT_Technology.Controllers
 
             string[] up = TempData["UpdateInfo"] as string[];
             List<EmployeeEntity> info = new List<EmployeeEntity>();
-            try { using (TranMng mng = TranMng.BeginTransaction("empdb"))
+            try { using (TranMng mng = TranMng.BeginTransaction(DbConstants.EmpDbConnection))
             {
                 for (int i = 0; i < up.Length; i++)
                 {
@@ -305,7 +306,7 @@ namespace FIT_Technology.Controllers
                     // そのまま入力内容を保持して登録画面（Insert.cshtml）を再表示
                     return View(nameof(EmployeeController.Update), employee);
                 }
-                try { using (TranMng mng = TranMng.BeginTransaction("empdb"))
+                try { using (TranMng mng = TranMng.BeginTransaction(DbConstants.EmpDbConnection))
                 {
                     EmployeeDao dao = new EmployeeDao();
                    
