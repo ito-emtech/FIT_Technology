@@ -50,6 +50,41 @@ namespace FIT_Technology.Models.Daos
             return null;
         }
 
+        /// <summary>
+        /// すべての部署マスタ情報を取得します。
+        /// </summary>
+        /// <returns>部署マスタエンティティのリスト</returns>
+        public List<SectionEntity> FindAll()
+        {
+            var list = new List<SectionEntity>();
+
+            // 1. EntityMetaHelperを使用してテーブル名と主キーのカラム名を取得
+            string tableName = EntityMetaHelper.GetTableName<SectionEntity>();
+            var propCd = typeof(SectionEntity).GetProperty(nameof(SectionEntity.SectionCd))!;
+            string colCd = EntityMetaHelper.GetColumnName(propCd);
+
+            // 2. クエリの構築（部署コード順にソートして全件取得）
+            string query = $@"
+                SELECT * FROM {tableName} 
+                ORDER BY {colCd}";
+
+            using (SqlCommand cmd = new SqlCommand(query, con))
+            {
+                cmd.Transaction = trn;
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    // 3. ループ内で拡張メソッドを使って自動マッピングし、リストに追加
+                    while (reader.Read())
+                    {
+                        list.Add(reader.MapToEntity<SectionEntity>());
+                    }
+                    reader.Close();
+                }
+            }
+            return list;
+        }
+
         public override int Insert(SectionEntity entity) => throw new NotImplementedException();
         public override int Update(SectionEntity entity) => throw new NotImplementedException();
         public override int Delete(SectionEntity entity) => throw new NotImplementedException();

@@ -51,6 +51,41 @@ namespace FIT_Technology.Models.Daos
             return null;
         }
 
+        /// <summary>
+        /// すべての性別マスタ情報を取得します。
+        /// </summary>
+        /// <returns>性別マスタエンティティのリスト</returns>
+        public List<GenderEntity> FindAll()
+        {
+            var list = new List<GenderEntity>();
+
+            // 1. EntityMetaHelperを使用してテーブル名と主キーのカラム名を取得
+            string tableName = EntityMetaHelper.GetTableName<GenderEntity>();
+            var propCd = typeof(GenderEntity).GetProperty(nameof(GenderEntity.GenderCd))!;
+            string colCd = EntityMetaHelper.GetColumnName(propCd);
+
+            // 2. クエリの構築（主キー順にソートして全件取得）
+            string query = $@"
+                SELECT * FROM {tableName} 
+                ORDER BY {colCd}";
+
+            using (SqlCommand cmd = new SqlCommand(query, con))
+            {
+                cmd.Transaction = trn;
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    // 3. ループ内で拡張メソッドを使って自動マッピングし、リストに追加
+                    while (reader.Read())
+                    {
+                        list.Add(reader.MapToEntity<GenderEntity>());
+                    }
+                    reader.Close();
+                }
+            }
+            return list;
+        }
+
         public override int Insert(GenderEntity entity) => throw new NotImplementedException();
         public override int Update(GenderEntity entity) => throw new NotImplementedException();
         public override int Delete(GenderEntity entity) => throw new NotImplementedException();
