@@ -75,7 +75,7 @@ namespace FIT_Technology.Controllers
             {
                 if(empcd.Count == 1)
                 {
-                    TempData["UpdateInfo"] = empcd;
+                    TempData["UpdateEmpCd"] = empcd;
                     return RedirectToAction(nameof(EmployeeController.Update), Ctrl.Get<EmployeeController>());
                 }else if(empcd.Count == 0)
                 {
@@ -98,7 +98,7 @@ namespace FIT_Technology.Controllers
                 }
                 else
                 {
-                    TempData["DeleteInfo"] = empcd;
+                    TempData["DeleteEmpCd"] = empcd;
                     return RedirectToAction(nameof(EmployeeController.Alert), Ctrl.Get<EmployeeController>());
                 }
             }
@@ -112,10 +112,17 @@ namespace FIT_Technology.Controllers
         /// <summary>
         /// [GET] 従業員新規登録画面の表示
         /// </summary>
+        
         [HttpGet]
         public IActionResult Insert()
         {
-            return View(nameof(EmployeeController.Insert));
+            ViewBag.Title = "登録画面";
+
+            // 💡 常に新しい空のインスタンスを渡す
+            EmployeeEntity info = new EmployeeEntity();
+            info.BirthDate = DateTime.Today; // 生年月日の初期値を今日にする
+            info.EmpDate = DateTime.Today;   // 入社日の初期値を今日にする
+            return View(nameof(EmployeeController.Insert), info);
         }
 
         /// <summary>
@@ -139,13 +146,25 @@ namespace FIT_Technology.Controllers
                     ModelState["EmpDate"].Errors.Clear(); // 英語のエラーを一旦ゴミ箱に捨てる
                     ModelState.AddModelError("EmpDate", "入社日を入力してください。"); // 日本語を入れ直す
                 }
+
+                if (employee.BirthDate > DateTime.Now)
+                {
+                    // 画面の「BirthDate」の欄にエラーメッセージを紐付ける
+                    ModelState.AddModelError("BirthDate", "生年月日に未来の日付を設定することはできません。");
+                }
+                if (employee.BirthDate > employee.EmpDate)
+                {
+                    // 入社日の項目に対してエラーメッセージを紐付けます
+                    ModelState.AddModelError("EmpDate", "入社日より後に生まれた生年月日を設定することはできません。");
+                }
                 if (!ModelState.IsValid)
                 {
                     // 🛑 入力エラー（カタカナじゃない、空っぽなど）がある場合
                     // そのまま入力内容を保持して登録画面（Insert.cshtml）を再表示
                     return View(nameof(EmployeeController.Insert), employee);
                 }
-              
+                
+
                 try
                 { 
                     using (TranMng mng = TranMng.BeginTransaction("empdb"))
@@ -191,7 +210,14 @@ namespace FIT_Technology.Controllers
         [HttpGet]
         public IActionResult Alert()
         {
-            string[] dele = TempData["DeleteInfo"] as string[];
+            string[] dele = TempData.Peek("DeleteEmpCd") as string[];
+            if (dele == null || dele.Length == 0)
+            {
+                TempData["ViewTitle"] = "すでに削除されています";
+                TempData["Msg"] = "メニューに戻ってください";
+
+                return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
+            }
             List<EmployeeEntity> info = new List<EmployeeEntity>();
             try { using (TranMng mng = TranMng.BeginTransaction("empdb"))
             {
@@ -234,6 +260,7 @@ namespace FIT_Technology.Controllers
                         }
                         mng.Commit();
                     }
+                    TempData.Remove("DeleteEmpCd");
                     TempData["ViewTitle"] = "削除が完了しました";
                     string msg = "";
                     for(int i = 0;i < deleteEmp.Count; i++)
@@ -267,25 +294,35 @@ namespace FIT_Technology.Controllers
         {
             ViewBag.Title = "変更画面";
 
-            string[] up = TempData["UpdateInfo"] as string[];
-            List<EmployeeEntity> info = new List<EmployeeEntity>();
-            try { using (TranMng mng = TranMng.BeginTransaction("empdb"))
+            string[] up = TempData.Peek("UpdateEmpCd") as string[];
+            if (up == null || up.Length == 0)
             {
-                for (int i = 0; i < up.Length; i++)
+                TempData["ViewTitle"] = "すでに変更されています";
+                TempData["Msg"] = "メニューに戻ってください";
+
+                return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
+            }
+            string updatecd = up[0];
+            
+            EmployeeEntity info = new EmployeeEntity();
+            try
+            {
+                using (TranMng mng = TranMng.BeginTransaction("empdb"))
                 {
                     EmployeeDao dao = new EmployeeDao();
-                    info.Add(dao.Find(up[i]));
+                    info = dao.Find(updatecd);
                 }
-            }
             }catch (Exception ex)
             {
                 TempData["ViewTitle"] = "エラーが発生しました";
                 TempData["Msg"] = "データベースの制約、または通信エラーにより処理を中断しました。データは変更されていません。";
+
+                return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
             }
             
 
-            ViewBag.Info = info;
-            return View(nameof(EmployeeController.Update));
+            
+            return View(nameof(EmployeeController.Update), info);
         }
 
         /// <summary>
@@ -299,6 +336,7 @@ namespace FIT_Technology.Controllers
             // 「更新確定」などの処理を経て結果画面へ
             if (btn_action == "result")
             {
+
                 if (!ModelState.IsValid)
                 {
                     // 入力エラー（カタカナじゃない、空っぽなど）がある場合
@@ -313,6 +351,7 @@ namespace FIT_Technology.Controllers
                     
                     mng.Commit();
                 }
+                    TempData.Remove("UpdateEmpCd");
                     TempData["ViewTitle"] = "変更が完了しました";
                     TempData["Msg"] = employee.EmpCd + " " + employee.LastNm + employee.FirstNm + "の変更が完了しました";
                     return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());

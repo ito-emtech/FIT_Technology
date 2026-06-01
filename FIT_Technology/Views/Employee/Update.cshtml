@@ -4,60 +4,74 @@
 @{
    
 }
+@model FIT_Technology.Models.Entities.EmployeeEntity
+
 <div class="text-center">
     <h1 class="display-4">従業員情報変更</h1>
     <form method="post">
         <table style="margin-left: auto; margin-right: auto; border:solid">
             <tr>
                 <td style="border:solid">従業員コード</td>
-                <td style="border:solid">@ViewBag.Info[0].EmpCd</td>
-                <input type="hidden" name="empcd" value="@ViewBag.Info[0].EmpCd" />
+                <td style="border:solid">@Model?.EmpCd</td>
+                <input type="hidden" name="empcd" value="@Model?.EmpCd" />
                 <td style="border:solid"></td>
             </tr>
             <tr>
                 <td style="border:solid">氏名（漢字）</td>
-                <td style="border:solid"><input type="text" name="lastnm" value="@ViewBag.Info[0].LastNm"/></td>
-                <td style="border:solid"><input type="text" name="firstnm" value="@ViewBag.Info[0].FirstNm" /></td>
+                <td style="border:solid">
+                    <input type="text" name="lastnm" value="@Model?.LastNm"/>
+                    <br /><span asp-validation-for="LastNm" class="text-danger"></span>
+                </td>
+                <td style="border:solid">
+                    <input type="text" name="firstnm" value="@Model?.FirstNm" />
+                    <br /><span asp-validation-for="FirstNm" class="text-danger"></span>
+                </td>
             </tr>
             <tr>
                 <td style="border:solid">氏名（カナ）</td>
-                <td style="border:solid"><input type="text" name="lastnmkana" value="@ViewBag.Info[0].LastNmKana" /></td>
-                <td style="border:solid"><input type="text" name="firstnmkana" value="@ViewBag.Info[0].FirstNmKana" /></td>
+                <td style="border:solid">
+                    <input type="text" name="lastnmkana" value="@Model?.LastNmKana" />
+                    <br /><span asp-validation-for="LastNmKana" class="text-danger"></span>
+                </td>
+                <td style="border:solid">
+                    <input type="text" name="firstnmkana" value="@Model?.FirstNmKana" />
+                    <br /><span asp-validation-for="FirstNmKana" class="text-danger"></span>
+                </td>
             </tr>
             <tr>
                 <td style="border:solid">性別</td>
                 <td style="border:solid">
                     <select name="gendercd">
-                        <option value="0" selected="@(ViewBag.Info[0].GenderCd == 0)">不明</option>
-                        <option value="1" selected="@(ViewBag.Info[0].GenderCd == 1)">男性</option>
-                        <option value="2" selected="@(ViewBag.Info[0].GenderCd == 2)">女性</option>
-                        <option value="9" selected="@(ViewBag.Info[0].GenderCd == 9)">その他</option>
+                        <option value="0" selected="@(Model?.GenderCd == 0)">不明</option>
+                        <option value="1" selected="@(Model?.GenderCd == 1)">男性</option>
+                        <option value="2" selected="@(Model?.GenderCd == 2)">女性</option>
+                        <option value="9" selected="@(Model?.GenderCd == 9)">その他</option>
                     </select>
                 </td>
                 <td style="border:solid"></td>
             </tr>
             <tr>
                 <td style="border:solid">生年月日</td>
-                <td style="border:solid">@ViewBag.Info[0].BirthDate</td>
-                <input type="hidden" name="birthdate" value="@ViewBag.Info[0].BirthDate" />
+                <td style="border:solid">@Model?.BirthDate.ToString("yyyy年MM月dd日")</td>
+                <input type="hidden" name="birthdate" value="@Model?.BirthDate" />
                 <td style="border:solid"></td>
             </tr>
             <tr>
                 <td style="border:solid">所属</td>
                 <td style="border:solid">
                     <select name="sectioncd">
-                        <option value="A1" selected="@(ViewBag.Info[0].SectionCd == "A1")">管理部</option>
-                        <option value="A2" selected="@(ViewBag.Info[0].SectionCd == "A2")">総務部</option>
-                        <option value="B1" selected="@(ViewBag.Info[0].SectionCd == "B1")">開発部</option>
-                        <option value="C1" selected="@(ViewBag.Info[0].SectionCd == "C1")">営業部</option>
+                        <option value="A1" selected="@(Model?.SectionCd == "A1")">管理部</option>
+                        <option value="A2" selected="@(Model?.SectionCd == "A2")">総務部</option>
+                        <option value="B1" selected="@(Model?.SectionCd == "B1")">開発部</option>
+                        <option value="C1" selected="@(Model?.SectionCd == "C1")">営業部</option>
                     </select>
                 </td>
                 <td style="border:solid"></td>
             </tr>
             <tr>
                 <td style="border:solid">入社日</td>
-                <td style="border:solid">@ViewBag.Info[0].EmpDate</td>
-                <input type="hidden" name="empdate" value="@ViewBag.Info[0].EmpDate" />
+                <td style="border:solid">@Model?.EmpDate.ToString("yyyy年MM月dd日")</td>
+                <input type="hidden" name="empdate" value="@Model?.EmpDate" />
                 <td style="border:solid"></td>
             </tr>
         </table><br />
