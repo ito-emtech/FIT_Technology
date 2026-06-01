@@ -39,10 +39,10 @@
                 <td style="border:solid">性別</td>
                 <td style="border:solid">
                     <select name="gendercd">
-                        <option value="0" selected="@(Model?.GenderCd == 0)">不明</option>
-                        <option value="1" selected="@(Model?.GenderCd == 1)">男性</option>
-                        <option value="2" selected="@(Model?.GenderCd == 2)">女性</option>
-                        <option value="9" selected="@(Model?.GenderCd == 9)">その他</option>
+                        @for(int i = 0; i < ViewBag.GenderInfo.Count; i++)
+                        {
+                            <option value="@ViewBag.GenderInfo[i].GenderCd">@ViewBag.GenderInfo[i].GenderNm</option>
+                        }
                     </select>
                     <br /><span asp-validation-for="GenderCd" class="text-danger"></span>
                 </td>
@@ -60,10 +60,11 @@
                 <td style="border:solid">所属</td>
                 <td style="border:solid">
                     <select name="sectioncd">
-                        <option value="A1" selected="@(Model?.SectionCd == "A1")">管理部</option>
-                        <option value="A2" selected="@(Model?.SectionCd == "A2")">総務部</option>
-                        <option value="B1" selected="@(Model?.SectionCd == "B1")">開発部</option>
-                        <option value="C1" selected="@(Model?.SectionCd == "C1")">営業部</option>
+                        @for (int i = 0; i < ViewBag.SectionInfo.Count; i++)
+                        {
+                            <option value="@ViewBag.SectionInfo[i].SectionCd">@ViewBag.SectionInfo[i].SectionNm</option>
+                        }
+                        
                     </select>
                     <br /><span asp-validation-for="SectionCd" class="text-danger"></span>
                 </td>

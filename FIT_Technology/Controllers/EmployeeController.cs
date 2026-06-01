@@ -5,6 +5,7 @@ using FIT_Technology.Models.Entities;
 using FIT_Technology.Models.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Configuration;
 
 namespace FIT_Technology.Controllers
 {
@@ -31,6 +32,7 @@ namespace FIT_Technology.Controllers
         public IActionResult List()
         {
             List<EmployeeEntity> info = new List<EmployeeEntity>();
+            List<SectionEntity> sectionInfo = new List<SectionEntity>();
 
             // データベースから全従業員情報を取得
             try
@@ -38,7 +40,9 @@ namespace FIT_Technology.Controllers
                 using (TranMng mng = TranMng.BeginTransaction("empdb"))
                 {
                     EmployeeDao dao = new EmployeeDao();
+                    SectionDao sectionDao = new SectionDao();
                     info = dao.FindAll(); // Dao経由で全件取得
+                    sectionInfo = sectionDao.FindAll();
                     mng.Commit();
                 }
 
@@ -54,6 +58,7 @@ namespace FIT_Technology.Controllers
             // 取得したリストをViewBagに格納してView（HTML）側へ渡す
             ViewBag.ErrorMessage = TempData["ErrorMessage"];
             ViewBag.Info = info;
+            ViewBag.SectionInfo = sectionInfo;
 
             return View(nameof(EmployeeController.List), Ctrl.Get<EmployeeController>());
         }
@@ -116,12 +121,43 @@ namespace FIT_Technology.Controllers
         [HttpGet]
         public IActionResult Insert()
         {
+            if (TempData.Peek("InsertActive") == null && TempData.ContainsKey("InsertActive"))
+            {
+                TempData["ViewTitle"] = "登録処理は完了しています";
+                TempData["Msg"] = "この画面の登録処理はすでに正常に終了しています。メニューに戻ってください。";
+                return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
+            }
+
+            // 💡 画面を正常に開いた「証拠」として、削除の「DeleteEmpCd」と同じような目印を置いておく
+            TempData["InsertActive"] = "active";
+
             ViewBag.Title = "登録画面";
+
+            // 💡 削除や変更と同じ仕組みに変えます！
+            // 登録完了後にブラウザバックすると、POST側で Remove されているのでここが null になります
+            
+
 
             // 💡 常に新しい空のインスタンスを渡す
             EmployeeEntity info = new EmployeeEntity();
+            List<SectionEntity> sectionInfo = new List<SectionEntity>();
+            List<GenderEntity> genderInfo = new List<GenderEntity>();
             info.BirthDate = DateTime.Today; // 生年月日の初期値を今日にする
             info.EmpDate = DateTime.Today;   // 入社日の初期値を今日にする
+
+            using (TranMng mng = TranMng.BeginTransaction("empdb"))
+            {
+                EmployeeDao dao = new EmployeeDao();
+                SectionDao sectionDao = new SectionDao();
+                GenderDao genderDao = new GenderDao();
+                
+                sectionInfo = sectionDao.FindAll();
+                genderInfo = genderDao.FindAll();
+
+                mng.Commit();
+            }
+            ViewBag.SectionInfo = sectionInfo;
+            ViewBag.GenderInfo = genderInfo;
             return View(nameof(EmployeeController.Insert), info);
         }
 
@@ -161,6 +197,22 @@ namespace FIT_Technology.Controllers
                 {
                     // 🛑 入力エラー（カタカナじゃない、空っぽなど）がある場合
                     // そのまま入力内容を保持して登録画面（Insert.cshtml）を再表示
+                    List<SectionEntity> sectionInfo = new List<SectionEntity>();
+                    List<GenderEntity> genderInfo = new List<GenderEntity>();
+
+                    using (TranMng mng = TranMng.BeginTransaction("empdb"))
+                    {
+                        
+                        SectionDao sectionDao = new SectionDao();
+                        GenderDao genderDao = new GenderDao();
+
+                        sectionInfo = sectionDao.FindAll();
+                        genderInfo = genderDao.FindAll();
+
+                        mng.Commit();
+                    }
+                    ViewBag.SectionInfo = sectionInfo;
+                    ViewBag.GenderInfo = genderInfo;
                     return View(nameof(EmployeeController.Insert), employee);
                 }
                 
@@ -175,21 +227,43 @@ namespace FIT_Technology.Controllers
                             // 🛑 重複していたら、手動でエラーを仕込む！
                             // 第1引数：Entityのプロパティ名（大文字小文字を合わせる）
                             // 第2引数：画面に出したいエラーメッセージ
+                            List<SectionEntity> sectionInfo = new List<SectionEntity>();
+                            List<GenderEntity> genderInfo = new List<GenderEntity>();
+
+                            
+
+                            SectionDao sectionDao = new SectionDao();
+                            GenderDao genderDao = new GenderDao();
+
+                            sectionInfo = sectionDao.FindAll();
+                            genderInfo = genderDao.FindAll();
+
+                            mng.Commit();
+                            
+                            ViewBag.SectionInfo = sectionInfo;
+                            ViewBag.GenderInfo = genderInfo;
                             ModelState.AddModelError("EmpCd", "入力された従業員コードは既に登録されています。");
 
                             // 登録画面（Insert.cshtml）に入力内容を保持したまま戻す
+
                             return View(nameof(EmployeeController.Insert), employee);
                         }
                         dao.Insert(employee);
                         mng.Commit();
                     }
+
+                    TempData.Remove("InsertActive");
                     TempData["ViewTitle"] = "登録が完了しました";
                     TempData["Msg"] = "登録できたよ！！💛";
                     return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
                 }
                 catch (Exception ex)
                 {
-                    
+                    //return this.RedirectToResult(
+                    //    viewTitle: "エラーが発生しました",
+                    //    msg: "データベースの制約、または通信エラーにより処理を中断しました。データは変更されていません。",
+                    //    caption: ex.ToString());
+
                     TempData["ViewTitle"] = "エラーが発生しました";
                     TempData["Msg"] = "データベースの制約、または通信エラーにより処理を中断しました。データは変更されていません。";
 
@@ -305,12 +379,21 @@ namespace FIT_Technology.Controllers
             string updatecd = up[0];
             
             EmployeeEntity info = new EmployeeEntity();
+            List<SectionEntity> sectionInfo = new List<SectionEntity>();
+            List<GenderEntity> genderInfo = new List<GenderEntity>();
             try
             {
                 using (TranMng mng = TranMng.BeginTransaction("empdb"))
                 {
                     EmployeeDao dao = new EmployeeDao();
                     info = dao.Find(updatecd);
+                    SectionDao sectionDao = new SectionDao();
+                    GenderDao genderDao = new GenderDao();
+
+                    sectionInfo = sectionDao.FindAll();
+                    genderInfo = genderDao.FindAll();
+
+                    mng.Commit();
                 }
             }catch (Exception ex)
             {
@@ -319,9 +402,10 @@ namespace FIT_Technology.Controllers
 
                 return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
             }
-            
 
-            
+            ViewBag.SectionInfo = sectionInfo;
+            ViewBag.GenderInfo = genderInfo;
+
             return View(nameof(EmployeeController.Update), info);
         }
 
@@ -336,11 +420,26 @@ namespace FIT_Technology.Controllers
             // 「更新確定」などの処理を経て結果画面へ
             if (btn_action == "result")
             {
+                List<SectionEntity> sectionInfo = new List<SectionEntity>();
+                List<GenderEntity> genderInfo = new List<GenderEntity>();
 
                 if (!ModelState.IsValid)
                 {
                     // 入力エラー（カタカナじゃない、空っぽなど）がある場合
                     // そのまま入力内容を保持して登録画面（Insert.cshtml）を再表示
+                    using (TranMng mng = TranMng.BeginTransaction("empdb"))
+                    {
+
+                        SectionDao sectionDao = new SectionDao();
+                        GenderDao genderDao = new GenderDao();
+
+                        sectionInfo = sectionDao.FindAll();
+                        genderInfo = genderDao.FindAll();
+
+                        mng.Commit();
+                    }
+                    ViewBag.SectionInfo = sectionInfo;
+                    ViewBag.GenderInfo = genderInfo;
                     return View(nameof(EmployeeController.Update), employee);
                 }
                 try { using (TranMng mng = TranMng.BeginTransaction("empdb"))

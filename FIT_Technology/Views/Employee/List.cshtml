@@ -40,7 +40,15 @@
                     <td style="border:solid">@ViewBag.Info[i].EmpCd</td>
                     <td style="border:solid">@kanji[i]</td>
                     <td style="border:solid">@kana[i]</td>
-                    <td style="border:solid">@ViewBag.Info[i].SectionCd</td>
+                    <td style="border:solid">
+                            @for(int j = 0; j < ViewBag.SectionInfo.Count; j++)
+                            {
+                                if(ViewBag.Info[i].SectionCd == ViewBag.SectionInfo[j].SectionCd)
+                                {
+                                    @ViewBag.SectionInfo[j].SectionNm;
+                                }
+                            }
+                    </td>
                         <td style="border:solid">@ViewBag.Info[i].EmpDate.ToString("yyyy年MM月dd日")</td>
                 </tr>
             }
