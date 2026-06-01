@@ -32,6 +32,7 @@ namespace FIT_Technology.Controllers
         public IActionResult Login()
         {
             ViewBag.Title = "ログイン画面";
+            HttpContext.Session.Clear();
             return View(nameof(AccountController.Login));
         }
 
@@ -83,15 +84,12 @@ namespace FIT_Technology.Controllers
         [SessionCheck]
         public IActionResult Logout(string btn_action)
         {
-            // セッションからユーザーIDを取得（クリアする前に行う）
-            var userId = HttpContext.Session.GetString(DbConstants.SessionKeys.UserId);
-
-            // 【重要】ViewBagではなくTempDataを使用する
-            TempData["InfoMessage"] = $"{userId}様、お疲れさまでした。";
-
             switch (btn_action)
             {
                 case "logout":
+                    // セッションからユーザーIDを取得
+                    var userId = HttpContext.Session.GetString(DbConstants.SessionKeys.UserId);
+                    TempData["InfoMessage"] = $"{userId}様、お疲れさまでした。";
                     HttpContext.Session.Clear();
                     return RedirectToAction(
                         nameof(AccountController.Login),
