@@ -30,6 +30,12 @@
                 @* 概要エラーの表示場所（省略可） *@
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
+                @* 追加　従業員情報関連機能をカード化 *@
+                @* <div class="menu-card">
+                    
+                    </div> *@
+                <div class="menu-card">
+
                 <div class="form-group mb-3">
                     <label asp-for="UserId" class="form-label"></label>
                     <input asp-for="UserId" class="form-control" />
@@ -47,7 +53,8 @@
                 <br />
                 @* <div class="d-grid"> *@
                 <div class="text-center">
-                    <button type="submit" class="btn-primary-filled" style="width: 100%; max-width: 180px;">ログイン</button>
+                    <button type="submit" class="btn-primary-filled w-100">ログイン</button>
+                </div>
                 </div>
             </form>
         </div>

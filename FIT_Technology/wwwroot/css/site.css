@@ -144,11 +144,12 @@ body {
         border-color: var(--color-danger) !important;
     }
 
-/* ログイン・重要アクション用：塗りつぶしデインジャーボタン（通常とホバーを逆転） */
+    /* ログイン・重要アクション用：塗りつぶしデインジャーボタン（通常とホバーを逆転） */
 .btn-danger-filled {
     width: 100% !important;
     padding: 0.4rem 0 !important;
     font-weight: bold !important;
+    
     /* 通常時：背景がオレンジ、文字が白（パキッと目立つ状態） */
     color: var(--color-bg-card) !important;
     background-color: var(--color-danger) !important;
@@ -157,12 +158,12 @@ body {
     transition: all 0.2s ease-in-out !important;
 }
 
-    .btn-danger-filled:hover {
-        /* ホバー時：背景が白、文字がオレンジ（枠線スタイルに変化） */
-        color: var(--color-danger) !important;
-        background-color: var(--color-bg-card) !important;
-        border-color: var(--color-danger) !important;
-    }
+.btn-danger-filled:hover {
+    /* ホバー時：背景が白、文字がオレンジ（枠線スタイルに変化） */
+    color: var(--color-danger) !important;
+    background-color: var(--color-bg-card) !important;
+    border-color: var(--color-danger) !important;
+}
 
 /* テスト用メニューボタン */
 .btn-menu-link {

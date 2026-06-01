@@ -13,7 +13,7 @@
 
             @* 追加 *@
             <div class="menu-desc-area">
-                <p id="description-text" class="text-dark mb-0 font-weight-bold small">実施したい機能を選択してください。</p>
+                <p id="description-text" class="font-size: 1rem">実施したい機能を選択してください。</p>
             </div>
 
             <div class="list-group">
@@ -55,7 +55,7 @@
                             </div>
 
                             @* 追記　data-desc属性の追加 *@
-                            <button type="submit" name="btn_action" value=@(ActionValues.License) class="btn btn-outline-primary"
+                            <button type="submit" name="btn_action" value=@(ActionValues.License) class="btn-outline-primary"
                                     data-desc="従業員が保有する資格の確認や、追加・削除などの編集を行います。">
                                 従業員保有資格管理
                             </button>
@@ -63,14 +63,14 @@
                         <hr class="my-3" />
 
                         @* 追記　data-desc属性の追加 *@
-                        <button type="submit" name="btn_action" value=@(ActionValues.Logout) class="btn btn-danger-filled"
+                        <button type="submit" name="btn_action" value=@(ActionValues.Logout) class="btn-danger-filled"
                                 data-desc="システムからログアウトし、ログイン画面に戻ります。">
                             ログアウト
                         </button>
 
                         @* 削除（以下はテスト用のため、完成時は表示されない） *@
                         @* <hr class="my-3" /> *@
-                        <button type="submit" name="btn_action" value=@(ActionValues.Demo) class="btn btn-outline-danger">
+                        <button type="submit" name="btn_action" value=@(ActionValues.Demo) class="btn-outline-danger">
                             テスト用メニュー
                         </button>
                     </div>
@@ -94,24 +94,36 @@
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // 説明を表示する要素と、すべてのボタンを取得
             var descArea = document.getElementById('description-text');
             var buttons = document.querySelectorAll('button[data-desc]');
-
-            // 初期状態のテキストを保存しておく
             var defaultText = descArea.textContent;
 
+            // タイマーを管理する変数（乗ったとき・離れたとき共通）
+            var hoverTimer;
+
             buttons.forEach(function (button) {
-                // マウスが乗ったとき：説明文に書き換える
+                // 1. マウスが乗ったとき
                 button.addEventListener('mouseenter', function () {
-                    descArea.textContent = this.getAttribute('data-desc');
-                    descArea.classList.remove('text-muted'); // 文字色を少し濃くする
+                    // 乗った瞬間、これまでのタイマー（離れたときの戻る処理など）をすべてキャンセル
+                    clearTimeout(hoverTimer);
+
+                    var newDesc = this.getAttribute('data-desc');
+
+                    // 0.15秒以上マウスが滞在したときだけ説明文を書き換える
+                    hoverTimer = setTimeout(function () {
+                        descArea.textContent = newDesc;
+                    }, 150);
                 });
 
-                // マウスが離れたとき：元の案内文に戻す
+                // 2. マウスが離れたとき
                 button.addEventListener('mouseleave', function () {
-                    descArea.textContent = defaultText;
-                    descArea.classList.add('text-muted'); // 文字色を薄く戻す
+                    // 乗ったときのタイマーを一度キャンセル
+                    clearTimeout(hoverTimer);
+
+                    /* 離れてから 0.2秒（200ミリ秒）待ってから元の文に戻す */
+                    hoverTimer = setTimeout(function () {
+                        descArea.textContent = defaultText;
+                    }, 200); // 離したあとの余韻の長さです。お好みで 150 〜 300 あたりで微調整してください
                 });
             });
         });
