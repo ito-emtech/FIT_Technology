@@ -180,3 +180,47 @@ body {
         color: var(--color-text-dark) !important;
         text-decoration: underline !important;
     }
+
+
+
+
+/* ==================================================
+   共通レイアウト（ヘッダー・フッター）の調整
+   ================================================== */
+
+/* 会社名のロゴ風スタイリング */
+.navbar-logo {
+    font-weight: 800 !important;
+    font-size: 1.25rem !important;
+    letter-spacing: 0.05em !important;
+    color: #ffffff !important; /* 背景が濃いので、ロゴは「真っ白」にして目立たせる */
+    transition: opacity 0.2s ease;
+    /* ここから追加のこだわり装飾 */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important; /* カチッとしつつ洗練されたフォントを指定 */
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important; /* ほんの少しだけ下に影を落として、文字を立体的に浮かせる */
+    position: relative;
+    transition: all 0.3s ease !important;
+}
+
+    /* マウスを乗せたとき（ホバー時）の動きをカッコよくする設定 */
+    .navbar-logo:hover {
+        opacity: 1 !important;
+        color: var(--color-bg-desc) !important; /* マウスを乗せると、あの優しいミント色に優しく光る */
+        transform: translateY(-1px); /* ほんの1ピクセルだけ上に「フワッ」と浮き上がる */
+    }
+
+    .navbar-logo:hover {
+        opacity: 0.8; /* マウスを乗せたときに少し優しく光る */
+    }
+
+/* 固定ヘッダーの裏にコンテンツが潜り込むのを防ぐための余白調整 */
+.main-content {
+    margin-top: 90px !important; /* ヘッダーの高さ分、コンテンツを下に押し下げる */
+    min-height: calc(100vh - 180px); /* 画面サイズが小さくてもフッターを最下部に押し出す */
+}
+
+/* フッターを少し上品な薄いグレーに */
+.footer {
+    background-color: #f8f9fa !important;
+    font-size: 0.85rem;
+}
