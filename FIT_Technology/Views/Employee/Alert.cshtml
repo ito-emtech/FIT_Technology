@@ -12,20 +12,26 @@
     }
 
 }
-<div class="text-center">
-    <h1 class="display-4">削除確認</h1>
-    <form method="post">
-        @for(int i = 0; i < ViewBag.Info.Count; i++)
-        {
-            <input type="hidden" name="deleteEmp[@i].EmpCd" value="@ViewBag.Info[i].EmpCd" />
-            <input type="hidden" name="deleteEmp[@i].LastNm" value="@ViewBag.Info[i].LastNm" />
-            <input type="hidden" name="deleteEmp[@i].FirstNm" value="@ViewBag.Info[i].FirstNm" />
+<div class="col-md-6 mx-auto text-center">
+    <h2>削除確認</h2>
+    <div class="menu-card">
+        <form method="post">
+            @for (int i = 0; i < ViewBag.Info.Count; i++)
+            {
+                <input type="hidden" name="deleteEmp[@i].EmpCd" value="@ViewBag.Info[i].EmpCd" />
+                <input type="hidden" name="deleteEmp[@i].LastNm" value="@ViewBag.Info[i].LastNm" />
+                <input type="hidden" name="deleteEmp[@i].FirstNm" value="@ViewBag.Info[i].FirstNm" />
 
-            <div>従業員コード：@ViewBag.Info[i].EmpCd　氏名：@kanji[i]</div>
-        }
-        <div>上記の従業員情報を削除します。<br>よろしければ【削除】を押してください。</div>
-        <button type="submit" name="btn_action" value="result">削除</button>
-        <button type="submit" name="btn_action" value="cancel">戻る</button>
-    </form>
+                <div>従業員コード：@ViewBag.Info[i].EmpCd　氏名：@kanji[i]</div>
+            }
+            <div>上記の従業員情報を削除します。<br>よろしければ【削除】を押してください。</div><br />
+            <div class="d-grid gap-2 col-md-5 mx-auto">
+                <button class="btn btn-danger-filled" type="submit" name="btn_action" value="result">削除</button>
+                <button class="btn btn-outline-secondary" type="submit" name="btn_action" value="cancel">戻る</button>
+            </div>
+
+        </form>
+    </div>
+    
 
 </div>

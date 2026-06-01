@@ -4,7 +4,7 @@
 @{
     List<string> kanji = new List<string>();
     List<string> kana = new List<string>();
-    for(int i = 0; i < ViewBag.Info.Count; i++)
+    for (int i = 0; i < ViewBag.Info.Count; i++)
     {
         string kanjiname = ViewBag.Info[i].LastNm + ViewBag.Info[i].FirstNm;
         string kananame = ViewBag.Info[i].LastNmKana + ViewBag.Info[i].FirstNmKana;
@@ -13,57 +13,120 @@
         kana.Add(kananame);
     }
 }
-<div class="text-center">
-    <h1 class="display-4">従業員情報一覧</h1>
+<style>
+    /* 行全体をクリック可能にするためのラベル拡張 */
+    .table-clickable label {
+        display: flex; /* 👈 ブロックからフレックスボックスに変更 */
+        justify-content: center; /* 👈 左右の真ん中揃え */
+        align-items: center; /* 👈 上下の真ん中揃え */
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0.75rem;
+        cursor: pointer;
+    }
+
+    /* ラベルのpaddingと喧嘩しないようにtd側をリセット */
+    .table-clickable td {
+        padding: 0 !important;
+        vertical-align: middle;
+        text-align: center;
+    }
+
+    /* ホバー時の微調整 */
+    .table-clickable tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.04);
+    }
+
+    /* チェックが入っている行の背景色（薄い青） */
+    .table-clickable tbody tr:has(input[type="checkbox"]:checked) {
+        background-color: #e8f4fd !important;
+    }
+
+    /* ヘッダーの背景にテーマ変数（--color-bg-desc）を強制適用するクラス */
+    .bg-theme-desc {
+        background-color: var(--color-bg-desc) !important;
+    }
+</style>
+
+
+<div class="col-md-10 mx-auto text-center">
+    <h2>従業員情報一覧</h2>
+
     @if (ViewBag.ErrorMessage != null)
     {
-        <div class="alert alert-danger" role="alert" style="max-width: 600px; margin: 10px auto; text-align: left;">
+        <div class="alert alert-danger text-start mx-auto w-100" role="alert" style="max-width: 600px;">
             @ViewBag.ErrorMessage
         </div>
     }
+
     <form method="post">
-        @if(ViewBag.Info.Count != 0)
+        @if (ViewBag.Info.Count != 0)
         {
-            @* <table style="margin-left: auto; margin-right: auto; border:solid"> *@
-                <table class= "table">
-            <tr>
-                <th></th>
-                <th>従業員コード</th>
-                <th>氏名（漢字）</th>
-                <th>氏名（カナ）</th>
-                <th>所属部署</th>
-                <th>入社日</th>
-            </tr>
-            @for (int i = 0; i < ViewBag.Info.Count; i++)
-            {
-                <tr>
-                    <td><input type="checkbox" name="empcd" value="@ViewBag.Info[i].EmpCd"></input></td>
-                    <td>@ViewBag.Info[i].EmpCd</td>
-                    <td>@kanji[i]</td>
-                    <td>@kana[i]</td>
-                    <td>
-                            @for(int j = 0; j < ViewBag.SectionInfo.Count; j++)
-                            {
-                                if(ViewBag.Info[i].SectionCd == ViewBag.SectionInfo[j].SectionCd)
-                                {
-                                    @ViewBag.SectionInfo[j].SectionNm;
-                                }
-                            }
-                    </td>
-                        <td>@ViewBag.Info[i].EmpDate.ToString("yyyy年MM月dd日")</td>
-                </tr>
-            }
-            </table><br />
-        
-            <button type="submit" name="btn_action" value="update">変更</button>
-            <button type="submit" name="btn_action" value="alert">削除</button><br />
+            @* 💡 【解説】
+               ・bg-white : 背景白
+               ・p-4      : 上下左右のしっかりした余白
+                hurt-3  : 大きめの角丸（Bootstrap 5）
+               ・shadow   : 綺麗な影
+               ・mb-4     : 下枠とのディスタンス
+            *@
+            <div class="bg-white p-4 rounded-3 shadow mb-4">
+                <table class="table table-clickable border-collapse-separate m-0">
+                    <thead>
+                        @* 💡 スタイル属性を無くし、先ほど定義した .bg-theme-desc クラスに置き換え *@
+                        <tr class="bg-theme-desc">
+                            <th class="text-center" style="width: 80px;">選択</th>
+                            <th>従業員コード</th>
+                            <th>氏名（漢字）</th>
+                            <th>氏名（カナ）</th>
+                            <th>所属部署</th>
+                            <th>入社日</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        @for (int i = 0; i < ViewBag.Info.Count; i++)
+                        {
+                            string checkboxId = "chk_" + i;
+                            <tr>
+                                <td class="text-center">
+                                    <label for="@checkboxId">
+                                        <input type="checkbox" id="@checkboxId" name="empcd" value="@ViewBag.Info[i].EmpCd" />
+                                    </label>
+                                </td>
+                                <td><label for="@checkboxId">@ViewBag.Info[i].EmpCd</label></td>
+                                <td><label for="@checkboxId">@kanji[i]</label></td>
+                                <td><label for="@checkboxId">@kana[i]</label></td>
+                                <td>
+                                    <label for="@checkboxId">
+                                        @for (int j = 0; j < ViewBag.SectionInfo.Count; j++)
+                                        {
+                                            if (ViewBag.Info[i].SectionCd == ViewBag.SectionInfo[j].SectionCd)
+                                            {
+                                                @ViewBag.SectionInfo[j].SectionNm
+                                            }
+                                        }
+                                    </label>
+                                </td>
+                                <td><label for="@checkboxId">@ViewBag.Info[i].EmpDate.ToString("yyyy年MM月dd日")</label></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <div class="d-grid gap-3 d-md-flex justify-content-center mt-4">
+                    <button class="btn btn-primary-filled px-5" type="submit" name="btn_action" value="update">変更</button>
+                    <button class="btn btn-primary-filled px-5" type="submit" name="btn_action" value="alert">削除</button>
+                </div>
+            </div>
         }
         else
         {
-            <div>該当する従業員データが見つかりませんでした</div>
+            <div class="alert alert-secondary">該当する従業員データが見つかりませんでした</div>
         }
 
-        <button type="submit" name="btn_action" value="cancel">戻る</button>
+        <div class="d-grid gap-2 col-md-5 mx-auto mt-4">
+            
+            <button class="btn btn-outline-secondary" type="submit" name="btn_action" value="cancel">戻る</button>
+        </div>
     </form>
-    
 </div>
