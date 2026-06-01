@@ -23,11 +23,11 @@
                 <div class="card-body p-4">
 
                     @* メッセージ本文：左寄せ・自動折り返し *@
-                    <div class="card-text fs-5 mb-4 text-start view-msg">@ViewBag.Msg</div>
+                    <div class="card-text fs-5 mb-4 text-center view-msg">@ViewBag.Msg</div>
 
                     @* ボタン：カード中央寄りに配置（d-gridで横幅いっぱい） *@
                     <div class="d-grid">
-                        <a asp-controller="Account" asp-action="Menu" class="btn btn-primary">
+                        <a asp-controller="Account" asp-action="Menu" class="btn btn-primary-filled">
                             @(btnView)
                         </a>
                     </div>
