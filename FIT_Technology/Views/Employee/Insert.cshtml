@@ -4,40 +4,40 @@
 <div class="text-center">
     <h1 class="display-4">従業員情報登録</h1>
     <form method="post" autocomplete="off">
-        <table style="margin-left: auto; margin-right: auto; border:solid">
+        <table class="table">
             <tr>
-                <td style="border:solid">従業員コード</td>
-                <td style="border:solid">
+                <td>従業員コード</td>
+                <td>
                     <input type="text" name="empcd" value="@Model?.EmpCd" />
                     <br /><span asp-validation-for="EmpCd" class="text-danger"></span>
                 </td>
-                <td style="border:solid"></td>
+                <td></td>
             </tr>
             <tr>
-                <td style="border:solid">氏名（漢字）</td>
-                <td style="border:solid">
+                <td>氏名（漢字）</td>
+                <td>
                     <input type="text" name="lastnm" value="@Model?.LastNm" />
                     <br /><span asp-validation-for="LastNm" class="text-danger"></span>
                 </td>
-                <td style="border:solid">
+                <td>
                     <input type="text" name="firstnm" value="@Model?.FirstNm" />
                     <br /><span asp-validation-for="FirstNm" class="text-danger"></span>
                 </td>
             </tr>
             <tr>
-                <td style="border:solid">氏名（カナ）</td>
-                <td style="border:solid">
+                <td>氏名（カナ）</td>
+                <td>
                     <input type="text" name="lastnmkana" value="@Model?.LastNmKana" />
                     <br /><span asp-validation-for="LastNmKana" class="text-danger"></span>
                 </td>
-                <td style="border:solid">
+                <td>
                     <input type="text" name="firstnmkana" value="@Model?.FirstNmKana" />
                     <br /><span asp-validation-for="FirstNmKana" class="text-danger"></span>
                 </td>
             </tr>
             <tr>
-                <td style="border:solid">性別</td>
-                <td style="border:solid">
+                <td>性別</td>
+                <td>
                     <select name="gendercd">
                         @for(int i = 0; i < ViewBag.GenderInfo.Count; i++)
                         {
@@ -46,19 +46,19 @@
                     </select>
                     <br /><span asp-validation-for="GenderCd" class="text-danger"></span>
                 </td>
-                <td style="border:solid"></td>
+                <td></td>
             </tr>
             <tr>
-                <td style="border:solid">生年月日</td>
-                <td style="border:solid">
+                <td>生年月日</td>
+                <td>
                     <input type="date" name="birthdate" value="@Model?.BirthDate.ToString("yyyy-MM-dd")" />
                     <br /><span asp-validation-for="BirthDate" class="text-danger"></span>
                 </td>
-                <td style="border:solid"></td>
+                <td></td>
             </tr>
             <tr>
-                <td style="border:solid">所属</td>
-                <td style="border:solid">
+                <td>所属</td>
+                <td>
                     <select name="sectioncd">
                         @for (int i = 0; i < ViewBag.SectionInfo.Count; i++)
                         {
@@ -68,15 +68,15 @@
                     </select>
                     <br /><span asp-validation-for="SectionCd" class="text-danger"></span>
                 </td>
-                <td style="border:solid"></td>
+                <td></td>
             </tr>
             <tr>
-                <td style="border:solid">入社日</td>
-                <td style="border:solid">
+                <td>入社日</td>
+                <td>
                     <input type="date" name="empdate" value="@Model?.EmpDate.ToString("yyyy-MM-dd")" />
                     <br /><span asp-validation-for="EmpDate" class="text-danger"></span>
                 </td>
-                <td style="border:solid"></td>
+                <td></td>
             </tr>
         </table><br />
         <button type="submit" name="btn_action" value="result">登録</button>

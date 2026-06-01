@@ -24,23 +24,24 @@
     <form method="post">
         @if(ViewBag.Info.Count != 0)
         {
-            <table style="margin-left: auto; margin-right: auto; border:solid">
+            @* <table style="margin-left: auto; margin-right: auto; border:solid"> *@
+                <table class= "table">
             <tr>
-                <th style="border:solid"></th>
-                <th style="border:solid">従業員コード</th>
-                <th style="border:solid">氏名（漢字）</th>
-                <th style="border:solid">氏名（カナ）</th>
-                <th style="border:solid">所属部署</th>
-                <th style="border:solid">入社日</th>
+                <th></th>
+                <th>従業員コード</th>
+                <th>氏名（漢字）</th>
+                <th>氏名（カナ）</th>
+                <th>所属部署</th>
+                <th>入社日</th>
             </tr>
             @for (int i = 0; i < ViewBag.Info.Count; i++)
             {
                 <tr>
-                    <td style="border:solid"><input type="checkbox" name="empcd" value="@ViewBag.Info[i].EmpCd"></input></td>
-                    <td style="border:solid">@ViewBag.Info[i].EmpCd</td>
-                    <td style="border:solid">@kanji[i]</td>
-                    <td style="border:solid">@kana[i]</td>
-                    <td style="border:solid">
+                    <td><input type="checkbox" name="empcd" value="@ViewBag.Info[i].EmpCd"></input></td>
+                    <td>@ViewBag.Info[i].EmpCd</td>
+                    <td>@kanji[i]</td>
+                    <td>@kana[i]</td>
+                    <td>
                             @for(int j = 0; j < ViewBag.SectionInfo.Count; j++)
                             {
                                 if(ViewBag.Info[i].SectionCd == ViewBag.SectionInfo[j].SectionCd)
@@ -49,7 +50,7 @@
                                 }
                             }
                     </td>
-                        <td style="border:solid">@ViewBag.Info[i].EmpDate.ToString("yyyy年MM月dd日")</td>
+                        <td>@ViewBag.Info[i].EmpDate.ToString("yyyy年MM月dd日")</td>
                 </tr>
             }
             </table><br />
