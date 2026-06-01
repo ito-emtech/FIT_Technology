@@ -17,7 +17,7 @@ namespace FIT_Technology.Models.Entities
         [Column("emp_cd", TypeName = "char")]
         [Display(Name = "従業員コード")]
         [Required(ErrorMessage = "{0}は必須項目です。")]
-        [StringLength(4, ErrorMessage = "{0}は{1}文字で入力してください。")]
+        [StringLength(4, MinimumLength = 4, ErrorMessage = "{0}は{1}文字で設定してください。")]
         public string EmpCd { get; set; } = string.Empty;
 
         /// <summary>
