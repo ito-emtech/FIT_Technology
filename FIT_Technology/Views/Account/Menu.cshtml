@@ -11,26 +11,65 @@
             @* タイトルを中央寄せにし、ログイン画面と余白を合わせる *@
             <h2 class="text-center mb-4">@ViewBag.Title</h2>
 
+            @* 追加 *@
+            <div class="menu-desc-area">
+                <p id="description-text" class="text-dark mb-0 font-weight-bold small">実施したい機能を選択してください。</p>
+            </div>
+
             <div class="list-group">
                 <form asp-action="Menu" method="post">
                     <div class="d-grid gap-2">
-                        @* ログイン画面のボタンと高さを合わせるため、btn-lg や py-2 を検討しても良いでしょう *@
-                        <button type="submit" name="btn_action" value=@(ActionValues.Insert) class="btn btn-outline-primary">
-                            従業員登録
-                        </button>
-                        <button type="submit" name="btn_action" value=@(ActionValues.List) class="btn btn-outline-primary">
-                            従業員一覧
-                        </button>
-                        <button type="submit" name="btn_action" value=@(ActionValues.License) class="btn btn-outline-primary">
-                            従業員保有資格管理
-                        </button>
 
+                        @* 追加　従業員情報関連機能をカード化 *@
+                        <div class="menu-card">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="menu-card-icon">
+                                    <span class="fs-5">👤</span>
+                                </div>
+                                <h4 class="menu-card-title">従業員管理</h4>
+                            </div>
+
+                            @* 追記　data-desc属性の追加 *@
+                            <div class="d-grid gap-2">
+                                <button type="submit" name="btn_action" value=@(ActionValues.Insert)
+                                        class="btn-outline-primary"
+                                        data-desc="新規の従業員情報をシステムに登録します。">
+                                    従業員登録
+                                </button>
+
+                                <button type="submit" name="btn_action" value=@(ActionValues.List)
+                                        class="btn-outline-primary"
+                                        data-desc="従業員の一覧を表示します。選択したデータの変更・削除もここから行えます。">
+                                    一覧・編集
+                                </button>
+                            </div>
+                        </div>
+
+                        @* 追加　資格情報関連機能をカード化 *@
+                        <div class="menu-card">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="menu-card-icon">
+                                    <span class="fs-5">🪪</span>
+                                </div>
+                                <h4 class="menu-card-title">資格管理</h4>
+                            </div>
+
+                            @* 追記　data-desc属性の追加 *@
+                            <button type="submit" name="btn_action" value=@(ActionValues.License) class="btn btn-outline-primary"
+                                    data-desc="従業員が保有する資格の確認や、追加・削除などの編集を行います。">
+                                従業員保有資格管理
+                            </button>
+                        </div>
                         <hr class="my-3" />
 
-                        <button type="submit" name="btn_action" value=@(ActionValues.Logout) class="btn btn-outline-danger">
+                        @* 追記　data-desc属性の追加 *@
+                        <button type="submit" name="btn_action" value=@(ActionValues.Logout) class="btn btn-outline-danger"
+                                data-desc="システムからログアウトし、ログイン画面に戻ります。">
                             ログアウト
                         </button>
-                        <hr class="my-3" />
+
+                        @* 削除（以下はテスト用のため、完成時は表示されない） *@
+                        @* <hr class="my-3" /> *@
                         <button type="submit" name="btn_action" value=@(ActionValues.Demo) class="btn btn-outline-danger">
                             テスト用メニュー
                         </button>
@@ -46,6 +85,35 @@
                     @ViewBag.Msg
                 </div>
             }
+
+
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 説明を表示する要素と、すべてのボタンを取得
+            var descArea = document.getElementById('description-text');
+            var buttons = document.querySelectorAll('button[data-desc]');
+
+            // 初期状態のテキストを保存しておく
+            var defaultText = descArea.textContent;
+
+            buttons.forEach(function (button) {
+                // マウスが乗ったとき：説明文に書き換える
+                button.addEventListener('mouseenter', function () {
+                    descArea.textContent = this.getAttribute('data-desc');
+                    descArea.classList.remove('text-muted'); // 文字色を少し濃くする
+                });
+
+                // マウスが離れたとき：元の案内文に戻す
+                button.addEventListener('mouseleave', function () {
+                    descArea.textContent = defaultText;
+                    descArea.classList.add('text-muted'); // 文字色を薄く戻す
+                });
+            });
+        });
+    </script>
+}
