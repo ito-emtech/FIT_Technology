@@ -6,8 +6,10 @@
 }
 @model FIT_Technology.Models.Entities.EmployeeEntity
 
-<div class="text-center">
-    <h1 class="display-4">従業員情報変更</h1>
+<div class="col-md-6 mx-auto text-center">
+    <h2>従業員情報変更</h2>
+    <p>変更する項目を選択・入力し、『変更』ボタンを押してください。</p>
+    <hr>
     <form method="post">
         <table class="table">
             <tr>
@@ -19,22 +21,22 @@
             <tr>
                 <td>氏名（漢字）</td>
                 <td>
-                    <input type="text" name="lastnm" value="@Model?.LastNm"/>
+                    <input type="text" name="lastnm" value="@Model?.LastNm" placeholder="例：山田" />
                     <br /><span asp-validation-for="LastNm" class="text-danger"></span>
                 </td>
                 <td>
-                    <input type="text" name="firstnm" value="@Model?.FirstNm" />
+                    <input type="text" name="firstnm" value="@Model?.FirstNm" placeholder="例：太郎" />
                     <br /><span asp-validation-for="FirstNm" class="text-danger"></span>
                 </td>
             </tr>
             <tr>
                 <td>氏名（カナ）</td>
                 <td>
-                    <input type="text" name="lastnmkana" value="@Model?.LastNmKana" />
+                    <input type="text" name="lastnmkana" value="@Model?.LastNmKana" placeholder="例：ヤマダ" />
                     <br /><span asp-validation-for="LastNmKana" class="text-danger"></span>
                 </td>
                 <td>
-                    <input type="text" name="firstnmkana" value="@Model?.FirstNmKana" />
+                    <input type="text" name="firstnmkana" value="@Model?.FirstNmKana" placeholder="例：タロウ" />
                     <br /><span asp-validation-for="FirstNmKana" class="text-danger"></span>
                 </td>
             </tr>
@@ -77,8 +79,9 @@
                 <td></td>
             </tr>
         </table><br />
-        <button type="submit" name="btn_action" value="result">変更</button>
-        <button type="submit" name="btn_action" value="cancel">戻る</button>
+        <button type="submit" class="btn-primary-filled" name="btn_action" value="result">変更</button>
+        <hr>
+        <button type="submit" class="btn btn-secondary w-100" name="btn_action" value="cancel">戻る</button>
     </form>
 
 </div>
