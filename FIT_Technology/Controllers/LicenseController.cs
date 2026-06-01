@@ -3,12 +3,26 @@ using FIT_Technology.Models.Constants;
 using FIT_Technology.Models.Daos;
 using FIT_Technology.Models.Entities;
 using FIT_Technology.Models.Helpers;
+using FIT_Technology.Models.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FIT_Technology.Controllers
 {
     public class LicenseController : Controller
     {
+        // 2つのサービスをプライベート変数として保持
+        private readonly DemoEmployeeService _employeeService;
+        private readonly DemoGetLicenseService _licenseService;
+
+        /// <summary>
+        /// コンストラクタで各サービスをインスタンス化
+        /// </summary>
+        public LicenseController()
+        {
+            _employeeService = new DemoEmployeeService();
+            _licenseService = new DemoGetLicenseService();
+        }
+
         /// <summary>
         /// デフォルトゲート
         /// </summary>
@@ -91,9 +105,7 @@ namespace FIT_Technology.Controllers
                 TempData["ErrorMsg"] = "従業員を選択してください";
                 return RedirectToAction(nameof(LicenseController.LicenseMenu));
             }
-
             TempData["emp_code"] = emp_code;
-
 
             switch (btn_action)
             {
@@ -113,12 +125,54 @@ namespace FIT_Technology.Controllers
             }
         }
 
+        /// <summary>
+        /// 保有資格登録画面を表示します
+        /// </summary>
+        /// <remarks>
+        /// 従業員コードと氏名を表示します<br/>
+        /// 保有資格の新規登録が行える</br>
+        /// 資格名をセレクトで選択できます<br/>
+        /// 取得日をデフォルトで今日に設定します<br/>
+        /// リンクで保有資格一覧に戻れる
+        /// </remarks>
+        /// <returns>
+        /// 保有資格の入力画面が表示されます
+        /// </returns>
         [HttpGet]
         public IActionResult Insert()
         {
+            ViewBag.ViewTitle = "保有資格登録";
+            ViewBag.ErrorMsg = TempData["ErrorMsg"] ?? null;
+
             // TempData から従業員コードを取得。Peek() を使うことで、値を消さずに維持します。
             string emp_code = (string?)TempData.Peek("emp_code") ?? string.Empty;
 
+            EmployeeEntity employee = new EmployeeEntity();
+            using (TranMng tm = TranMng.BeginTransaction(DbConstants.EmpDbConnection))
+            {
+                EmployeeDao employeeDao = new EmployeeDao();
+                try
+                {
+                    // 全件取得、あるいは必要な検索メソッドを呼び出す（例: FindAll や Select 等）
+                    employee = employeeDao.Find(emp_code);
+
+                    tm.Commit();
+                }
+                catch (Exception e)
+                {
+                    System.Console.WriteLine(e.Message);
+                    tm.Rollback();
+                    // 必要に応じてエラーメッセージをViewBagに入れるなど
+                    ViewBag.ErrorMsg = "従業員データの取得に失敗しました。";
+                }
+
+            }
+
+            //ViewBag.ViewName = $"資格コード：{employee.EmpCd} 氏名：{employee.LastNm} {employee.FirstNm}";
+            ViewBag.ViewName = $"従業員コード［{employee.EmpCd}］氏名：{employee.LastNm} {employee.FirstNm}";
+
+            // セレクタ用のデータを準備
+            ViewBag.Licenses = _licenseService.GetLicenses();
 
             // 画面に渡す「空の」エンティティ（モデル）を生成
             var model = new GetLicenseEntity
@@ -128,63 +182,56 @@ namespace FIT_Technology.Controllers
                 GetLicenseDate = DateTime.Today
             };
 
-            // ビュー側の @(ViewBag.ViewName) や @(ViewBag.EmpCd) に値を引き渡す
-            ViewBag.ViewName = emp_code;
             ViewBag.EmpCd = emp_code;
 
-            ViewBag.EmpName = "取得した従業員名";
-
-            // 【ポイント】先ほどの単一モデル仕様のビューに合わせて、
             // リストではなく「model」単体を引数に渡して View を返します。
-            return View(model);
+            return View(nameof(LicenseController.Insert), model);
         }
 
+        /// <summary>
+        /// 保有資格登録画面を表示します
+        /// </summary>
+        /// <remarks>
+        /// 従業員コードと氏名を表示します<br/>
+        /// 保有資格の新規登録が行える</br>
+        /// 資格名をセレクトで選択できます<br/>
+        /// 取得日をデフォルトで今日に設定します<br/>
+        /// リンクで保有資格一覧に戻れる
+        /// </remarks>
+        /// <returns>
+        /// 保有資格の入力画面が表示されます
+        /// </returns>
         [HttpPost]
-
-        public IActionResult Insert(string btn_action, string license_cd, string get_license_date)
+        public IActionResult Insert(GetLicenseEntity entity)
         {
-            switch (btn_action)
+            if (!ModelState.IsValid)
             {
-                case "result":
-                    // 「登録」ボタンが押されたら完了画面へ
+                TempData["ErrorMsg"] = "";
+                return RedirectToAction(nameof(LicenseController.Insert));
+            }
 
-                    string emp_code = (string?)TempData.Peek("emp_code") ?? string.Empty;
+            using (TranMng tm = TranMng.BeginTransaction(DbConstants.EmpDbConnection))
+            {
+                GetLicenseDao getLicense = new GetLicenseDao();
+                try
+                {
+                    getLicense.Insert(entity);
 
+                    return RedirectToAction(
+                        nameof(ResultController.Index),
+                        Ctrl.Get<ResultController>());
+                }
+                catch (Exception e)
+                {
+                    System.Console.WriteLine(e.Message);
+                    tm.Rollback();
 
-                    List<GetLicenseEntity> list = new List<GetLicenseEntity>();
-
-                    using (TranMng tm = TranMng.BeginTransaction("empdb"))
-                    {
-                        GetLicenseDao getLicense = new GetLicenseDao();
-                        try
-                        {
-                            //getLicense.Insert();
-                            //検索
-                            //list = getLicense.FindWhere(emp_cd);
-                            list = getLicense.FindWhere(emp_code);//””を外した9時17分
-                            tm.Commit();
-                            ViewBag.ViewName = emp_code;
-
-                            return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
-                        }
-                        catch (Exception e)
-                        {
-                            System.Console.WriteLine(e.Message);
-                            tm.Rollback();
-                        }
-
-                        return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
-                    }
-
-
-                case "cancel":
-                    // 「戻る」ボタンが押されたら保有資格管理画面へ
-
-                    return RedirectToAction(nameof(LicenseController.LicenseMenu), Ctrl.Get<LicenseController>());
-
-                default:
-                    // どれにも当てはまらない場合は、今のメニュー画面を再表示
-                    return View();
+                    // 定義外のアクションが送られた場合のエラー処理
+                    return this.RedirectToResult(
+                        viewTitle: "不正な入力を検知",
+                        msg: "従業員管理システム画面から不正コマンドを検出しました。",
+                        caption: e.Message);
+                }
             }
         }
 
