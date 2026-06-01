@@ -99,40 +99,17 @@ namespace FIT_Technology.Controllers
             {
                 case "insert":
                     // 「登録」ボタンが押されたら登録画面へ
-
-                    if (emp_code == null)
-                    {
-                        ViewBag.ErrorMsg = "従業員を選択してください";
-
-                        return View();
-                    }
-
-                    TempData["emp_code"] = emp_code;
-
-                    //return RedirectToAction("Insert");
-                    return RedirectToAction(nameof(LicenseController.Insert), Ctrl.Get<LicenseController>());
+                    return RedirectToAction(
+                        nameof(LicenseController.Insert),
+                        Ctrl.Get<LicenseController>());
                 case "list":
                     // 「資格一覧表示」ボタンが押されたら、一覧画面へ
-                    if (emp_code == null)
-                    {
-                        ViewBag.ErrorMsg = "従業員を選択してください";
-
-                        return View();
-                    }
-
-                    TempData["emp_code"] = emp_code;
-
-                    //return RedirectToAction("List", "License");
-                    return RedirectToAction(nameof(LicenseController.List), Ctrl.Get<LicenseController>());
-                case "cancel":
-                    // 「戻る」ボタンが押されたらIndex（トップ画面）へ
-                    //return RedirectToAction("Index", "License");
-                    //下の意味と同じ
-                    return RedirectToAction(nameof(LicenseController.Index), Ctrl.Get<AccountController>());
-
+                    return RedirectToAction(
+                        nameof(LicenseController.List),
+                        Ctrl.Get<LicenseController>());
                 default:
-                    // どれにも当てはまらない場合は、今のメニュー画面を再表示
-                    return View();
+                    TempData["ErrorMsg"] = "操作をやり直してください";
+                    return RedirectToAction(nameof(LicenseController.LicenseMenu));
             }
         }
 
@@ -141,6 +118,7 @@ namespace FIT_Technology.Controllers
         {
             // TempData から従業員コードを取得。Peek() を使うことで、値を消さずに維持します。
             string emp_code = (string?)TempData.Peek("emp_code") ?? string.Empty;
+
 
             // 画面に渡す「空の」エンティティ（モデル）を生成
             var model = new GetLicenseEntity
