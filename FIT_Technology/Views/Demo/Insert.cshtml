@@ -1,0 +1,56 @@
+﻿@model FIT_Technology.Models.Entities.GetLicenseEntity
+
+@{
+    Layout = "_Layout";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h2 class="text-center mb-4">@ViewBag.ViewTitle</h2>
+
+            @* 選択された従業員情報の表示エリア *@
+            <div class="alert alert-light border text-center mb-4">
+                <span class="text-muted">対象従業員：</span>
+                <strong>@ViewBag.ViewName</strong>
+            </div>
+
+            @if (ViewBag.ErrorMsg != null)
+            {
+                <div class="alert alert-danger text-center p-2" role="alert">
+                    <small>@ViewBag.ErrorMsg</small>
+                </div>
+            }
+
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <input type="hidden" asp-for="EmpCd" />
+
+                @* --- 資格コード（セレクトボックス形式） --- *@
+                <div class="form-group mb-3">
+                    <label asp-for="LicenseCd" class="form-label"></label>
+                    @* ★第3引数を "LicenseNm" から "DisplayLicenseText" に変更しました *@
+                    <select asp-for="LicenseCd" class="form-select"
+                            asp-items="@(new SelectList(ViewBag.Licenses ?? new List<FIT_Technology.Models.Entities.LicenseEntity>(), "LicenseCd", "DisplayLicenseText"))">
+                        <option value="">-- 資格を選択してください --</option>
+                    </select>
+                    <span asp-validation-for="LicenseCd" class="text-danger small"></span>
+                </div>
+
+                @* --- 取得日 --- *@
+                <div class="form-group mb-3">
+                    <label asp-for="GetLicenseDate" class="form-label"></label>
+                    <input asp-for="GetLicenseDate" class="form-control" />
+                    <span asp-validation-for="GetLicenseDate" class="text-danger small"></span>
+                </div>
+
+                <br />
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary">資格を登録する</button>
+                    <a asp-controller="Demo" asp-action="LicenseMenu" class="btn btn-outline-secondary">LicenseMenuに戻る</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

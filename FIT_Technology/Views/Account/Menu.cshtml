@@ -7,7 +7,7 @@
 
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col-md-4">
+        <div class="col-md-6">
             @* タイトルを中央寄せにし、ログイン画面と余白を合わせる *@
             <h2 class="text-center mb-4">@ViewBag.Title</h2>
 
@@ -29,6 +29,10 @@
 
                         <button type="submit" name="btn_action" value=@(ActionValues.Logout) class="btn btn-outline-danger">
                             ログアウト
+                        </button>
+                        <hr class="my-3" />
+                        <button type="submit" name="btn_action" value=@(ActionValues.Demo) class="btn btn-outline-danger">
+                            テスト用メニュー
                         </button>
                     </div>
                 </form>

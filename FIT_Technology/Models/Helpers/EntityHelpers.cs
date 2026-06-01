@@ -7,6 +7,7 @@ namespace FIT_Technology.Models.Helpers
 {
     /// <summary>
     /// エンティティモデルに関するメタデータ取得を補助するユーティリティクラスです。
+    /// 現在は機能移行済み、使用していない
     /// </summary>
     /// <remarks>
     /// DataAnnotations（Table属性やColumn属性）を利用して、データベースの物理名を取得します。

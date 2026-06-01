@@ -1,6 +1,6 @@
 ﻿using DynamicDll.Db;
 using FIT_Technology.Models.Entities;
-using FIT_Technology.Models.Helpers;
+using FIT_Technology.Models.Helpers; // 拡張メソッド(MapToEntity)の利用に必要
 using Microsoft.Data.SqlClient;
 using System.Data;
 
@@ -20,58 +20,74 @@ namespace FIT_Technology.Models.Daos
         {
             if (pkeys == null || pkeys.Length == 0 || pkeys[0] == null) return null;
 
-            // 型情報とテーブル名の取得
-            var type = typeof(GenderEntity);
-            string tableName = EntityHelpers.GetTableName<GenderEntity>();
+            // 1. EntityMetaHelperを使用してメタデータを取得
+            string tableName = EntityMetaHelper.GetTableName<GenderEntity>();
+            var propCd = typeof(GenderEntity).GetProperty(nameof(GenderEntity.GenderCd))!;
+            string colCd = EntityMetaHelper.GetColumnName(propCd);
 
-            // プロパティ情報の取得
-            var propCd = type.GetProperty(nameof(GenderEntity.GenderCd))!;
-            var propNm = type.GetProperty(nameof(GenderEntity.GenderNm))!;
-
-            // カラム名とSQLデータ型の取得
-            string colCd = EntityHelpers.GetColumnName(propCd);
-            string colNm = EntityHelpers.GetColumnName(propNm);
-            SqlDbType sqlTyp = EntityHelpers.GetSqlType(propCd); // int型として取得される
-
-            // クエリ構築
+            // 2. クエリの構築
+            // SELECT * を使用することで、将来的なカラム増減に対応
             string query = $@"
-                SELECT {colCd}, {colNm}
+                SELECT *
                 FROM {tableName}
                 WHERE {colCd} = @PKey";
 
             using (SqlCommand cmd = new SqlCommand(query, con))
             {
                 cmd.Transaction = trn;
-                // GenderCd は int なので、EntityHelpers.GetSqlType が SqlDbType.Int を返します
-                cmd.Parameters.Add("@PKey", sqlTyp).Value = pkeys[0];
+
+                // 3. パラメータ設定 (GenderCdがintなら自動でSqlDbType.Intが設定される)
+                cmd.Parameters.Add("@PKey", EntityMetaHelper.GetSqlType(propCd)).Value = pkeys[0];
 
                 using (SqlDataReader reader = cmd.ExecuteReader())
                 {
                     if (reader.Read())
                     {
-                        return EntityHelpers.MapEntity<GenderEntity>(reader);
+                        // 4. ★拡張メソッドによる自動マッピング
+                        return reader.MapToEntity<GenderEntity>();
                     }
                 }
             }
             return null;
         }
 
-        public override int Insert(GenderEntity entity)
+        /// <summary>
+        /// すべての性別マスタ情報を取得します。
+        /// </summary>
+        /// <returns>性別マスタエンティティのリスト</returns>
+        public List<GenderEntity> FindAll()
         {
-            // 必要に応じて共通のInsertロジック、または個別SQLを実装
-            throw new NotImplementedException();
+            var list = new List<GenderEntity>();
+
+            // 1. EntityMetaHelperを使用してテーブル名と主キーのカラム名を取得
+            string tableName = EntityMetaHelper.GetTableName<GenderEntity>();
+            var propCd = typeof(GenderEntity).GetProperty(nameof(GenderEntity.GenderCd))!;
+            string colCd = EntityMetaHelper.GetColumnName(propCd);
+
+            // 2. クエリの構築（主キー順にソートして全件取得）
+            string query = $@"
+                SELECT * FROM {tableName} 
+                ORDER BY {colCd}";
+
+            using (SqlCommand cmd = new SqlCommand(query, con))
+            {
+                cmd.Transaction = trn;
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    // 3. ループ内で拡張メソッドを使って自動マッピングし、リストに追加
+                    while (reader.Read())
+                    {
+                        list.Add(reader.MapToEntity<GenderEntity>());
+                    }
+                    reader.Close();
+                }
+            }
+            return list;
         }
 
-        public override int Update(GenderEntity entity)
-        {
-            // 必要に応じて共通のUpdateロジック、または個別SQLを実装
-            throw new NotImplementedException();
-        }
-
-        public override int Delete(GenderEntity entity)
-        {
-            // 必要に応じて共通のDeleteロジック、または個別SQLを実装
-            throw new NotImplementedException();
-        }
+        public override int Insert(GenderEntity entity) => throw new NotImplementedException();
+        public override int Update(GenderEntity entity) => throw new NotImplementedException();
+        public override int Delete(GenderEntity entity) => throw new NotImplementedException();
     }
 }
