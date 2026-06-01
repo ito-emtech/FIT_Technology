@@ -1,34 +1,107 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+﻿@* [モデル宣言] 
+    このビューがバインドするデータモデルを定義します。
+    FIT_Technology.Models.Entities.GetLicenseEntity クラスのプロパティとHTML要素を紐付けます。
 *@
+@model FIT_Technology.Models.Entities.GetLicenseEntity
+
 @{
+    // レイアウト設定やページのタイトルを定義
+    ViewData["Title"] = "保有資格登録";
 }
 
-<div class="text-center">
-    <h1>保有資格登録</h1>
-    <form action="/License/Insert" method="post">
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        @* フォーム全体を中央寄せ（最大幅はBootstrapのcol-md-6：画面幅の半分）に設定 *@
+        <div class="col-md-6 text-center">
 
-        @* 従業員コードと名前表示 *@
+            <h1 class="mb-4">保有資格登録</h1>
 
-        <p>従業員コード：　　　　名前：　　　　　　</p><br />
+            @* [フォーム定義]
+                action: 送信先のコントローラーとアクションを指定 (/コントローラー名/アクション名)
+                method: 登録・更新処理のため、データを安全に送信できる「post」を指定
+                class: 入力項目やラベルを左詰めにし、Bootstrapのフォーム用レイアウトを適用
+            *@
+            <form action="/License/Insert" method="post" class="text-start">
 
-        資格名：
-        <select name="license_cd">
-            
-            <option value="L0001">ITパスポート</option>
-            <option value="L0101">基本情報技術者</option>
-            <option value="L0102">応用情報技術者</option>
-        </select><br />
+                @* [バリデーションサマリー]
+                    モデル全体、またはプロパティに関連しないエラーメッセージ（カスタムエラーなど）を
+                    赤文字（text-danger）で一括表示します。
+                *@
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-        取得日：
-        <input type="date" name="get_license_date"><br />
+                @* [非表示フィールド (Hidden)]
+                    主キーである「従業員コード(EmpCd)」をPOST時にコントローラーへ引き渡すために配置。
+                    画面上には入力欄を出しませんが、フォームデータとして確実に送信されます。
+                    value属性には、コントローラーのGETアクションで設定されたViewBagの値を格納します。
+                *@
+                <input type="hidden" asp-for="EmpCd" value="@ViewBag.EmpCd" />
 
-        @* 戻るボタンは左端につけたい *@
-        <button type="submit" name="btn_action" value="cancel">戻る</button>
+                @* [従業員情報の表示領域]
+                    現在どのユーザーに対して資格を登録しようとしているかを明示する表示専用エリア。
+                    bg-light (薄いグレー背景)、p-3 (内側余白)、rounded (角丸) でカード風に装飾。
+                *@
+                <div class="mb-3 bg-light p-3 rounded text-center">
+                    <span class="fw-bold">従業員コード：</span> @(ViewBag.EmpCd)
+                    <span class="ms-4 fw-bold">名前：</span> @(ViewBag.EmpName)
+                </div>
 
-        <button type="submit" name="btn_action" value="result">登録</button>
+                @* [資格選択ドロップダウン]
+                    - asp-for="LicenseCd": Entityの「LicenseCd」プロパティと選択値をバインド
+                    - asp-validation-for: 必須チェック（[Required]）などに引っかかった際、エラーメッセージを動的に表示
+                *@
+                <div class="mb-3">
+                    <label asp-for="LicenseCd" class="form-label fw-bold">資格名：</label>
+                    <select asp-for="LicenseCd" class="form-select">
+                        <option value="">-- 資格を選択してください --</option>
+                        <option value="L0001">ITパスポート</option>
+                        <option value="L0101">基本情報技術者</option>
+                        <option value="L0102">応用情報技術者</option>
+                    </select>
+                    @* エラーメッセージ表示領域（未選択時にEntityのメッセージを表示） *@
+                    <span asp-validation-for="LicenseCd" class="text-danger"></span>
+                </div>
 
-       
+                @* [取得日入力フィールド]
+                    - type="date": ブラウザ標準の日付選択カレンダー（ピッカー）を起動
+                    - asp-for="GetLicenseDate": Entityの「GetLicenseDate」プロパティ（DateTime型）とバインド
+                *@
+                <div class="mb-4">
+                    <label asp-for="GetLicenseDate" class="form-label fw-bold">取得日：</label>
+                    <input type="date" asp-for="GetLicenseDate" class="form-control" />
+                    @* エラーメッセージ表示領域（日付未選択時などに表示） *@
+                    <span asp-validation-for="GetLicenseDate" class="text-danger"></span>
+                </div>
 
-    </form>
+                @* [ボタン配置エリア]
+                    - d-flex: Flexboxを有効化
+                    - justify-content-between: 子要素（戻るボタンと登録ボタン）を「左右の両端」に等間隔配置
+                    - align-items-center: ボタンの上下中央の配置位置を揃える
+                *@
+                <div class="d-flex justify-content-between align-items-center mt-4">
+
+                    @* [戻るボタン (リンク形式)]
+                        入力内容を破棄して前画面（資格一覧など）に戻るため、通常のaタグ（リンク）として実装。
+                        btn-secondary クラスで目立ちすぎないグレーのボタンにデザイン。
+                    *@
+                    <a href="/License/Index" class="btn btn-secondary">戻る</a>
+
+                    @* [登録ボタン]
+                        type="submit" により、フォームに入力されたデータをアクションへPOST送信。
+                        btn-primary クラスでテーマカラー（通常は青）の強調ボタンにデザイン。
+                    *@
+                    <button type="submit" name="btn_action" value="result" class="btn btn-primary px-4">登録</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
 </div>
+
+@* [スクリプトセクション]
+    _ValidationScriptsPartial を読み込むことで、jQuery Validation が有効になります。
+    これにより、サーバーにデータを送信する前（クライアント側）で、
+    「必須入力チェック」などのバリデーションをリアルタイムに実行・検知できます。
+*@
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

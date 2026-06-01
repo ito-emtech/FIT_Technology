@@ -1,18 +1,21 @@
-﻿@*
+﻿@model List<FIT_Technology.Models.Entities.GetLicenseEntity>
+@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
 }
 <div class="text-center">
     <h1>保有資格一覧</h1>
-    <form action="/License/List" method="post">
 
+    <div>
         @* 選択した従業員コードと名前表示 *@
-
-        従業員コード：
-
+        従業員コード： @(ViewBag.ViewName)
         氏名：
+    </div>
 
+    <hr />
+
+    <form action="/License/List" method="post">
         <table>
             <tr>
                 <th>　</th>
@@ -20,26 +23,19 @@
                 <th>取得日</th>
             </tr>
 
-            <tr>
-                @* nameとvalueどうする？仮でつけた *@
-                <td><input type="checkbox" name="license_id" value="date1"></td>
-                <td>ITパスポート</td>
-                <td>2015年10月1日</td>
-            </tr>
+            @* foreach構文*@
+            @foreach (var item in Model)
+            {
+                <tr>
+                    @* チェックボックスのvalueには、そのデータの資格コードを入力*@
+                    <td><input type="checkbox" name="license_cd" value="@item.LicenseCd"></td>
 
-            <tr>
-                
-                <td><input type="checkbox" name="license_id" value="date2"></td>
-                <td>基本情報技術者</td>
-                <td>2016年10月1日</td>
-            </tr>
-
-            <tr>
-               
-                <td><input type="checkbox" name="license_id" value="date3"></td>
-                <td>I応用情報技術者</td>
-                <td>2017年10月1日</td>
-            </tr>
+                    @* ループで取り出した「現在の1件分」のデータを表示*@
+                    <td>@item.LicenseCd</td>
+                    <td>@item.GetLicenseDate.ToString("yyyy年MM月dd日")</td>
+                </tr>
+            }
+           
         </table><br />
 
 
