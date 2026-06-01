@@ -12,7 +12,7 @@
             @* --- メッセージ表示エリア --- *@
             @if (TempData["ErrorMessage"] != null)
             {
-                <div class="alert alert-danger text-center p-2" role="alert">
+                <div class="menu-desc-area" role="alert">
                     <small>@TempData["ErrorMessage"]</small>
                 </div>
             }
@@ -20,7 +20,7 @@
             @* --- 【追加】ログアウトなどの通知メッセージ表示エリア --- *@
             @if (TempData["InfoMessage"] != null)
             {
-                <div class="alert alert-info text-center p-2" role="alert">
+                <div class="menu-desc-area" role="alert">
                     <small>@TempData["InfoMessage"]</small>
                 </div>
             }
@@ -45,8 +45,9 @@
                 </div>
 
                 <br />
-                <div class="d-grid">
-                    <button type="submit" class="btn btn-primary">ログイン</button>
+                @* <div class="d-grid"> *@
+                <div class="text-center">
+                    <button type="submit" class="btn-primary-filled" style="width: 100%; max-width: 180px;">ログイン</button>
                 </div>
             </form>
         </div>
