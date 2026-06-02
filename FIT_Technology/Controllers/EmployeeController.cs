@@ -103,6 +103,7 @@ namespace FIT_Technology.Controllers
                 }
                 else
                 {
+                    TempData["AlertCmd"] = true;
                     TempData["DeleteEmpCd"] = empcd;
                     return RedirectToAction(nameof(EmployeeController.Alert), Ctrl.Get<EmployeeController>());
                 }
@@ -289,6 +290,7 @@ namespace FIT_Technology.Controllers
         /// [GET] 従業員削除確認（アラート）画面の表示
         /// </summary>
         [HttpGet]
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public IActionResult Alert()
         {
             string[] dele = TempData.Peek("DeleteEmpCd") as string[];

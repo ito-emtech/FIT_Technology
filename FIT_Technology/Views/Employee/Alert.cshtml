@@ -12,19 +12,80 @@
     }
 
 }
+<style>
+    /* 行全体をクリック可能にするためのラベル拡張 */
+    .table-clickable label {
+        display: flex; /* 👈 ブロックからフレックスボックスに変更 */
+        justify-content: center; /* 👈 左右の真ん中揃え */
+        align-items: center; /* 👈 上下の真ん中揃え */
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0.75rem;
+        cursor: pointer;
+    }
+
+    /* ラベルのpaddingと喧嘩しないようにtd側をリセット */
+    .table-clickable td {
+        padding: 0 !important;
+        vertical-align: middle;
+        text-align: center;
+    }
+
+    /* ホバー時の微調整 */
+    .table-clickable tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.04);
+    }
+
+    /* チェックが入っている行の背景色（薄い青） */
+    .table-clickable tbody tr:has(input[type="checkbox"]:checked) {
+        background-color: #e8f4fd !important;
+    }
+
+    /* ヘッダーの背景にテーマ変数（--color-bg-desc）を強制適用するクラス */
+    .bg-theme-desc {
+        background-color: var(--color-bg-desc) !important;
+    }
+</style>
 <div class="col-md-6 mx-auto text-center">
     <h2>削除確認</h2>
     <div class="menu-card">
         <form method="post">
+            <div>
+                <table class="table table-clickable border-collapse-separate m-0">
+                    <thead>
+                        @* 💡 スタイル属性を無くし、先ほど定義した .bg-theme-desc クラスに置き換え *@
+                        <tr class="bg-theme-desc">
+                            
+                            <th>従業員コード</th>
+                            <th>氏名（漢字）</th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        @for (int i = 0; i < ViewBag.Info.Count; i++)
+                        {
+                            string checkboxId = "chk_" + i;
+                            <tr>
+                                
+                                <td><label for="@checkboxId">@ViewBag.Info[i].EmpCd</label></td>
+                                <td><label for="@checkboxId">@kanji[i]</label></td>
+                                
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                
+            </div>
             @for (int i = 0; i < ViewBag.Info.Count; i++)
             {
                 <input type="hidden" name="deleteEmp[@i].EmpCd" value="@ViewBag.Info[i].EmpCd" />
                 <input type="hidden" name="deleteEmp[@i].LastNm" value="@ViewBag.Info[i].LastNm" />
                 <input type="hidden" name="deleteEmp[@i].FirstNm" value="@ViewBag.Info[i].FirstNm" />
 
-                <div>従業員コード：@ViewBag.Info[i].EmpCd　氏名：@kanji[i]</div>
             }
-            <div>上記の従業員情報を削除します。<br>よろしければ【削除】を押してください。</div><br />
+            <div><br />上記の従業員情報を削除します。<br>よろしければ【削除】を押してください。</div><br />
             <div class="d-grid gap-2 col-md-5 mx-auto">
                 <button class="btn btn-danger-filled" type="submit" name="btn_action" value="result">削除</button>
                 <button class="btn btn-outline-secondary" type="submit" name="btn_action" value="cancel">戻る</button>
