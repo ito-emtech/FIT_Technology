@@ -18,6 +18,7 @@ namespace FIT_Technology.Models.Entities
         [Display(Name = "従業員コード")]
         [Required(ErrorMessage = "{0}は必須項目です。")]
         [StringLength(4, MinimumLength = 4, ErrorMessage = "{0}は{1}文字で設定してください。")]
+        [RegularExpression(@"^[a-zA-Z0-9]+$", ErrorMessage = "{0}は半角英数字で入力してください。")]
         public string EmpCd { get; set; } = string.Empty;
 
         /// <summary>
