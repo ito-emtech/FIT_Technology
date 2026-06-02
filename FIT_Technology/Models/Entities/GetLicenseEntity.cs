@@ -64,6 +64,8 @@ namespace FIT_Technology.Models.Entities
         /// 画面のテーブル表示用（例：［L0001］ITパスポート）
         /// </summary>
         [NotMapped]
-        public string DisplayLicenseText => $"［{LicenseCd.Trim()}］{LicenseNm}";
+        public string DisplayLicenseText => string.IsNullOrEmpty(LicenseCd)
+            ? "（資格未選択）"
+            : $"［{LicenseCd.Trim()}］{LicenseNm}";
     }
 }

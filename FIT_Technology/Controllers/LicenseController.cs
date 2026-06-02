@@ -1,4 +1,5 @@
 ﻿using DynamicDll.Db;
+using FIT_Technology.Filters;
 using FIT_Technology.Models.Constants;
 using FIT_Technology.Models.Daos;
 using FIT_Technology.Models.Entities;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FIT_Technology.Controllers
 {
+    [SessionCheck]
     public class LicenseController : Controller
     {
         // 2つのサービスをプライベート変数として保持

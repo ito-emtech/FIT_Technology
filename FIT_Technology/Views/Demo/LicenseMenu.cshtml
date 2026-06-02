@@ -10,86 +10,100 @@
         <div class="col-md-9">
             <h2 class="text-center mb-4">@ViewBag.ViewTitle</h2>
 
+            @* 画面説明 *@
+            <div class="menu-desc-area">
+                <span>選択した従業員に対する操作を選択してください。</span>
+            </div>
+
             @if (ViewBag.ErrorMsg != null)
             {
                 <div class="alert alert-danger text-center p-2" role="alert">
                     <small>@ViewBag.ErrorMsg</small>
                 </div>
             }
-
-            <form method="post">
-                <div class="table-responsive mb-4">
-                    <table class="table table-bordered table-hover align-middle">
-                        <thead class="table-light">
-                            <tr class="text-center">
-                                <th style="width: 10%;">選択</th>
-                                <th style="width: 20%;">従業員コード</th>
-                                <th style="width: 50%;">氏名</th>
-                                <th style="width: 20%;">部署</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (Model != null && Model.Any())
-                            {
-                                @foreach (var item in Model)
+            <div class="menu-card">
+                <form method="post">
+                    <div class="table-responsive mb-4">
+                        <table class="table table-bordered table-hover align-middle">
+                            <thead class="table-light">
+                                <tr class="text-center">
+                                    <th style="width: 10%;">選択</th>
+                                    <th style="width: 20%;">従業員コード</th>
+                                    <th style="width: 40%;">氏名</th>
+                                    <th style="width: 30%;">部署</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model != null && Model.Any())
                                 {
-                                    var domId = $"emp_{item.EmpCd}";
+                                    @foreach (var item in Model)
+                                    {
+                                        var domId = $"emp_{item.EmpCd}";
 
+                                        <tr>
+                                            <td class="text-center">
+                                                <input type="radio" name="emp_cd" value="@item.EmpCd" id="@domId" class="form-check-input" />
+                                            </td>
+                                            <td>
+                                                <label for="@domId" class="w-100 m-0 d-block text-center" style="cursor: pointer;">@item.EmpCd</label>
+                                            </td>
+                                            <td>
+                                                <label for="@domId" class="w-100 m-0 d-block" style="cursor: pointer;">
+                                                    @item.LastNm @item.FirstNm （@item.LastNmKana @item.FirstNmKana）
+                                                </label>
+                                            </td>
+                                            <td>
+                                                <label for="@domId" class="w-100 m-0 d-block text-start ps-2" style="cursor: pointer;">
+                                                    @item.DisplaySection
+                                                </label>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    @* ★デモデータを廃止し、本番仕様の「データなし」行に差し替え *@
                                     <tr>
-                                        <td class="text-center">
-                                            <input type="radio" name="emp_cd" value="@item.EmpCd" id="@domId" class="form-check-input" />
-                                        </td>
-                                        <td>
-                                            <label for="@domId" class="w-100 m-0 d-block text-center" style="cursor: pointer;">@item.EmpCd</label>
-                                        </td>
-                                        <td>
-                                            <label for="@domId" class="w-100 m-0 d-block" style="cursor: pointer;">
-                                                @item.LastNm @item.FirstNm （@item.LastNmKana @item.FirstNmKana）
-                                            </label>
-                                        </td>
-                                        <td>
-                                            <label for="@domId" class="w-100 m-0 d-block text-start ps-2" style="cursor: pointer;">
-                                                @item.DisplaySection
-                                            </label>
+                                        <td colspan="4" class="text-center text-muted py-4">
+                                            対象の従業員データが登録されていません。
                                         </td>
                                     </tr>
                                 }
-                            }
-                            else
-                            {
-                                @* ★デモデータを廃止し、本番仕様の「データなし」行に差し替え *@
-                                <tr>
-                                    <td colspan="4" class="text-center text-muted py-4">
-                                        対象の従業員データが登録されていません。
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
+                            </tbody>
+                        </table>
+                    </div>
 
-                <div class="d-grid gap-2">
-                    <div class="row g-2">
-                        <div class="col">
-                            <button type="submit" name="btn_action" value="@ActionValues.List" class="btn btn-outline-primary w-100">
-                                選択者の資格一覧を表示
-                            </button>
-                        </div>
-                        <div class="col">
-                            <button type="submit" name="btn_action" value="@ActionValues.Insert" class="btn btn-outline-primary w-100">
-                                選択者の資格登録
-                            </button>
+                    <div class="d-grid gap-2">
+                        <div class="row g-2">
+                            <div class="col">
+                                <button type="submit" name="btn_action" value="@ActionValues.List" class="btn btn-outline-primary w-100">
+                                    選択者の資格一覧を表示
+                                </button>
+                            </div>
+                            <div class="col">
+                                <button type="submit" name="btn_action" value="@ActionValues.Insert" class="btn btn-outline-primary w-100">
+                                    選択者の資格登録
+                                </button>
+                            </div>
                         </div>
                     </div>
-                    <hr class="my-3" />
-                    <button type="submit" name="btn_action" value="employeeInsert" class="btn btn-primary">
-                        従業員の新規登録へ
-                    </button>
-                    <a asp-controller="Account" asp-action="Menu" class="btn btn-outline-secondary mt-2">
-                        戻る（トップメニューへ）
-                    </a>
-                </div>
-            </form>
+                </form>
+            </div>
+
+            <hr class="my-3" />
+
+            <div>
+                <form method="post">
+                    <div class="d-grid gap-2">
+                        <button type="submit" name="btn_action" value="employeeInsert" class="btn btn-primary">
+                            従業員の新規登録へ
+                        </button>
+                        <a asp-controller="Account" asp-action="Menu" class="btn btn-secondary mt-2">
+                            トップメニューに戻る
+                        </a>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>

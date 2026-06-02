@@ -178,7 +178,7 @@ namespace FIT_Technology.Controllers
 
             EmployeeEntity emp = _employeeService.GetEmployee(emp_cd);
             string name = emp != null ? $"{emp.LastNm} {emp.FirstNm}" : "未知の従業員";
-            ViewBag.ViewName = $"［{emp_cd}］{name}";
+            ViewBag.ViewName = $"{name}（従業員コード：{emp_cd}）";
 
             // ★追加：セレクトボックス用の資格マスタ一覧を取得して渡す
             ViewBag.Licenses = _licenseService.GetLicenses();
@@ -216,7 +216,7 @@ namespace FIT_Technology.Controllers
                 string emp_cd = entity.EmpCd ?? string.Empty;
                 EmployeeEntity emp = _employeeService.GetEmployee(emp_cd);
                 string name = emp != null ? $"{emp.LastNm} {emp.FirstNm}" : "未知の従業員";
-                ViewBag.ViewName = $"［{emp_cd}］{name}";
+                ViewBag.ViewName = $"{name}（従業員コード：{emp_cd}）";
 
                 // ★追加：入力エラーで画面に戻る際も選択肢が消えないよう再取得
                 ViewBag.Licenses = _licenseService.GetLicenses();
@@ -232,7 +232,7 @@ namespace FIT_Technology.Controllers
                 string emp_cd = entity.EmpCd ?? string.Empty;
                 EmployeeEntity emp = _employeeService.GetEmployee(emp_cd);
                 string name = emp != null ? $"{emp.LastNm} {emp.FirstNm}" : "未知の従業員";
-                ViewBag.ViewName = $"［{emp_cd}］{name}";
+                ViewBag.ViewName = $"{name}（従業員コード：{emp_cd}）";
 
                 // ★追加：エラーで画面に戻る際も選択肢が消えないよう再取得
                 ViewBag.Licenses = _licenseService.GetLicenses();
@@ -257,7 +257,7 @@ namespace FIT_Technology.Controllers
 
             EmployeeEntity emp = _employeeService.GetEmployee(emp_cd);
             string name = emp != null ? $"{emp.LastNm} {emp.FirstNm}" : "未知の従業員";
-            ViewBag.ViewName = $"［{emp_cd}］{name}";
+            ViewBag.ViewName = $"{name}（従業員コード：{emp_cd}）";
 
             TempData.Keep(TempKeys.TargetEmpCd);
 
@@ -275,7 +275,7 @@ namespace FIT_Technology.Controllers
             string emp_cd = (string)(TempData[TempKeys.TargetEmpCd] ?? string.Empty);
             EmployeeEntity emp = _employeeService.GetEmployee(emp_cd);
             string name = emp != null ? $"{emp.LastNm} {emp.FirstNm}" : "未知の従業員";
-            ViewBag.ViewName = $"［{emp_cd}］{name}";
+            ViewBag.ViewName = $"{name}（従業員コード：{emp_cd}）";
 
             TempData.Keep(TempKeys.TargetEmpCd);
 
@@ -317,7 +317,7 @@ namespace FIT_Technology.Controllers
 
             EmployeeEntity emp = _employeeService.GetEmployee(emp_cd);
             string name = emp != null ? $"{emp.LastNm} {emp.FirstNm}" : "未知の従業員";
-            ViewBag.ViewName = $"［{emp_cd}］{name}";
+            ViewBag.ViewName = $"{name}（従業員コード：{emp_cd}）";
 
             List<GetLicenseEntity> entities = new List<GetLicenseEntity>();
 

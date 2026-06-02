@@ -9,10 +9,10 @@
         <div class="col-md-6">
             <h2 class="text-center">@ViewBag.Title</h2>
 
-            @* --- メッセージ表示エリア --- *@
+            @* --- エラーメッセージ表示エリア --- *@
             @if (TempData["ErrorMessage"] != null)
             {
-                <div class="menu-desc-area" role="alert">
+                <div class="alert alert-danger text-center p-2" role="alert">
                     <small>@TempData["ErrorMessage"]</small>
                 </div>
             }
