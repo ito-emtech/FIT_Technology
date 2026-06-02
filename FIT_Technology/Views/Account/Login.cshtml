@@ -16,15 +16,10 @@
                     <small>@TempData["ErrorMessage"]</small>
                 </div>
             }
-
-            @* --- 【追加】ログアウトなどの通知メッセージ表示エリア --- *@
-            @if (TempData["InfoMessage"] != null)
-            {
-                <div class="menu-desc-area" role="alert">
-                    <small>@TempData["InfoMessage"]</small>
-                </div>
-            }
-            @* -------------------------- *@
+            
+            <div class="menu-desc-area">
+                <span>@(ViewBag.ViewMsg = TempData["InfoMessage"] ?? "IDとパスワードを入力してください。")</span>
+            </div>
 
             <form method="post">
                 @* 概要エラーの表示場所（省略可） *@

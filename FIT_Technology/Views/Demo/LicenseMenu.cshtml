@@ -76,12 +76,12 @@
                     <div class="d-grid gap-2">
                         <div class="row g-2">
                             <div class="col">
-                                <button type="submit" name="btn_action" value="@ActionValues.List" class="btn btn-outline-primary w-100">
+                                <button type="submit" name="btn_action" value="@ActionValues.List" class="btn btn-primary-filled w-100">
                                     選択者の資格一覧を表示
                                 </button>
                             </div>
                             <div class="col">
-                                <button type="submit" name="btn_action" value="@ActionValues.Insert" class="btn btn-outline-primary w-100">
+                                <button type="submit" name="btn_action" value="@ActionValues.Insert" class="btn btn-primary-filled w-100">
                                     選択者の資格登録
                                 </button>
                             </div>
@@ -95,12 +95,12 @@
             <div>
                 <form method="post">
                     <div class="d-grid gap-2">
-                        <button type="submit" name="btn_action" value="employeeInsert" class="btn btn-primary">
-                            従業員の新規登録へ
-                        </button>
                         <a asp-controller="Account" asp-action="Menu" class="btn btn-secondary mt-2">
                             トップメニューに戻る
                         </a>
+                        @* <button type="submit" name="btn_action" value="employeeInsert" class="btn">
+                            従業員の新規登録へ
+                        </button> *@
                     </div>
                 </form>
             </div>
