@@ -145,6 +145,8 @@ namespace FIT_Technology.Controllers
             info.BirthDate = DateTime.Today; // 生年月日の初期値を今日にする
             info.EmpDate = DateTime.Today;   // 入社日の初期値を今日にする
 
+            info.GenderCd = -1;
+
             using (TranMng mng = TranMng.BeginTransaction("empdb"))
             {
                 EmployeeDao dao = new EmployeeDao();
@@ -192,6 +194,11 @@ namespace FIT_Technology.Controllers
                 {
                     // 入社日の項目に対してエラーメッセージを紐付けます
                     ModelState.AddModelError("EmpDate", "入社日より後に生まれた生年月日を設定することはできません。");
+                }
+                if (ModelState.ContainsKey("GenderCd") && ModelState["GenderCd"].Errors.Count > 0)
+                {
+                    ModelState["GenderCd"].Errors.Clear();
+                    ModelState.AddModelError("GenderCd", "性別を選択してください。");
                 }
                 if (!ModelState.IsValid)
                 {
@@ -328,8 +335,17 @@ namespace FIT_Technology.Controllers
                     using (TranMng mng = TranMng.BeginTransaction("empdb"))
                     {
                         EmployeeDao dao = new EmployeeDao();
+                        DemoGetLicenseDao demodao = new DemoGetLicenseDao();
+                        
                         for (int i = 0; i < deleteEmp.Count; i++)
                         {
+                            string targetEmpCd = deleteEmp[i].EmpCd;
+
+                            List<GetLicenseEntity> licenseentity = demodao.FindByEmpCd(targetEmpCd);
+                            for(int k = 0; k <  licenseentity.Count; k++)
+                            {
+                                demodao.Delete(licenseentity[k]);
+                            }
                             dao.Delete(deleteEmp[i]);
                         }
                         mng.Commit();

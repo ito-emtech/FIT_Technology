@@ -12,7 +12,7 @@
             <tr>
                 <td>従業員コード</td>
                 <td>
-                    <input type="text" name="empcd" value="@Model?.EmpCd" placeholder="例：E0000" />
+                    <input type="text" name="empcd" value="@Model?.EmpCd" placeholder="例：E000" />
                     <br /><span asp-validation-for="EmpCd" class="text-danger"></span>
                 </td>
                 <td></td>
@@ -42,8 +42,10 @@
             <tr>
                 <td>性別</td>
                 <td>
-                    <select name="gendercd">
-                        @for(int i = 0; i < ViewBag.GenderInfo.Count; i++)
+                    <select asp-for="GenderCd">
+                        <option value="">選択してください</option>
+
+                        @for (int i = 0; i < ViewBag.GenderInfo.Count; i++)
                         {
                             <option value="@ViewBag.GenderInfo[i].GenderCd">@ViewBag.GenderInfo[i].GenderNm</option>
                         }
@@ -63,12 +65,13 @@
             <tr>
                 <td>所属</td>
                 <td>
-                    <select name="sectioncd">
+                    <select asp-for="SectionCd">
+                        <option value="@null">選択してください</option>
+
                         @for (int i = 0; i < ViewBag.SectionInfo.Count; i++)
                         {
                             <option value="@ViewBag.SectionInfo[i].SectionCd">@ViewBag.SectionInfo[i].SectionNm</option>
                         }
-                        
                     </select>
                     <br /><span asp-validation-for="SectionCd" class="text-danger"></span>
                 </td>
