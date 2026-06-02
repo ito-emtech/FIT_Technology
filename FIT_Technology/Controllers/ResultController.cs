@@ -13,6 +13,7 @@ namespace FIT_Technology.Controllers
         /// </summary>
         /// <returns>Indexビュー</returns>
         [HttpGet]
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public IActionResult Index()
         {
             ViewBag.Title = "案内画面";
