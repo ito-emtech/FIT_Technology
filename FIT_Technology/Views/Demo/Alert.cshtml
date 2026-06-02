@@ -9,61 +9,69 @@
         <div class="col-md-6">
             <h2 class="text-center text-danger mb-4">資格削除確認</h2>
 
-            @* 選択された従業員情報の表示エリア *@
-            <div class="alert alert-light border text-center mb-4">
-                <span class="text-muted">対象従業員：</span>
-                <strong>@ViewBag.ViewName</strong>
-            </div>
+            <div class="menu-card">
+                @* 操作者の表示 *@
+                <h5 class="text-muted text-start mb-1"> @ViewBag.ViewName</h5>
+                <hr class="my-3" />
 
-            <div class="alert alert-warning text-center mb-4">
-                <strong>以下の資格を削除します。よろしいですか？</strong>
-            </div>
+                <div class="alert alert-warning text-center mb-4">
+                    <strong>以下の資格を削除します。よろしいですか？</strong>
+                </div>
 
-            <form method="post">
-                @* 削除対象のリスト表示 *@
-                <ul class="list-group mb-4">
-                    @if (Model != null && Model.Any())
-                    {
-                        @for (int i = 0; i < Model.Count; i++)
+
+                <form method="post">
+                    @* 削除対象のリスト表示 *@
+                    <ul class="list-group mb-4">
+                        @if (Model != null && Model.Any())
                         {
-                            @* ★レイアウト変更：align-items-center で縦中央揃え、左詰めに変更 *@
-                            <li class="list-group-item d-flex align-items-center">
+                            @for (int i = 0; i < Model.Count; i++)
+                            {
+                                @* ★レイアウト変更：align-items-center で縦中央揃え、左詰めに変更 *@
+                                <li class="list-group-item d-flex align-items-center">
 
-                                @* 警告アイコン *@
-                                <i class="bi bi-exclamation-triangle text-danger me-2"></i>
+                                    @* 警告アイコン *@
+                                    <i class="bi bi-exclamation-triangle text-danger me-2"></i>
 
-                                @* モデルバインディング用の隠しフィールド *@
-                                <input type="hidden" name="[@i].EmpCd" value="@Model[i].EmpCd" />
-                                <input type="hidden" name="[@i].LicenseCd" value="@Model[i].LicenseCd" />
-                                <input type="hidden" name="[@i].GetLicenseDate" value="@Model[i].GetLicenseDate.ToString("yyyy-MM-dd")" />
+                                    @* モデルバインディング用の隠しフィールド *@
+                                    <input type="hidden" name="[@i].EmpCd" value="@Model[i].EmpCd" />
+                                    <input type="hidden" name="[@i].LicenseCd" value="@Model[i].LicenseCd" />
+                                    <input type="hidden" name="[@i].GetLicenseDate" value="@Model[i].GetLicenseDate.ToString("yyyy-MM-dd")" />
 
-                                @* ★変更点：資格コードのバッジを左側に配置（右側に隙間 me-2 を確保） *@
-                                <span class="badge bg-secondary rounded-pill me-2">@Model[i].LicenseCd</span>
+                                    @* ★変更点：資格コードのバッジを左側に配置（右側に隙間 me-2 を確保） *@
+                                    <span class="badge bg-secondary rounded-pill me-2">@Model[i].LicenseCd</span>
 
-                                @* 資格名と取得日（バッジの右側に並びます） *@
-                                <div class="text-truncate">
-                                    <span class="fw-bold">@Model[i].LicenseNm</span>
-                                    <span class="text-muted small ms-2">(取得日: @Model[i].GetLicenseDate.ToString("yyyy-MM-dd"))</span>
-                                </div>
+                                    @* 資格名と取得日（バッジの右側に並びます） *@
+                                    <div class="text-truncate">
+                                        <span class="fw-bold">@Model[i].LicenseNm</span>
+                                        <span class="text-muted small ms-2">(取得日: @Model[i].GetLicenseDate.ToString("yyyy-MM-dd"))</span>
+                                    </div>
 
+                                </li>
+                            }
+                        }
+                        else
+                        {
+                            <li class="list-group-item text-center text-muted py-3">
+                                削除対象の資格が選択されていません。
                             </li>
                         }
-                    }
-                    else
-                    {
-                        <li class="list-group-item text-center text-muted py-3">
-                            削除対象の資格が選択されていません。
-                        </li>
-                    }
-                </ul>
+                    </ul>
 
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-danger" @(Model != null && Model.Any() ? "" : "disabled")>
+                            本当に削除する
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <hr class="my-3" />
+
+            <div>
                 <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-danger" @(Model != null && Model.Any() ? "" : "disabled")>
-                        本当に削除する
-                    </button>
-                    <a asp-action="List" class="btn btn-outline-secondary">一覧に戻る</a>
+                    <a asp-action="List" class="btn btn-secondary">保有資格一覧に戻る</a>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>

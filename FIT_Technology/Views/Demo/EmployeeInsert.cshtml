@@ -12,100 +12,111 @@
         <div class="col-md-6">
             <h2 class="text-center mb-4">@ViewBag.ViewTitle</h2>
 
-            <form method="post">
-                @* 概要エラーの表示場所 *@
-                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <div class="menu-desc-area">
+                <span>新規従業員の登録が行えます。</span>
+            </div>
 
-                @* --- 従業員コード --- *@
-                <div class="form-group mb-3">
-                    <label asp-for="EmpCd" class="form-label"></label>
-                    <input asp-for="EmpCd" class="form-control" placeholder="例: E001" />
-                    <span asp-validation-for="EmpCd" class="text-danger small"></span>
-                </div>
+            <div class="menu-card">
+                <form method="post">
+                    @* 概要エラーの表示場所 *@
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-                @* --- 氏名（氏 / 名 を横並びに配置） --- *@
-                <div class="row mb-3">
-                    <div class="col-6">
-                        <div class="form-group">
-                            <label asp-for="LastNm" class="form-label"></label>
-                            <input asp-for="LastNm" class="form-control" placeholder="例: 山田" />
-                            <span asp-validation-for="LastNm" class="text-danger small"></span>
+                    @* --- 従業員コード --- *@
+                    <div class="form-group mb-3">
+                        <label asp-for="EmpCd" class="form-label"></label>
+                        <input asp-for="EmpCd" class="form-control" placeholder="例: E001" />
+                        <span asp-validation-for="EmpCd" class="text-danger small"></span>
+                    </div>
+
+                    @* --- 氏名（氏 / 名 を横並びに配置） --- *@
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label asp-for="LastNm" class="form-label"></label>
+                                <input asp-for="LastNm" class="form-control" placeholder="例: 山田" />
+                                <span asp-validation-for="LastNm" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label asp-for="FirstNm" class="form-label"></label>
+                                <input asp-for="FirstNm" class="form-control" placeholder="例: 太郎" />
+                                <span asp-validation-for="FirstNm" class="text-danger small"></span>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-6">
-                        <div class="form-group">
-                            <label asp-for="FirstNm" class="form-label"></label>
-                            <input asp-for="FirstNm" class="form-control" placeholder="例: 太郎" />
-                            <span asp-validation-for="FirstNm" class="text-danger small"></span>
+
+                    @* --- フリガナ（氏 / 名 を横並びに配置） --- *@
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label asp-for="LastNmKana" class="form-label"></label>
+                                <input asp-for="LastNmKana" class="form-control" placeholder="例: ヤマダ" />
+                                <span asp-validation-for="LastNmKana" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label asp-for="FirstNmKana" class="form-label"></label>
+                                <input asp-for="FirstNmKana" class="form-control" placeholder="例: タロウ" />
+                                <span asp-validation-for="FirstNmKana" class="text-danger small"></span>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                @* --- フリガナ（氏 / 名 を横並びに配置） --- *@
-                <div class="row mb-3">
-                    <div class="col-6">
-                        <div class="form-group">
-                            <label asp-for="LastNmKana" class="form-label"></label>
-                            <input asp-for="LastNmKana" class="form-control" placeholder="例: ヤマダ" />
-                            <span asp-validation-for="LastNmKana" class="text-danger small"></span>
-                        </div>
+                    @* --- 性別ドロップダウン --- *@
+                    <div class="form-group mb-3">
+                        <label asp-for="GenderCd" class="form-label"></label>
+                        <select asp-for="GenderCd" class="form-select">
+                            <option value="">-- 性別を選択してください --</option>
+                            @foreach (var g in genders)
+                            {
+                                <option value="@g.GenderCd">@g.GenderNm</option>
+                            }
+                        </select>
+                        <span asp-validation-for="GenderCd" class="text-danger small"></span>
                     </div>
-                    <div class="col-6">
-                        <div class="form-group">
-                            <label asp-for="FirstNmKana" class="form-label"></label>
-                            <input asp-for="FirstNmKana" class="form-control" placeholder="例: タロウ" />
-                            <span asp-validation-for="FirstNmKana" class="text-danger small"></span>
-                        </div>
+
+                    @* --- 生年月日 --- *@
+                    <div class="form-group mb-3">
+                        <label asp-for="BirthDate" class="form-label"></label>
+                        <input asp-for="BirthDate" class="form-control" />
+                        <span asp-validation-for="BirthDate" class="text-danger small"></span>
                     </div>
-                </div>
-
-                @* --- 性別ドロップダウン --- *@
-                <div class="form-group mb-3">
-                    <label asp-for="GenderCd" class="form-label"></label>
-                    <select asp-for="GenderCd" class="form-select">
-                        <option value="">-- 性別を選択してください --</option>
-                        @foreach (var g in genders)
-                        {
-                            <option value="@g.GenderCd">@g.GenderNm</option>
-                        }
-                    </select>
-                    <span asp-validation-for="GenderCd" class="text-danger small"></span>
-                </div>
-
-                @* --- 生年月日 --- *@
-                <div class="form-group mb-3">
-                    <label asp-for="BirthDate" class="form-label"></label>
-                    <input asp-for="BirthDate" class="form-control" />
-                    <span asp-validation-for="BirthDate" class="text-danger small"></span>
-                </div>
 
 
-                @* --- 部署ドロップダウン --- *@
-                <div class="form-group mb-3">
-                    <label asp-for="SectionCd" class="form-label"></label>
-                    <select asp-for="SectionCd" class="form-select">
-                        <option value="">-- 部署を選択してください --</option>
-                        @foreach (var s in sections)
-                        {
-                            <option value="@s.SectionCd">@s.SectionNm</option>
-                        }
-                    </select>
-                    <span asp-validation-for="SectionCd" class="text-danger small"></span>
-                </div>
+                    @* --- 部署ドロップダウン --- *@
+                    <div class="form-group mb-3">
+                        <label asp-for="SectionCd" class="form-label"></label>
+                        <select asp-for="SectionCd" class="form-select">
+                            <option value="">-- 部署を選択してください --</option>
+                            @foreach (var s in sections)
+                            {
+                                <option value="@s.SectionCd">@s.SectionNm</option>
+                            }
+                        </select>
+                        <span asp-validation-for="SectionCd" class="text-danger small"></span>
+                    </div>
 
-                @* --- 入社日 --- *@
-                <div class="form-group mb-3">
-                    <label asp-for="EmpDate" class="form-label"></label>
-                    <input asp-for="EmpDate" class="form-control" />
-                    <span asp-validation-for="EmpDate" class="text-danger small"></span>
-                </div>
+                    @* --- 入社日 --- *@
+                    <div class="form-group mb-3">
+                        <label asp-for="EmpDate" class="form-label"></label>
+                        <input asp-for="EmpDate" class="form-control" />
+                        <span asp-validation-for="EmpDate" class="text-danger small"></span>
+                    </div>
 
-                <br />
-                <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-primary">登録する</button>
-                    <a asp-action="LicenseMenu" class="btn btn-outline-secondary">LicenseMenuに戻る</a>
-                </div>
-            </form>
+                    <br />
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">登録する</button>
+                    </div>
+                </form>
+            </div>
+
+            <hr class="my-3" />
+
+            <div>
+                <a asp-action="LicenseMenu" class="btn btn-secondary w-100">資格管理メニューに戻る</a>
+            </div>
         </div>
     </div>
 </div>

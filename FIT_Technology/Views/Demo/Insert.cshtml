@@ -9,10 +9,9 @@
         <div class="col-md-6">
             <h2 class="text-center mb-4">@ViewBag.ViewTitle</h2>
 
-            @* 選択された従業員情報の表示エリア *@
-            <div class="alert alert-light border text-center mb-4">
-                <span class="text-muted">対象従業員：</span>
-                <strong>@ViewBag.ViewName</strong>
+            @* 画面説明 *@
+            <div class="menu-desc-area">
+                <span>選択した資格の登録を行えます。</span>
             </div>
 
             @if (ViewBag.ErrorMsg != null)
@@ -22,35 +21,50 @@
                 </div>
             }
 
-            <form method="post">
-                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <div class="menu-card">
+                @* 操作者の表示 *@
+                <h5 class="text-muted text-start mb-1"> @ViewBag.ViewName</h5>
+                
+                <hr class="my-3" />
 
-                <input type="hidden" asp-for="EmpCd" />
+                <form method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-                @* --- 資格コード（セレクトボックス形式） --- *@
-                <div class="form-group mb-3">
-                    <label asp-for="LicenseCd" class="form-label"></label>
-                    @* ★第3引数を "LicenseNm" から "DisplayLicenseText" に変更しました *@
-                    <select asp-for="LicenseCd" class="form-select"
-                            asp-items="@(new SelectList(ViewBag.Licenses ?? new List<FIT_Technology.Models.Entities.LicenseEntity>(), "LicenseCd", "DisplayLicenseText"))">
-                        <option value="">-- 資格を選択してください --</option>
-                    </select>
-                    <span asp-validation-for="LicenseCd" class="text-danger small"></span>
-                </div>
+                    <input type="hidden" asp-for="EmpCd" />
 
-                @* --- 取得日 --- *@
-                <div class="form-group mb-3">
-                    <label asp-for="GetLicenseDate" class="form-label"></label>
-                    <input asp-for="GetLicenseDate" class="form-control" />
-                    <span asp-validation-for="GetLicenseDate" class="text-danger small"></span>
-                </div>
+                    @* --- 資格コード（セレクトボックス形式） --- *@
+                    <div class="form-group mb-3">
+                        <label asp-for="LicenseCd" class="form-label"></label>
+                        @* ★第3引数を "LicenseNm" から "DisplayLicenseText" に変更しました *@
+                        <select asp-for="LicenseCd" class="form-select"
+                                asp-items="@(new SelectList(ViewBag.Licenses ?? new List<FIT_Technology.Models.Entities.LicenseEntity>(), "LicenseCd", "DisplayLicenseText"))">
+                            <option value="">-- 資格を選択してください --</option>
+                        </select>
+                        <span asp-validation-for="LicenseCd" class="text-danger small"></span>
+                    </div>
 
-                <br />
+                    @* --- 取得日 --- *@
+                    <div class="form-group mb-3">
+                        <label asp-for="GetLicenseDate" class="form-label"></label>
+                        <input asp-for="GetLicenseDate" class="form-control" />
+                        <span asp-validation-for="GetLicenseDate" class="text-danger small"></span>
+                    </div>
+
+                    <br />
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">資格を登録する</button>
+                    </div>
+                </form>
+            </div>
+
+            <hr class="my-3" />
+
+            <div class="menu-card">
                 <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-primary">資格を登録する</button>
-                    <a asp-controller="Demo" asp-action="LicenseMenu" class="btn btn-outline-secondary">LicenseMenuに戻る</a>
+                    <a asp-controller="Demo" asp-action="LicenseMenu" class="btn btn-secondary">資格管理メニューに戻る</a>
                 </div>
-            </form>
+            </div>
+
         </div>
     </div>
 </div>

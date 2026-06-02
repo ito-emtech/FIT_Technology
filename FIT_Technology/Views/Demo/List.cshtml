@@ -5,12 +5,31 @@
     Layout = "_Layout";
 }
 
+<style>
+    /* チェックされた行の通常の背景色と文字色 */
+    .table.license-table tbody tr:has(.form-check-input:checked) td {
+        background-color: #f8d7da !important;
+        color: #842029 !important;
+        transition: background-color 0.15s ease-in-out;
+    }
+
+    /* マウスが乗ったとき（hover）も選択時の背景色をキープする設定 */
+    .table-hover.license-table tbody tr:has(.form-check-input:checked):hover td {
+        background-color: #f5c2c7 !important; /* ホバー時はわずかに濃い赤にすると自然です */
+        color: #842029 !important;
+    }
+</style>
+
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col-md-9">
-            @* ★列が増えたため、横幅を少し広げました (col-md-8 -> 9) *@
-            <h5 class="text-muted text-center mb-1">@ViewBag.ViewName</h5>
+        <div class="col-md-6">
+            @* 画面タイトル *@
             <h2 class="text-center mb-4">保有資格一覧</h2>
+
+            @* 画面説明 *@
+            <div class="menu-desc-area">
+                <span>選択した資格を削除できます。</span>
+            </div>
 
             @if (ViewBag.ErrorMsg != null)
             {
@@ -19,65 +38,77 @@
                 </div>
             }
 
-            <form method="post">
-                <div class="table-responsive mb-4">
-                    <table class="table table-bordered table-hover align-middle">
-                        <thead class="table-light">
-                            <tr class="text-center">
-                                <th style="width: 15%;">削除選択</th>
-                                <th style="width: 20%;">資格コード</th>
-                                <th style="width: 40%;">資格名</th> @* ★ヘッダー追加 *@
-                                <th style="width: 25%;">取得日</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (Model != null && Model.Any())
-                            {
-                                @foreach (var item in Model)
-                                {
-                                    var domId = $"lic_{item.EmpCd}_{item.LicenseCd}";
+            <div class="menu-card">
+                @* 操作者の表示 *@
+                <h5 class="text-muted text-start mb-1"> @ViewBag.ViewName</h5>
 
+                <hr class="my-3" />
+
+                <form method="post">
+                    <div class="table-responsive mb-4">
+                        <table class="table table-bordered table-hover align-middle license-table">
+                            <thead class="table-light">
+                                <tr class="text-center">
+                                    <th style="width: 20%;">削除選択</th>
+                                    <th style="width: 20%;">資格コード</th>
+                                    <th style="width: 30%;">資格名</th> @* ★ヘッダー追加 *@
+                                    <th style="width: 30%;">取得日</th>
+                                </tr>
+                            </thead>
+                            <tbody class="license-table">
+                                @if (Model != null && Model.Any())
+                                {
+                                    @foreach (var item in Model)
+                                    {
+                                        var domId = $"lic_{item.EmpCd}_{item.LicenseCd}";
+
+                                        <tr class="license-table">
+                                            <td class="text-center">
+                                                <input type="checkbox" name="license_cd" value="@item.LicenseCd" id="@domId" class="form-check-input" />
+                                            </td>
+                                            <td>
+                                                <label for="@domId" class="w-100 m-0 d-block text-center" style="cursor: pointer;">@item.LicenseCd</label>
+                                            </td>
+                                            <td>
+                                                <label for="@domId" class="w-100 m-0 d-block text-start ps-2" style="cursor: pointer;">
+                                                    @item.LicenseNm
+                                                </label>
+                                            </td>
+                                            <td>
+                                                <label for="@domId" class="w-100 m-0 d-block text-center" style="cursor: pointer">
+                                                    @item.GetLicenseDate.ToString("yyyy年MM月dd日")
+                                                </label>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
                                     <tr>
-                                        <td class="text-center">
-                                            <input type="checkbox" name="license_cd" value="@item.LicenseCd" id="@domId" class="form-check-input" />
-                                        </td>
-                                        <td>
-                                            <label for="@domId" class="w-100 m-0 d-block text-center" style="cursor: pointer;">@item.LicenseCd</label>
-                                        </td>
-                                        <td>
-                                            @* ★結合した資格名を表示（クリックで行選択できるようlabel化） *@
-                                            <label for="@domId" class="w-100 m-0 d-block text-start ps-2" style="cursor: pointer;">
-                                                @item.LicenseNm
-                                            </label>
-                                        </td>
-                                        <td>
-                                            <label for="@domId" class="w-100 m-0 d-block text-center" style="cursor: pointer(" yyyy-MM-dd")">
-                                                @item.GetLicenseDate.ToString("yyyy-MM-dd")
-                                            </label>
+                                        <td colspan="4" class="text-center text-muted py-4">
+                                            保有している資格はありません。
                                         </td>
                                     </tr>
                                 }
-                            }
-                            else
-                            {
-                                <tr>
-                                    @* ★colspanを 3 から 4 に変更 *@
-                                    <td colspan="4" class="text-center text-muted py-4">
-                                        保有している資格はありません。
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
+                            </tbody>
+                        </table>
+                    </div>
 
+                    <div class="d-grid gap-2">
+                        <button type="submit" name="btn_action" value="@ActionValues.Alert" class="btn btn-danger" @(Model != null && Model.Any() ? "" : "disabled")>
+                            選択した資格の削除確認画面へ
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <hr class="my-3" />
+
+            <div>
                 <div class="d-grid gap-2">
-                    <button type="submit" name="btn_action" value="@ActionValues.Alert" class="btn btn-danger" @(Model != null && Model.Any() ? "" : "disabled")>
-                        選択した資格の削除確認画面へ
-                    </button>
-                    <a asp-action="LicenseMenu" class="btn btn-outline-secondary">LicenseMenuに戻る</a>
+                    <a asp-action="LicenseMenu" class="btn btn-secondary">資格管理メニューに戻る</a>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
