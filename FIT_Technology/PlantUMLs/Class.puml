@@ -1,5 +1,6 @@
 ﻿@startuml ClassList
 title システムクラス定義一覧 (View 構造整合性確認済)
+' 関係線に説明文を追加
 
 ' ========================================================
 ' 0. アプリケーション・エントリーポイント
@@ -74,26 +75,6 @@ package "FIT_Technology.Filters" {
 }
 
 ' ========================================================
-' 3. FIT_Technology.Models.ViewModels (画面表示専用モデル)
-' ========================================================
-package "FIT_Technology.Models.ViewModels" {
-    class LicenseMenuRowViewModel {
-        + <<[Column("emp_cd")]>> EmpCd : string <<get>> <<set>>
-        + <<[Column("last_nm")]>> LastNm : string <<get>> <<set>>
-        + <<[Column("first_nm")]>> FirstNm : string <<get>> <<set>>
-        + <<[Column("last_nm_kana")]>> LastNmKana : string <<get>> <<set>>
-        + <<[Column("first_nm_kana")]>> FirstNmKana : string <<get>> <<set>>
-        + <<[Column("gender_cd")]>> GenderCd : int <<get>> <<set>>
-        + <<[Column("gender_nm")]>> GenderNm : string <<get>> <<set>>
-        + <<[Column("birth_date")]>> BirthDate : DateTime <<get>> <<set>>
-        + <<[Column("section_cd")]>> SectionCd : string <<get>> <<set>>
-        + <<[Column("section_nm")]>> SectionNm : string <<get>> <<set>>
-        + <<[Column("emp_date")]>> EmpDate : DateTime <<get>> <<set>>
-        + DisplaySection : string <<get>>
-    }
-}
-
-' ========================================================
 ' 4. FIT_Technology.Models.Services (業務ロジック)
 ' ========================================================
 package "FIT_Technology.Models.Services" {
@@ -111,7 +92,6 @@ package "FIT_Technology.Models.Services" {
     }
 
     class DemoEmployeeService {
-        + GetLicenseMenuRows() : List<LicenseMenuRowViewModel>
         + GetEmployees() : List<EmployeeEntity>
         + GetEmployee(empCd:string) : EmployeeEntity
         + RegisterEmployee(entity:EmployeeEntity) : bool
@@ -145,7 +125,6 @@ package "FIT_Technology.Models.Daos" {
         + DemoEmployeeDao()
         + <<override>> Find(params pkeys:object[]) : EmployeeEntity
         + FindAll() : List<EmployeeEntity>
-        + FindAllForLicenseMenu() : List<LicenseMenuRowViewModel>
         + <<override>> Insert(entity:EmployeeEntity) : int
         + <<override>> Update(entity:EmployeeEntity) : int
         + <<override>> Delete(entity:EmployeeEntity) : int
@@ -252,62 +231,6 @@ package "FIT_Technology.Models.Entities" {
 }
 
 ' ========================================================
-' 7. FIT_Technology.Models.Constants (定数管理)
-' ========================================================
-package "FIT_Technology.Models.Constants" {
-    class ActionValues <<static>> {
-        + <<const>> Logout : string = "logout"
-        + <<const>> Insert : string = "insert"
-        + <<const>> List : string = "list"
-        + <<const>> License : string = "license"
-        + <<const>> Alert : string = "alert"
-        + <<const>> Demo : string = "Demo"
-    }
-
-    class DbConstants <<static>> {
-        + <<const>> EmpDbConnection : string = "empdb"
-    }
-
-    class DbConstants::SessionKeys <<static>> {
-        + <<const>> UserId : string = "UserId"
-    }
-
-    class ResultConstants <<static>> {
-    }
-
-    class ResultConstants::TempDataKeys <<static>> {
-        + <<const>> ViewTitle : string = "ViewTitle"
-        + <<const>> Msg : string = "Msg"
-        + <<const>> Caption : string = "Caption"
-        + <<const>> ButtonView : string = "ButtonView"
-    }
-}
-
-' ========================================================
-' 8. FIT_Technology.Models.Helpers (共通ヘルパー・拡張メソッド)
-' ========================================================
-package "FIT_Technology.Models.Helpers" {
-    class ControllerExtensions <<static>> {
-        + {static} RedirectToResult(controller:Controller, viewTitle:string, msg:string, caption:string?, buttonView:string?) : RedirectToActionResult
-    }
-
-    class Ctrl <<static>> {
-        + {static} Get() : string
-    }
-
-    class EntityMetaHelper <<static>> {
-        + {static} GetTableName() : string
-        + {static} GetColumnName(prop:PropertyInfo) : string
-        + {static} GetSqlType(prop:PropertyInfo) : SqlDbType
-    }
-
-    class SqlReaderExtensions <<static>> {
-        + {static} MapToEntity(reader:SqlDataReader) : T
-        + {static} HasColumn(reader:SqlDataReader, columnName:string) : bool
-    }
-}
-
-' ========================================================
 ' 9. External Frameworks & Libraries / Shared DLL (DynamicDll.Db)
 ' ========================================================
 package "Microsoft.AspNetCore.Mvc.Filters" {
@@ -355,42 +278,27 @@ Program ..> ServiceCollectionServiceExtensions : 拡張メソッド呼び出し 
 Program ..> AccountService : スコープ(AddScoped)としてコンテナに登録対象
 Program ..> AccountController : デフォルトルートとして指定 ({controller=Account}/{action=Login})
 
-ResultConstants +-- ResultConstants::TempDataKeys
-DbConstants +-- DbConstants::SessionKeys
 DemoController +-- DemoController::TempKeys
 
 ' --- ActionFilter関係の整理 ---
 SessionCheckAttribute --|> ActionFilterAttribute
 
-AccountDao --|> "BaseDao`1"
-DemoGetLicenseDao --|> "BaseDao`1"
-DemoEmployeeDao --|> "BaseDao`1"
-EmployeeDao --|> "BaseDao`1"
-GenderDao --|> "BaseDao`1"
-GetLicenseDao --|> "BaseDao`1"
-LicenseDao --|> "BaseDao`1"
-SectionDao --|> "BaseDao`1"
+' --- パッケージ間の基本継承関係 ---
+"FIT_Technology.Models.Daos" ..> "DynamicDll.Db" : すべてのDaoはBaseDaoを継承
 
 "BaseDao`1" ..> TranMng
 
 ' --- AccountController 関連の依存関係（詳細化済） ---
 AccountController --> AccountService : Login(HttpPost) 内で\nAuthenticate(id, pass) を実行
 AccountController ..> UserEntity : Login(HttpPost) の引数として\n入力データをバインド
-AccountController ..> EmployeeController : Menu() から RedirectToAction で遷移\n(ActionValues.Insert/List時)
-AccountController ..> DemoController : Menu() から RedirectToAction で遷移\n(ActionValues.Demo時)
-AccountController ..> ActionValues : Menu(HttpPost) 内で\n遷移先分岐スイッチの判定に使用
-AccountController ..> DbConstants::SessionKeys : Loginでのセッション保存、\nLogoutでのUserId取得に使用
-AccountController ..> ControllerExtensions : 認証失敗・コマンド不正時の\nRedirectToResult呼び出し
-AccountController ..> Ctrl : RedirectToAction 時の\nターゲットコントローラー名取得
+AccountController ..> EmployeeController : Menu() から RedirectToAction で遷移
+AccountController ..> DemoController : Menu() から RedirectToAction で遷移
 AccountController ..> SessionCheckAttribute : Index, Logout, Menu の\nログインセッションチェックに適用
 
 AccountService ..> AccountDao
-AccountService ..> DbConstants
 AccountService ..> TranMng
 
 AccountDao ..> UserEntity
-AccountDao ..> EntityMetaHelper
-AccountDao ..> SqlReaderExtensions
 
 ' --- EmployeeController 関連の依存関係（詳細化） ---
 EmployeeController ..> SessionCheckAttribute : クラス属性として指定され、\n全アクションでログイン検証を実施
@@ -405,22 +313,16 @@ EmployeeController ..> GenderEntity : 性別マスターデータの保持
 EmployeeController ..> GetLicenseEntity : 保有資格削除データのハンドリング
 EmployeeController ..> ResultController : 各処理の正常完了時や、\nDB例外発生時のエラー表示画面への遷移先
 EmployeeController ..> AccountController : 各画面の「戻る」ボタン押下時に\nメニュー画面へ戻る際のリダイレクト先
-EmployeeController ..> Ctrl : 各種 RedirectToAction 時に\n汎用型引数からコントローラー文字列を取得
 
 DemoController ..> SessionCheckAttribute : クラス属性としてセッション検証の強制
 DemoController --> DemoEmployeeService : コンストラクタで手動new、従業員・マスタ関連処理の委譲
 DemoController --> DemoGetLicenseService : コンストラクタで手動new、保有資格・マスタ関連処理の委譲
 DemoController ..> DemoController::TempKeys : 各種TempDataキー(TargetEmpCd等)の内部参照
-DemoController ..> LicenseMenuRowViewModel : LicenseMenu(HttpGet)での一覧用モデル受取
 DemoController ..> EmployeeEntity : EmployeeInsert時のバインド・表示処理
 DemoController ..> GetLicenseEntity : 資格登録(Insert)、削除確認(Alert)でのバインド、及びモデル操作
-DemoController ..> ActionValues : 外部定数(ActionValues.Insert/List/Alert)による条件分岐
-DemoController ..> Ctrl : 遷移処理の汎用コントローラー文字列解決
-DemoController ..> ControllerExtensions : 業務エラー・不正入力時のRedirectToResult呼出
 
 ' --- DemoGetLicenseService の依存関係 ---
 DemoGetLicenseService ..> TranMng
-DemoGetLicenseService ..> DbConstants
 DemoGetLicenseService --> DemoGetLicenseDao : 生成・利用(new)
 DemoGetLicenseService --> LicenseDao : 生成・利用(new)
 DemoGetLicenseService ..> GetLicenseEntity
@@ -428,55 +330,33 @@ DemoGetLicenseService ..> LicenseEntity
 
 ' --- DemoEmployeeService の依存関係 ---
 DemoEmployeeService ..> TranMng
-DemoEmployeeService ..> DbConstants
 DemoEmployeeService --> DemoEmployeeDao : 生成・利用(new)
 DemoEmployeeService --> SectionDao : 生成・利用(new)
 DemoEmployeeService --> GenderDao : 生成・利用(new)
-DemoEmployeeService ..> LicenseMenuRowViewModel
 DemoEmployeeService ..> EmployeeEntity
 DemoEmployeeService ..> SectionEntity
 DemoEmployeeService ..> GenderEntity
 
-DemoGetLicenseDao ..> EntityMetaHelper : テーブル名取得
-DemoGetLicenseDao ..> SqlReaderExtensions : MapToEntity拡張によるマッピング
 DemoGetLicenseDao ..> GetLicenseEntity : 操作対象型引数・戻り値マッピング先
 
-DemoEmployeeDao ..> EntityMetaHelper : テーブル名・主キーカラム名取得
-DemoEmployeeDao ..> SqlReaderExtensions : MapToEntity拡張によるマッピング
 DemoEmployeeDao ..> EmployeeEntity : 操作対象型引数・戻り値マッピング先
-DemoEmployeeDao ..> LicenseMenuRowViewModel : 結合クエリ(FindAllForLicenseMenu)のデータマッピング先
 
 EmployeeDao ..> EmployeeEntity : データの詰め替え・引数および戻り値オブジェクト
-EmployeeDao ..> "BaseDao`1" : GetString(), GetInt(), con, trn メンバへのダイレクトアクセス
+EmployeeDao ..> "BaseDao`1" : con, trn メンバへのダイレクトアクセス
 
-GenderDao ..> EntityMetaHelper : テーブル名・主キーカラム名・プロパティSQL型の動的取得
-GenderDao ..> SqlReaderExtensions : MapToEntity拡張によるマッピングの完全委譲
 GenderDao ..> GenderEntity : 操作対象型引数・戻り値マッピング先
 
 GetLicenseDao ..> GetLicenseEntity : 手動データ詰め替え・引数および戻り値オブジェクト
-GetLicenseDao ..> "BaseDao`1" : GetString(), con, trn メンバへのダイレクトアクセス
+GetLicenseDao ..> "BaseDao`1" : con, trn メンバへのダイレクトアクセス
 
-SectionDao ..> EntityMetaHelper : テーブル名・主キーカラム名・プロパティSQL型の動的取得
-SectionDao ..> SqlReaderExtensions : MapToEntity拡張によるマッピングの完全委譲
 SectionDao ..> SectionEntity : 操作対象型引数・戻り値マッピング先
 
-LicenseDao ..> EntityMetaHelper : テーブル名・主キーカラム名・プロパティSQL型の動的取得
-LicenseDao ..> SqlReaderExtensions : MapToEntity拡張によるマッピングの完全委譲
 LicenseDao ..> LicenseEntity : 操作対象型引数・戻り値マッピング先
 
-ControllerExtensions ..> ResultController
-ControllerExtensions ..> ResultConstants::TempDataKeys
-ControllerExtensions ..> Ctrl
-
-ResultController ..> ResultConstants::TempDataKeys
-
-SessionCheckAttribute ..> DbConstants::SessionKeys
 SessionCheckAttribute ..> AccountController
-SessionCheckAttribute ..> Ctrl
 
 ' ========================================================
 ' パッケージ全体のレイアウト強制
 ' ========================================================
-
 
 @enduml

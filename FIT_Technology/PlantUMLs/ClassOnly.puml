@@ -1,0 +1,455 @@
+﻿@startuml ClassList
+title システムクラス定義一覧 (パッケージ解除・フラット版)
+
+' ========================================================
+' 0. アプリケーション・エントリーポイント
+' ========================================================
+class Program <<(⚡, #FF7700) static>> {
+    note top: アプリケーション起動構成\nサービス登録(DI)・ミドルウェア設定
+}
+
+' ========================================================
+' 1. 旧 FIT_Technology.Controllers
+' ========================================================
+class AccountController {
+    {-} service : AccountService
+    + AccountController(service:AccountService)
+    + Index() : IActionResult
+    + Login() : IActionResult
+    + Login(user:UserEntity) : IActionResult
+    + Logout() : IActionResult
+    + Logout(btn_action:string) : IActionResult
+    + Menu() : IActionResult
+    + Menu(btn_action:string) : IActionResult
+}
+
+class DemoController <<[SessionCheck]>> {
+    {-} _employeeService : DemoEmployeeService
+    {-} _licenseService : DemoGetLicenseService
+    + DemoController()
+    + Index() : IActionResult
+    + LicenseMenu() : IActionResult
+    + LicenseMenu(btn_action:string, emp_cd:string) : IActionResult
+    + EmployeeInsert() : IActionResult
+    + EmployeeInsert(entity:EmployeeEntity) : IActionResult
+    + Insert() : IActionResult
+    + Insert(entity:GetLicenseEntity) : IActionResult
+    + List() : IActionResult
+    + List(btn_action:string, license_cd:string[]) : IActionResult
+    + Alert() : IActionResult
+    + Alert(entities:List<GetLicenseEntity>) : IActionResult
+}
+
+class DemoController::TempKeys <<static>> {
+    + <<const>> CreateEmployee : string = "createEmployee"
+    + <<const>> DeleteLicense : string = "deleteLicense"
+    + <<const>> TargetEmpCd : string = "targetEmpCd"
+}
+
+class EmployeeController <<[SessionCheck]>> {
+    + Index() : IActionResult
+    + List() : IActionResult
+    + List(empcd:List<string>, btn_action:string) : IActionResult
+    + Insert() : IActionResult
+    + Insert(employee:EmployeeEntity, btn_action:string) : IActionResult
+    + Alert() : IActionResult
+    + Alert(deleteEmp:List<EmployeeEntity>, btn_action:string) : IActionResult
+    + Update() : IActionResult
+    + Update(employee:EmployeeEntity, btn_action:string) : IActionResult
+}
+
+class ResultController {
+    + Index() : IActionResult
+}
+
+' ========================================================
+' 2. 旧 FIT_Technology.Filters
+' ========================================================
+class SessionCheckAttribute {
+    + <<override>> OnActionExecuting(context:ActionExecutingContext) : void
+}
+
+' ========================================================
+' 3. 旧 FIT_Technology.Models.ViewModels
+' ========================================================
+class LicenseMenuRowViewModel {
+    + <<[Column("emp_cd")]>> EmpCd : string <<get>> <<set>>
+    + <<[Column("last_nm")]>> LastNm : string <<get>> <<set>>
+    + <<[Column("first_nm")]>> FirstNm : string <<get>> <<set>>
+    + <<[Column("last_nm_kana")]>> LastNmKana : string <<get>> <<set>>
+    + <<[Column("first_nm_kana")]>> FirstNmKana : string <<get>> <<set>>
+    + <<[Column("gender_cd")]>> GenderCd : int <<get>> <<set>>
+    + <<[Column("gender_nm")]>> GenderNm : string <<get>> <<set>>
+    + <<[Column("birth_date")]>> BirthDate : DateTime <<get>> <<set>>
+    + <<[Column("section_cd")]>> SectionCd : string <<get>> <<set>>
+    + <<[Column("section_nm")]>> SectionNm : string <<get>> <<set>>
+    + <<[Column("emp_date")]>> EmpDate : DateTime <<get>> <<set>>
+    + DisplaySection : string <<get>>
+}
+
+' ========================================================
+' 4. 旧 FIT_Technology.Models.Services
+' ========================================================
+class AccountService {
+    + Authenticate(userid:string, password:string) : bool
+}
+
+class DemoGetLicenseService {
+    + GetLicense(empCd:string, licenseCd:string) : GetLicenseEntity
+    + GetLicensesByEmpCd(empCd:string) : List<GetLicenseEntity>
+    + RegisterLicense(entity:GetLicenseEntity) : bool
+    + RemoveLicense(entity:GetLicenseEntity) : bool
+    + RemoveLicenses(entities:List<GetLicenseEntity>) : bool
+    + GetLicenses() : List<LicenseEntity>
+}
+
+class DemoEmployeeService {
+    + GetLicenseMenuRows() : List<LicenseMenuRowViewModel>
+    + GetEmployees() : List<EmployeeEntity>
+    + GetEmployee(empCd:string) : EmployeeEntity
+    + RegisterEmployee(entity:EmployeeEntity) : bool
+    + GetSections() : List<SectionEntity>
+    + GetGenders() : List<GenderEntity>
+}
+
+' ========================================================
+' 5. 旧 FIT_Technology.Models.Daos
+' ========================================================
+class AccountDao {
+    + AccountDao()
+    + <<override>> Find(params pkeys:object[]) : UserEntity
+    + <<override>> Insert(entity:UserEntity) : int
+    + <<override>> Update(entity:UserEntity) : int
+    + <<override>> Delete(entity:UserEntity) : int
+}
+
+class DemoGetLicenseDao {
+    + DemoGetLicenseDao()
+    + <<override>> Find(params pkeys:object[]) : GetLicenseEntity
+    + FindByEmpCd(empCd:string) : List<GetLicenseEntity>
+    + <<override>> Insert(entity:GetLicenseEntity) : int
+    + <<override>> Update(entity:GetLicenseEntity) : int
+    + <<override>> Delete(entity:GetLicenseEntity) : int
+}
+
+class DemoEmployeeDao {
+    + DemoEmployeeDao()
+    + <<override>> Find(params pkeys:object[]) : EmployeeEntity
+    + FindAll() : List<EmployeeEntity>
+    + FindAllForLicenseMenu() : List<LicenseMenuRowViewModel>
+    + <<override>> Insert(entity:EmployeeEntity) : int
+    + <<override>> Update(entity:EmployeeEntity) : int
+    + <<override>> Delete(entity:EmployeeEntity) : int
+}
+
+class EmployeeDao {
+    + EmployeeDao()
+    + <<override>> Find(params pkeys:object[]) : EmployeeEntity
+    + <<override>> Insert(entity:EmployeeEntity) : int
+    + <<override>> Update(entity:EmployeeEntity) : int
+    + <<override>> Delete(entity:EmployeeEntity) : int
+    + FindAll() : List<EmployeeEntity>
+    + Exists(empcd:string) : bool
+}
+
+class GenderDao {
+    + GenderDao()
+    + <<override>> Find(params pkeys:object[]) : GenderEntity
+    + FindAll() : List<GenderEntity>
+    + <<override>> Insert(entity:GenderEntity) : int
+    + <<override>> Update(entity:GenderEntity) : int
+    + <<override>> Delete(entity:GenderEntity) : int
+}
+
+class GetLicenseDao {
+    + GetLicenseDao()
+    + <<override>> Find(params pkeys:object[]) : GetLicenseEntity
+    + FindAll() : List<GetLicenseEntity>
+    + FindWhere(emp_cd:string) : List<GetLicenseEntity>
+    + <<override>> Insert(entity:GetLicenseEntity) : int
+    + <<override>> Update(entity:GetLicenseEntity) : int
+    + <<override>> Delete(entity:GetLicenseEntity) : int
+}
+
+class LicenseDao {
+    + LicenseDao()
+    + <<override>> Find(params pkeys:object[]) : LicenseEntity
+    + FindAll() : List<LicenseEntity>
+    + <<override>> Insert(entity:LicenseEntity) : int
+    + <<override>> Update(entity:LicenseEntity) : int
+    + <<override>> Delete(entity:LicenseEntity) : int
+}
+
+class SectionDao {
+    + SectionDao()
+    + <<override>> Find(params pkeys:object[]) : SectionEntity
+    + FindAll() : List<SectionEntity>
+    + <<override>> Insert(entity:SectionEntity) : int
+    + <<override>> Update(entity:SectionEntity) : int
+    + <<override>> Delete(entity:SectionEntity) : int
+}
+
+' ========================================================
+' 6. 旧 FIT_Technology.Models.Entities
+' ========================================================
+class EmployeeEntity <<[Table("m_employee")]>> <<[Serializable]>> {
+    + <<[Key]>> <<[Column("emp_cd", TypeName="char")]>> EmpCd : string <<get>> <<set>>
+    + <<[Column("last_nm", TypeName="nvarchar")]>> LastNm : string <<get>> <<set>>
+    + <<[Column("first_nm", TypeName="nvarchar")]>> FirstNm : string <<get>> <<set>>
+    + <<[Column("last_nm_kana", TypeName="nvarchar")]>> LastNmKana : string <<get>> <<set>>
+    + <<[Column("first_nm_kana", TypeName="nvarchar")]>> FirstNmKana : string <<get>> <<set>>
+    + <<[Column("gender_cd", TypeName="int")]>> GenderCd : int <<get>> <<set>>
+    + <<[Column("birth_date", TypeName="date")]>> BirthDate : DateTime <<get>> <<set>>
+    + <<[Column("section_cd", TypeName="char")]>> SectionCd : string <<get>> <<set>>
+    + <<[Column("emp_date", TypeName="date")]>> EmpDate : DateTime <<get>> <<set>>
+    + <<[Column("created", TypeName="datetime2")]>> <<[DatabaseGenerated(Identity)]>> Created : DateTime <<get>> <<set>>
+    + <<[Column("updated", TypeName="datetime2")]>> <<[DatabaseGenerated(Computed)]>> Updated : DateTime <<get>> <<set>>
+}
+
+class GenderEntity <<[Table("m_gender")]>> <<[Serializable]>> {
+    + <<[Key]>> <<[Column("gender_cd", TypeName="int")]>> GenderCd : int <<get>> <<set>>
+    + <<[Column("gender_nm", TypeName="nvarchar")]>> GenderNm : string <<get>> <<set>>
+}
+
+class GetLicenseEntity <<[Table("t_get_license")]>> <<[Serializable]>> {
+    + <<[Key]>> <<[Column("emp_cd", Order=0, TypeName="char")]>> EmpCd : string <<get>> <<set>>
+    + <<[Key]>> <<[Column("license_cd", Order=1, TypeName="char")]>> LicenseCd : string <<get>> <<set>>
+    + <<[Column("get_license_date", TypeName="date")]>> GetLicenseDate : DateTime <<get>> <<set>>
+    + <<[Column("created", TypeName="datetime2")]>> <<[DatabaseGenerated(Identity)]>> Created : DateTime <<get>> <<set>>
+    + <<[Column("updated", TypeName="datetime2")]>> <<[DatabaseGenerated(Computed)]>> Updated : DateTime <<get>> <<set>>
+    + <<[Column("license_nm")]>> LicenseNm : string <<get>> <<set>>
+    + <<[NotMapped]>> DisplayLicenseText : string <<get>>
+}
+
+class LicenseEntity <<[Table("m_license")]>> <<[Serializable]>> {
+    + <<[Key]>> <<[Column("license_cd", TypeName="char")]>> LicenseCd : string <<get>> <<set>>
+    + <<[Column("license_nm", TypeName="nvarchar")]>> LicenseNm : string <<get>> <<set>>
+    + <<[NotMapped]>> DisplayLicenseText : string <<get>>
+}
+
+class SectionEntity <<[Table("m_section")]>> <<[Serializable]>> {
+    + <<[Key]>> <<[Column("section_cd", TypeName="char")]>> SectionCd : string <<get>> <<set>>
+    + <<[Column("section_nm", TypeName="nvarchar")]>> SectionNm : string <<get>> <<set>>
+}
+
+class UserEntity <<[Table("m_user")]>> <<[Serializable]>> {
+    + <<[Key]>> <<[Column("user_id", TypeName="varchar")]>> UserId : string <<get>> <<set>>
+    + <<[Column("password", TypeName="varchar")]>> Password : string <<get>> <<set>>
+    + <<[Column("created", TypeName="datetime2")]>> <<[DatabaseGenerated(Identity)]>> Created : DateTime <<get>> <<set>>
+    + <<[Column("updated", TypeName="datetime2")]>> <<[DatabaseGenerated(Computed)]>> Updated : DateTime <<get>> <<set>>
+}
+
+' ========================================================
+' 7. 旧 FIT_Technology.Models.Constants
+' ========================================================
+class ActionValues <<static>> {
+    + <<const>> Logout : string = "logout"
+    + <<const>> Insert : string = "insert"
+    + <<const>> List : string = "list"
+    + <<const>> License : string = "license"
+    + <<const>> Alert : string = "alert"
+    + <<const>> Demo : string = "Demo"
+}
+
+class DbConstants <<static>> {
+    + <<const>> EmpDbConnection : string = "empdb"
+}
+
+class DbConstants::SessionKeys <<static>> {
+    + <<const>> UserId : string = "UserId"
+}
+
+class ResultConstants <<static>> {
+}
+
+class ResultConstants::TempDataKeys <<static>> {
+    + <<const>> ViewTitle : string = "ViewTitle"
+    + <<const>> Msg : string = "Msg"
+    + <<const>> Caption : string = "Caption"
+    + <<const>> ButtonView : string = "ButtonView"
+}
+
+' ========================================================
+' 8. 旧 FIT_Technology.Models.Helpers
+' ========================================================
+class ControllerExtensions <<static>> {
+    + {static} RedirectToResult(controller:Controller, viewTitle:string, msg:string, caption:string?, buttonView:string?) : RedirectToActionResult
+}
+
+class Ctrl <<static>> {
+    + {static} Get() : string
+}
+
+class EntityMetaHelper <<static>> {
+    + {static} GetTableName() : string
+    + {static} GetColumnName(prop:PropertyInfo) : string
+    + {static} GetSqlType(prop:PropertyInfo) : SqlDbType
+}
+
+class SqlReaderExtensions <<static>> {
+    + {static} MapToEntity(reader:SqlDataReader) : T
+    + {static} HasColumn(reader:SqlDataReader, columnName:string) : bool
+}
+
+' ========================================================
+' 9. 外部フレームワーク・共有DLL
+' ========================================================
+abstract class ActionFilterAttribute {
+    note right: Framework共通クラスのため\n内部インターフェース関係線は省略
+}
+
+class ServiceCollectionServiceExtensions <<static>> {
+    + {static} AddKeyedScoped(services:IServiceCollection, serviceType:Type, serviceKey:object?) : IServiceCollection
+    note bottom: AddScoped などの拡張メソッド定義元
+}
+
+abstract class "BaseDao`1"<T> {
+    # con : SqlConnection
+    # trn : SqlTransaction
+    # BaseDao()
+    + {abstract} Find(params pkeys:object[]) : T
+    + {abstract} Insert(entity:T) : int
+    + {abstract} Update(entity:T) : int
+    + {abstract} Delete(entity:T) : int
+    # GetString(fieldValue:object) : string
+    # GetInt(fieldValue:object) : int?
+    # GetDouble(fieldValue:object) : double?
+    # GetDateTime(fieldValue:object) : DateTime?
+}
+
+class TranMng {
+    + {static} Transaction : SqlTransaction <<get>>
+    + {static} BeginTransaction(connectionKey:string) : TranMng
+    + Commit() : void
+    + Rollback() : void
+}
+
+' ========================================================
+' 関係線マッピング
+' ========================================================
+
+' --- Program.cs からのマッピング依存関係 ---
+Program ..> ServiceCollectionServiceExtensions : 拡張メソッド呼び出し (DIサービス登録)
+Program ..> AccountService : スコープ(AddScoped)としてコンテナに登録対象
+Program ..> AccountController : デフォルトルートとして指定 ({controller=Account}/{action=Login})
+
+ResultConstants +-- ResultConstants::TempDataKeys
+DbConstants +-- DbConstants::SessionKeys
+DemoController +-- DemoController::TempKeys
+
+' --- ActionFilter関係の整理 ---
+SessionCheckAttribute --|> ActionFilterAttribute
+
+AccountDao --|> "BaseDao`1"
+DemoGetLicenseDao --|> "BaseDao`1"
+DemoEmployeeDao --|> "BaseDao`1"
+EmployeeDao --|> "BaseDao`1"
+GenderDao --|> "BaseDao`1"
+GetLicenseDao --|> "BaseDao`1"
+LicenseDao --|> "BaseDao`1"
+SectionDao --|> "BaseDao`1"
+
+"BaseDao`1" ..> TranMng
+
+' --- AccountController 関連の依存関係 ---
+AccountController --> AccountService : Login(HttpPost) 内で\nAuthenticate(id, pass) を実行
+AccountController ..> UserEntity : Login(HttpPost) の引数として\n入力データをバインド
+AccountController ..> EmployeeController : Menu() から RedirectToAction で遷移\n(ActionValues.Insert/List時)
+AccountController ..> DemoController : Menu() から RedirectToAction で遷移\n(ActionValues.Demo時)
+AccountController ..> ActionValues : Menu(HttpPost) 内で\n遷移先分岐スイッチの判定に使用
+AccountController ..> DbConstants::SessionKeys : Loginでのセッション保存、\nLogoutでのUserId取得に使用
+AccountController ..> ControllerExtensions : 認証失敗・コマンド不正時の\nRedirectToResult呼び出し
+AccountController ..> Ctrl : RedirectToAction 時の\nターゲットコントローラー名取得
+AccountController ..> SessionCheckAttribute : Index, Logout, Menu の\nログインセッションチェックに適用
+
+AccountService ..> AccountDao
+AccountService ..> DbConstants
+AccountService ..> TranMng
+
+AccountDao ..> UserEntity
+AccountDao ..> EntityMetaHelper
+AccountDao ..> SqlReaderExtensions
+
+' --- EmployeeController 関連の依存関係 ---
+EmployeeController ..> SessionCheckAttribute : クラス属性として指定され、\n全アクションでログイン検証を実施
+EmployeeController ..> TranMng : 各データアクセス時の\nトランザクション制御 (empdb) に使用
+EmployeeController ..> EmployeeDao : FindAll() による全件取得、Exists() による重複確認、\nInsert/Update/Delete の実行
+EmployeeController ..> SectionDao : List(HttpGet)、Insert(HttpGet/HttpPost)、\nUpdate(HttpGet/HttpPost) 内でのマスター全件取得
+EmployeeController ..> GenderDao : Insert(HttpGet/HttpPost)、\nUpdate(HttpGet/HttpPost) 内でのマスター全件取得
+EmployeeController ..> DemoGetLicenseDao : Alert(HttpPost) 内で従業員に紐づく\n保有資格(t_get_license)を事前に一括削除するため使用
+EmployeeController ..> EmployeeEntity : 各画面（一覧・登録・変更・削除）の\nバインド、受け渡し、およびDaoの操作対象オブジェクト
+EmployeeController ..> SectionEntity : 部署マスターデータの保持
+EmployeeController ..> GenderEntity : 性別マスターデータの保持
+EmployeeController ..> GetLicenseEntity : 保有資格削除データのハンドリング
+EmployeeController ..> ResultController : 各処理の正常完了時や、\nDB例外発生時のエラー表示画面への遷移先
+EmployeeController ..> AccountController : 各画面の「戻る」ボタン押下時に\nメニュー画面へ戻る際のリダイレクト先
+EmployeeController ..> Ctrl : 各種 RedirectToAction 時に\n汎用型引数からコントローラー文字列を取得
+
+DemoController ..> SessionCheckAttribute : クラス属性としてセッション検証の強制
+DemoController --> DemoEmployeeService : コンストラクタで手動new、従業員・マスタ関連処理の委譲
+DemoController --> DemoGetLicenseService : コンストラクタで手動new、保有資格・マスタ関連処理の委譲
+DemoController ..> DemoController::TempKeys : 各種TempDataキー(TargetEmpCd等)の内部参照
+DemoController ..> LicenseMenuRowViewModel : LicenseMenu(HttpGet)での一覧用モデル受取
+DemoController ..> EmployeeEntity : EmployeeInsert時のバインド・表示処理
+DemoController ..> GetLicenseEntity : 資格登録(Insert)、削除確認(Alert)でのバインド、及びモデル操作
+DemoController ..> ActionValues : 外部定数(ActionValues.Insert/List/Alert)による条件分岐
+DemoController ..> Ctrl : 遷移処理の汎用コントローラー文字列解決
+DemoController ..> ControllerExtensions : 業務エラー・不正入力時のRedirectToResult呼出
+
+' --- DemoGetLicenseService の依存関係 ---
+DemoGetLicenseService ..> TranMng
+DemoGetLicenseService ..> DbConstants
+DemoGetLicenseService --> DemoGetLicenseDao : 生成・利用(new)
+DemoGetLicenseService --> LicenseDao : 生成・利用(new)
+DemoGetLicenseService ..> GetLicenseEntity
+DemoGetLicenseService ..> LicenseEntity
+
+' --- DemoEmployeeService の依存関係 ---
+DemoEmployeeService ..> TranMng
+DemoEmployeeService ..> DbConstants
+DemoEmployeeService --> DemoEmployeeDao : 生成・利用(new)
+DemoEmployeeService --> SectionDao : 生成・利用(new)
+DemoEmployeeService --> GenderDao : 生成・利用(new)
+DemoEmployeeService ..> LicenseMenuRowViewModel
+DemoEmployeeService ..> EmployeeEntity
+DemoEmployeeService ..> SectionEntity
+DemoEmployeeService ..> GenderEntity
+
+DemoGetLicenseDao ..> EntityMetaHelper : テーブル名取得
+DemoGetLicenseDao ..> SqlReaderExtensions : MapToEntity拡張によるマッピング
+DemoGetLicenseDao ..> GetLicenseEntity : 操作対象型引数・戻り値マッピング先
+
+DemoEmployeeDao ..> EntityMetaHelper : テーブル名・主キーカラム名取得
+DemoEmployeeDao ..> SqlReaderExtensions : MapToEntity拡張によるマッピング
+DemoEmployeeDao ..> EmployeeEntity : 操作対象型引数・戻り値マッピング先
+DemoEmployeeDao ..> LicenseMenuRowViewModel : 結合クエリ(FindAllForLicenseMenu)のデータマッピング先
+
+EmployeeDao ..> EmployeeEntity : データの詰め替え・引数および戻り値オブジェクト
+EmployeeDao ..> "BaseDao`1" : GetString(), GetInt(), con, trn メンバへのダイレクトアクセス
+
+GenderDao ..> EntityMetaHelper : テーブル名・主キーカラム名・プロパティSQL型の動的取得
+GenderDao ..> SqlReaderExtensions : MapToEntity拡張によるマッピングの完全委譲
+GenderDao ..> GenderEntity : 操作対象型引数・戻り値マッピング先
+
+GetLicenseDao ..> GetLicenseEntity : 手動データ詰め替え・引数および戻り値オブジェクト
+GetLicenseDao ..> "BaseDao`1" : GetString(), con, trn メンバへのダイレクトアクセス
+
+SectionDao ..> EntityMetaHelper : テーブル名・主キーカラム名・プロパティSQL型の動的取得
+SectionDao ..> SqlReaderExtensions : MapToEntity拡張によるマッピングの完全委譲
+SectionDao ..> SectionEntity : 操作対象型引数・戻り値マッピング先
+
+LicenseDao ..> EntityMetaHelper : テーブル名・主キーカラム名・プロパティSQL型の動的取得
+LicenseDao ..> SqlReaderExtensions : MapToEntity拡張によるマッピングの完全委譲
+LicenseDao ..> LicenseEntity : 操作対象型引数・戻り値マッピング先
+
+ControllerExtensions ..> ResultController
+ControllerExtensions ..> ResultConstants::TempDataKeys
+ControllerExtensions ..> Ctrl
+
+ResultController ..> ResultConstants::TempDataKeys
+
+SessionCheckAttribute ..> DbConstants::SessionKeys
+SessionCheckAttribute ..> AccountController
+SessionCheckAttribute ..> Ctrl
+
+@enduml
