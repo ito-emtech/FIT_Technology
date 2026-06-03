@@ -1,5 +1,5 @@
 ﻿@startuml ClassList
-title システムクラス定義一覧 (パッケージ分け・関係線なし)
+title システムクラス定義一覧 (ResultController 関係線反映版)
 
 ' ========================================================
 ' 1. Presentation Layer (画面制御・MVCコントローラー)
@@ -240,8 +240,8 @@ package "Entities" {
         + SectionNm : string <<get>> <<set>>
     }
 
-    class UserEntity {
-        + UserId : string <<get>> <<set>>
+    class UserEntity <<[Table("m_user")]>> <<[Serializable]>> {
+        + <<[Key]>> UserId : string <<get>> <<set>>
         + Password : string <<get>> <<set>>
         + Created : DateTime
         + Updated : DateTime
@@ -317,9 +317,38 @@ package "Infrastructure & Constants" {
 
     class "ILogger`1"<T> {
     }
-    
-    class Class {
-    }
 }
+
+' ========================================================
+' 関係線マッピング
+' ========================================================
+
+' --- クラスのネスト（入れ子）関係 ---
+ResultConstants +-- TempDataKeys : ネストされたクラス
+DbConstants +-- SessionKeys : ネストされたクラス
+
+' --- AccountController 起点 ---
+AccountController --> AccountService : ロジック呼び出し (service)
+AccountController ..> UserEntity : ログイン情報の受け取り (Login)
+AccountController ..> EmployeeController : 従業員登録・管理画面へ遷移
+AccountController ..> LicenseController : 保有資格管理画面へ遷移
+AccountController ..> DemoController : テスト画面へ遷移
+AccountController ..> ActionValues : アクション名の判定
+AccountController ..> SessionKeys : セッションキーの参照
+AccountController ..> ControllerExtensions : 拡張メソッドの利用 (this.RedirectToResult)
+AccountController ..> Ctrl : 自コントローラー名の取得
+AccountController ..> SessionCheckAttribute : 属性の適用
+
+' --- ControllerExtensions 起点 ---
+ControllerExtensions ..> ResultController : Result画面(Index)へのリダイレクト指示
+ControllerExtensions ..> TempDataKeys : TempData用キーの参照
+ControllerExtensions ..> Ctrl : コントローラー名取得ヘルパーの利用
+
+' --- ResultController 起点 (新規追加) ---
+ResultController ..> TempDataKeys : TempDataから値を取り出すためのキー参照 (ResultConstants.TempDataKeys)
+
+' --- Data Access Layer 起点 ---
+AccountDao ..> UserEntity : 操作対象エンティティ
+GetLicenseDao ..> UserEntity : 戻り値・型参照
 
 @enduml

@@ -150,7 +150,7 @@ namespace FIT_Technology.Controllers
                         nameof(LicenseController.LicenseMenu),
                         Ctrl.Get<LicenseController>());
                 case ActionValues.Demo:
-                    // テスト用メニューリストを表示
+                    // 保有資格管理画面のテスト画面に遷移する
                     return RedirectToAction(
                         nameof(DemoController.LicenseMenu),
                         Ctrl.Get<DemoController>());
