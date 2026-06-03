@@ -1,10 +1,10 @@
 ﻿@startuml ClassList
-title システムクラス定義一覧 (ResultController 関係線反映版)
+title システムクラス定義一覧 (C# 名前空間・パッケージ構造準拠版)
 
 ' ========================================================
-' 1. Presentation Layer (画面制御・MVCコントローラー)
+' 1. FIT_Technology.Controllers (画面制御・MVCコントローラー)
 ' ========================================================
-package "Presentation Layer (MVC)" {
+package "FIT_Technology.Controllers" {
     class AccountController {
         + Index() : IActionResult
         + Login() : IActionResult
@@ -64,11 +64,21 @@ package "Presentation Layer (MVC)" {
     class ResultController {
         + Index() : IActionResult
     }
+}
 
+' ========================================================
+' 2. FIT_Technology.Filters (カスタム属性・共通フィルタ)
+' ========================================================
+package "FIT_Technology.Filters" {
     class SessionCheckAttribute {
         + <<override>> OnActionExecuting(context:ActionExecutingContext) : void
     }
+}
 
+' ========================================================
+' 3. FIT_Technology.Models.ViewModels (画面表示専用モデル)
+' ========================================================
+package "FIT_Technology.Models.ViewModels" {
     class ErrorViewModel {
         + RequestId : string? <<get>> <<set>>
         + ShowRequestId : bool <<get>>
@@ -91,9 +101,9 @@ package "Presentation Layer (MVC)" {
 }
 
 ' ========================================================
-' 2. Business Logic Layer (業務ロジック)
+' 4. FIT_Technology.Models.Services (業務ロジック)
 ' ========================================================
-package "Business Logic Layer" {
+package "FIT_Technology.Models.Services" {
     class AccountService {
         + Authenticate(userid:string, password:string) : bool
     }
@@ -118,9 +128,9 @@ package "Business Logic Layer" {
 }
 
 ' ========================================================
-' 3. Data Access Layer (データベース操作)
+' 5. FIT_Technology.Models.Daos (データアクセス層)
 ' ========================================================
-package "Data Access Layer" {
+package "FIT_Technology.Models.Daos" {
     class AccountDao {
         + AccountDao()
         + <<override>> Find(pkeys:object[]) : UserEntity
@@ -197,9 +207,9 @@ package "Data Access Layer" {
 }
 
 ' ========================================================
-' 4. Entities (データ構造・ドメインモデル)
+' 6. FIT_Technology.Models.Entities (ドメインモデル)
 ' ========================================================
-package "Entities" {
+package "FIT_Technology.Models.Entities" {
     class EmployeeEntity {
         + EmpCd : string <<get>> <<set>>
         + LastNm : string <<get>> <<set>>
@@ -249,9 +259,9 @@ package "Entities" {
 }
 
 ' ========================================================
-' 5. Infrastructure & Constants (共通定数・拡張ヘルパーなど)
+' 7. FIT_Technology.Models.Constants (定数管理)
 ' ========================================================
-package "Infrastructure & Constants" {
+package "FIT_Technology.Models.Constants" {
     class TempKeys <<static>> {
         + <<const>> CreateEmployee : string = "createEmployee"
         + <<const>> DeleteLicense : string = "deleteLicense"
@@ -284,7 +294,12 @@ package "Infrastructure & Constants" {
         + <<const>> Caption : string = "Caption"
         + <<const>> ButtonView : string = "ButtonView"
     }
+}
 
+' ========================================================
+' 8. FIT_Technology.Models.Helpers (共通ヘルパー・DI定義)
+' ========================================================
+package "FIT_Technology.Models.Helpers" {
     class ControllerExtensions <<static>> {
         + {static} RedirectToResult(controller:Controller, viewTitle:string, msg:string, caption:string?, buttonView:string?) : RedirectToActionResult
     }
@@ -320,12 +335,46 @@ package "Infrastructure & Constants" {
 }
 
 ' ========================================================
+' 9. External Framework (Microsoft.AspNetCore.Mvc.Filters)
+' ========================================================
+package "Microsoft.AspNetCore.Mvc.Filters" {
+    abstract class ActionFilterAttribute {
+        + Order : int <<get>> <<set>>
+        + <<virtual>> OnActionExecuted(context:ActionExecutedContext) : void
+        + <<virtual>> OnActionExecuting(context:ActionExecutingContext) : void
+        + <<virtual>> OnActionExecutionAsync(context:ActionExecutingContext, next:ActionExecutionDelegate) : Task
+        + <<virtual>> OnResultExecuted(context:ResultExecutedContext) : void
+        + <<virtual>> OnResultExecuting(context:ResultExecutingContext) : void
+        + <<virtual>> OnResultExecutionAsync(context:ResultExecutingContext, next:ResultExecutionDelegate) : Task
+    }
+    
+    interface IActionFilter
+    interface IFilterMetadata
+    interface IAsyncActionFilter
+    interface IResultFilter
+    interface IAsyncResultFilter
+    interface IOrderedFilter
+}
+
+' ========================================================
 ' 関係線マッピング
 ' ========================================================
 
 ' --- クラスのネスト（入れ子）関係 ---
 ResultConstants +-- TempDataKeys : ネストされたクラス
 DbConstants +-- SessionKeys : ネストされたクラス
+
+' --- 外部フレームワーク内の実装・継承関係 ---
+ActionFilterAttribute --|> Attribute
+ActionFilterAttribute ..|> IActionFilter
+ActionFilterAttribute ..|> IFilterMetadata
+ActionFilterAttribute ..|> IAsyncActionFilter
+ActionFilterAttribute ..|> IResultFilter
+ActionFilterAttribute ..|> IAsyncResultFilter
+ActionFilterAttribute ..|> IOrderedFilter
+
+' --- プロジェクト内クラスの継承関係 ---
+SessionCheckAttribute --|> ActionFilterAttribute : フィルター属性の継承
 
 ' --- AccountController 起点 ---
 AccountController --> AccountService : ロジック呼び出し (service)
@@ -339,13 +388,24 @@ AccountController ..> ControllerExtensions : 拡張メソッドの利用 (this.R
 AccountController ..> Ctrl : 自コントローラー名の取得
 AccountController ..> SessionCheckAttribute : 属性の適用
 
+' --- HomeController 起点 ---
+HomeController ..> AccountController : 初期リダイレクト先として指定 (Index)
+HomeController ..> Ctrl : コントローラー名取得ヘルパーの利用
+HomeController ..> ErrorViewModel : エラー情報返却用にインスタンス化 (Error)
+HomeController --> "ILogger`1" : ログ記録用 (logger)
+
 ' --- ControllerExtensions 起点 ---
 ControllerExtensions ..> ResultController : Result画面(Index)へのリダイレクト指示
 ControllerExtensions ..> TempDataKeys : TempData用キーの参照
 ControllerExtensions ..> Ctrl : コントローラー名取得ヘルパーの利用
 
-' --- ResultController 起点 (新規追加) ---
-ResultController ..> TempDataKeys : TempDataから値を取り出すためのキー参照 (ResultConstants.TempDataKeys)
+' --- ResultController 起点 ---
+ResultController ..> TempDataKeys : TempDataから値を取り出すためのキー参照
+
+' --- SessionCheckAttribute 起点 ---
+SessionCheckAttribute ..> SessionKeys : セッションキーの参照
+SessionCheckAttribute ..> AccountController : 未ログイン時のリダイレクト先として指定
+SessionCheckAttribute ..> Ctrl : コントローラー名取得ヘルパーの利用
 
 ' --- Data Access Layer 起点 ---
 AccountDao ..> UserEntity : 操作対象エンティティ
