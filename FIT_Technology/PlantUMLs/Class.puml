@@ -1,5 +1,5 @@
 ﻿@startuml ClassList
-title システムクラス定義一覧 (AccountDao 基底クラス・実装依存反映版)
+title システムクラス定義一覧 (UserEntity 詳細データアノテーション反映・全エンティティ精緻化完了版)
 
 ' ========================================================
 ' 1. FIT_Technology.Controllers (画面制御・MVCコントローラー)
@@ -219,51 +219,51 @@ package "FIT_Technology.Models.Daos" {
 ' 6. FIT_Technology.Models.Entities (ドメインモデル)
 ' ========================================================
 package "FIT_Technology.Models.Entities" {
-    class EmployeeEntity {
-        + EmpCd : string <<get>> <<set>>
-        + LastNm : string <<get>> <<set>>
-        + FirstNm : string <<get>> <<set>>
-        + LastNmKana : string <<get>> <<set>>
-        + FirstNmKana : string <<get>> <<set>>
-        + GenderCd : int <<get>> <<set>>
-        + SectionCd : string <<get>> <<set>>
-        + BirthDate : DateTime
-        + EmpDate : DateTime
-        + Created : DateTime
-        + Updated : DateTime
+    class EmployeeEntity <<[Table("m_employee")]>> <<[Serializable]>> {
+        + <<[Key]>> <<[Column("emp_cd", TypeName="char")]>> EmpCd : string <<get>> <<set>>
+        + <<[Column("last_nm", TypeName="nvarchar")]>> LastNm : string <<get>> <<set>>
+        + <<[Column("first_nm", TypeName="nvarchar")]>> FirstNm : string <<get>> <<set>>
+        + <<[Column("last_nm_kana", TypeName="nvarchar")]>> LastNmKana : string <<get>> <<set>>
+        + <<[Column("first_nm_kana", TypeName="nvarchar")]>> FirstNmKana : string <<get>> <<set>>
+        + <<[Column("gender_cd", TypeName="int")]>> GenderCd : int <<get>> <<set>>
+        + <<[Column("birth_date", TypeName="date")]>> BirthDate : DateTime <<get>> <<set>>
+        + <<[Column("section_cd", TypeName="char")]>> SectionCd : string <<get>> <<set>>
+        + <<[Column("emp_date", TypeName="date")]>> EmpDate : DateTime <<get>> <<set>>
+        + <<[Column("created", TypeName="datetime2")]>> <<[DatabaseGenerated(Identity)]>> Created : DateTime <<get>> <<set>>
+        + <<[Column("updated", TypeName="datetime2")]>> <<[DatabaseGenerated(Computed)]>> Updated : DateTime <<get>> <<set>>
     }
 
-    class GenderEntity {
-        + GenderCd : int <<get>> <<set>>
-        + GenderNm : string <<get>> <<set>>
+    class GenderEntity <<[Table("m_gender")]>> <<[Serializable]>> {
+        + <<[Key]>> <<[Column("gender_cd", TypeName="int")]>> GenderCd : int <<get>> <<set>>
+        + <<[Column("gender_nm", TypeName="nvarchar")]>> GenderNm : string <<get>> <<set>>
     }
 
-    class GetLicenseEntity {
-        + EmpCd : string <<get>> <<set>>
-        + LicenseCd : string <<get>> <<set>>
-        + LicenseNm : string <<get>> <<set>>
-        + DisplayLicenseText : string <<get>>
-        + GetLicenseDate : DateTime
-        + Created : DateTime
-        + Updated : DateTime
+    class GetLicenseEntity <<[Table("t_get_license")]>> <<[Serializable]>> {
+        + <<[Key]>> <<[Column("emp_cd", Order=0, TypeName="char")]>> EmpCd : string <<get>> <<set>>
+        + <<[Key]>> <<[Column("license_cd", Order=1, TypeName="char")]>> LicenseCd : string <<get>> <<set>>
+        + <<[Column("get_license_date", TypeName="date")]>> GetLicenseDate : DateTime <<get>> <<set>>
+        + <<[Column("created", TypeName="datetime2")]>> <<[DatabaseGenerated(Identity)]>> Created : DateTime <<get>> <<set>>
+        + <<[Column("updated", TypeName="datetime2")]>> <<[DatabaseGenerated(Computed)]>> Updated : DateTime <<get>> <<set>>
+        + <<[Column("license_nm")]>> LicenseNm : string <<get>> <<set>>
+        + <<[NotMapped]>> DisplayLicenseText : string <<get>>
     }
 
-    class LicenseEntity {
-        + LicenseCd : string <<get>> <<set>>
-        + LicenseNm : string <<get>> <<set>>
-        + DisplayLicenseText : string <<get>>
+    class LicenseEntity <<[Table("m_license")]>> <<[Serializable]>> {
+        + <<[Key]>> <<[Column("license_cd", TypeName="char")]>> LicenseCd : string <<get>> <<set>>
+        + <<[Column("license_nm", TypeName="nvarchar")]>> LicenseNm : string <<get>> <<set>>
+        + <<[NotMapped]>> DisplayLicenseText : string <<get>>
     }
 
-    class SectionEntity {
-        + SectionCd : string <<get>> <<set>>
-        + SectionNm : string <<get>> <<set>>
+    class SectionEntity <<[Table("m_section")]>> <<[Serializable]>> {
+        + <<[Key]>> <<[Column("section_cd", TypeName="char")]>> SectionCd : string <<get>> <<set>>
+        + <<[Column("section_nm", TypeName="nvarchar")]>> SectionNm : string <<get>> <<set>>
     }
 
     class UserEntity <<[Table("m_user")]>> <<[Serializable]>> {
-        + <<[Key]>> UserId : string <<get>> <<set>>
-        + Password : string <<get>> <<set>>
-        + Created : DateTime
-        + Updated : DateTime
+        + <<[Key]>> <<[Column("user_id", TypeName="varchar")]>> UserId : string <<get>> <<set>>
+        + <<[Column("password", TypeName="varchar")]>> Password : string <<get>> <<set>>
+        + <<[Column("created", TypeName="datetime2")]>> <<[DatabaseGenerated(Identity)]>> Created : DateTime <<get>> <<set>>
+        + <<[Column("updated", TypeName="datetime2")]>> <<[DatabaseGenerated(Computed)]>> Updated : DateTime <<get>> <<set>>
     }
 }
 
@@ -354,7 +354,7 @@ package "Microsoft.AspNetCore.Mvc.Filters" {
         + <<virtual>> OnActionExecutionAsync(context:ActionExecutingContext, next:ActionExecutionDelegate) : Task
         + <<virtual>> OnResultExecuted(context:ResultExecutedContext) : void
         + <<virtual>> OnResultExecuting(context:ResultExecutingContext) : void
-        + <<virtual>> OnResultExecutionAsync(context:ResultExecutingContext, next:ResultExecutionDelegate) : Task
+        + <<virtual>> OnResultExecutionAsync(context:ResultExecutedContext, next:ResultExecutionDelegate) : Task
     }
     interface IActionFilter
     interface IFilterMetadata
@@ -408,7 +408,7 @@ AccountService ..> AccountDao : ユーザーデータ取得のためにインス
 AccountService ..> DbConstants : 接続文字列のキー参照 (EmpDbConnection)
 AccountService ..> TranMng : トランザクション制御用の静的メソッド・クラス利用
 
-' --- AccountDao 起点 (新規追加) ---
+' --- AccountDao 起点 ---
 AccountDao ..> EntityMetaHelper : テーブル・カラム等のメタデータ取得 (Find)
 AccountDao ..> SqlReaderExtensions : ORMマッピング拡張メソッドの利用 (MapToEntity)
 
