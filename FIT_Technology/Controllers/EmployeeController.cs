@@ -4,8 +4,6 @@ using FIT_Technology.Models.Daos;
 using FIT_Technology.Models.Entities;
 using FIT_Technology.Models.Helpers;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Configuration;
 
 namespace FIT_Technology.Controllers
 {
@@ -46,7 +44,8 @@ namespace FIT_Technology.Controllers
                     mng.Commit();
                 }
 
-            }catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 TempData["ViewTitle"] = "エラーが発生しました";
                 TempData["Msg"] = "データベースの制約、または通信エラーにより処理を中断しました。データは変更されていません。";
@@ -78,11 +77,13 @@ namespace FIT_Technology.Controllers
             // 「変更」ボタンが押された場合
             if (btn_action == "update")
             {
-                if(empcd.Count == 1)
+                if (empcd.Count == 1)
                 {
-                    TempData["UpdateEmpCd"] = empcd;
+                    //TempData["UpdateEmpCd"] = empcd[0];
+                    TempData["UpdateEmpCd"] = empcd[0].ToString();
                     return RedirectToAction(nameof(EmployeeController.Update), Ctrl.Get<EmployeeController>());
-                }else if(empcd.Count == 0)
+                }
+                else if (empcd.Count == 0)
                 {
                     TempData["ErrorMessage"] = "変更したい従業員を1人選択してください。";
                     return RedirectToAction(nameof(EmployeeController.List), Ctrl.Get<EmployeeController>());
@@ -96,7 +97,7 @@ namespace FIT_Technology.Controllers
             // 「削除」ボタンが押された場合（※View側でvalue="alert"になっているボタン）
             else if (btn_action == "alert")
             {
-                if(empcd.Count == 0)
+                if (empcd.Count == 0)
                 {
                     TempData["ErrorMessage"] = "削除したい従業員を選択してください。";
                     return RedirectToAction(nameof(EmployeeController.List), Ctrl.Get<EmployeeController>());
@@ -104,7 +105,7 @@ namespace FIT_Technology.Controllers
                 else
                 {
                     TempData["AlertCmd"] = true;
-                    TempData["DeleteEmpCd"] = empcd;
+                    TempData["DeleteEmpCd"] = empcd.ToArray();
                     return RedirectToAction(nameof(EmployeeController.Alert), Ctrl.Get<EmployeeController>());
                 }
             }
@@ -118,7 +119,7 @@ namespace FIT_Technology.Controllers
         /// <summary>
         /// [GET] 従業員新規登録画面の表示
         /// </summary>
-        
+
         [HttpGet]
         public IActionResult Insert()
         {
@@ -136,7 +137,7 @@ namespace FIT_Technology.Controllers
 
             // 💡 削除や変更と同じ仕組みに変えます！
             // 登録完了後にブラウザバックすると、POST側で Remove されているのでここが null になります
-            
+
 
 
             // 💡 常に新しい空のインスタンスを渡す
@@ -153,7 +154,7 @@ namespace FIT_Technology.Controllers
                 EmployeeDao dao = new EmployeeDao();
                 SectionDao sectionDao = new SectionDao();
                 GenderDao genderDao = new GenderDao();
-                
+
                 sectionInfo = sectionDao.FindAll();
                 genderInfo = genderDao.FindAll();
 
@@ -210,7 +211,7 @@ namespace FIT_Technology.Controllers
 
                     using (TranMng mng = TranMng.BeginTransaction("empdb"))
                     {
-                        
+
                         SectionDao sectionDao = new SectionDao();
                         GenderDao genderDao = new GenderDao();
 
@@ -223,10 +224,10 @@ namespace FIT_Technology.Controllers
                     ViewBag.GenderInfo = genderInfo;
                     return View(nameof(EmployeeController.Insert), employee);
                 }
-                
+
 
                 try
-                { 
+                {
                     using (TranMng mng = TranMng.BeginTransaction("empdb"))
                     {
                         EmployeeDao dao = new EmployeeDao();
@@ -238,7 +239,7 @@ namespace FIT_Technology.Controllers
                             List<SectionEntity> sectionInfo = new List<SectionEntity>();
                             List<GenderEntity> genderInfo = new List<GenderEntity>();
 
-                            
+
 
                             SectionDao sectionDao = new SectionDao();
                             GenderDao genderDao = new GenderDao();
@@ -247,7 +248,7 @@ namespace FIT_Technology.Controllers
                             genderInfo = genderDao.FindAll();
 
                             mng.Commit();
-                            
+
                             ViewBag.SectionInfo = sectionInfo;
                             ViewBag.GenderInfo = genderInfo;
                             ModelState.AddModelError("EmpCd", "入力された従業員コードは既に登録されています。");
@@ -277,7 +278,7 @@ namespace FIT_Technology.Controllers
 
                     return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
                 }
-                
+
             }
             // 「戻る」ボタンなどが押された場合はメニュー画面へ戻る
             else
@@ -293,7 +294,9 @@ namespace FIT_Technology.Controllers
         [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public IActionResult Alert()
         {
+            // ★修正：string[] ではなく List<string> として取り出す
             string[] dele = TempData.Peek("DeleteEmpCd") as string[];
+            //List<string> dele = TempData.Peek("DeleteEmpCd") as List<string>;
             if (dele == null || dele.Length == 0)
             {
                 TempData["ViewTitle"] = "すでに削除されています";
@@ -302,23 +305,26 @@ namespace FIT_Technology.Controllers
                 return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
             }
             List<EmployeeEntity> info = new List<EmployeeEntity>();
-            try { using (TranMng mng = TranMng.BeginTransaction("empdb"))
+            try
             {
-                for (int i = 0; i < dele.Length; i++)
+                using (TranMng mng = TranMng.BeginTransaction("empdb"))
+                {
+                    for (int i = 0; i < dele.Length; i++)
                     {
-                    EmployeeDao dao = new EmployeeDao();
-                    info.Add(dao.Find(dele[i]));
+                        EmployeeDao dao = new EmployeeDao();
+                        info.Add(dao.Find(dele[i]));
                     }
+                }
             }
-            }catch (Exception ex)
+            catch (Exception ex)
             {
                 TempData["ViewTitle"] = "エラーが発生しました";
                 TempData["Msg"] = "データベースの制約、または通信エラーにより処理を中断しました。データは変更されていません。";
 
                 return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
             }
-            
-                
+
+
             ViewBag.Info = info;
             return View(nameof(EmployeeController.Alert));
         }
@@ -334,28 +340,39 @@ namespace FIT_Technology.Controllers
             {
                 try
                 {
+                    int totalDeletedCount = 0; // 実際に削除できた件数をカウントする変数
                     using (TranMng mng = TranMng.BeginTransaction("empdb"))
                     {
                         EmployeeDao dao = new EmployeeDao();
                         DemoGetLicenseDao demodao = new DemoGetLicenseDao();
-                        
+
                         for (int i = 0; i < deleteEmp.Count; i++)
                         {
                             string targetEmpCd = deleteEmp[i].EmpCd;
 
                             List<GetLicenseEntity> licenseentity = demodao.FindByEmpCd(targetEmpCd);
-                            for(int k = 0; k <  licenseentity.Count; k++)
+                            for (int k = 0; k < licenseentity.Count; k++)
                             {
                                 demodao.Delete(licenseentity[k]);
                             }
-                            dao.Delete(deleteEmp[i]);
+                            totalDeletedCount += dao.Delete(deleteEmp[i]);
                         }
                         mng.Commit();
                     }
+
+                    // 1件も削除できなかった（＝すべて既に削除されていた）場合のチェック
+                    if (totalDeletedCount == 0)
+                    {
+                        TempData.Remove("DeleteEmpCd");
+                        TempData["ViewTitle"] = "対象のデータが見つかりません";
+                        TempData["Msg"] = "選択された従業員は、他のユーザーによって既に削除されたか、存在しません。";
+                        return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
+                    }
+
                     TempData.Remove("DeleteEmpCd");
                     TempData["ViewTitle"] = "削除が完了しました";
                     string msg = "";
-                    for(int i = 0;i < deleteEmp.Count; i++)
+                    for (int i = 0; i < deleteEmp.Count; i++)
                     {
                         msg = msg + deleteEmp[i].EmpCd + " " + deleteEmp[i].LastNm + deleteEmp[i].FirstNm + "　";
                     }
@@ -369,7 +386,7 @@ namespace FIT_Technology.Controllers
 
                     return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
                 }
-                
+
             }
             // 「キャンセル（戻る）」の場合は一覧画面へ戻る
             else
@@ -386,16 +403,22 @@ namespace FIT_Technology.Controllers
         {
             ViewBag.Title = "変更画面";
 
-            string[] up = TempData.Peek("UpdateEmpCd") as string[];
-            if (up == null || up.Length == 0)
+            // ★修正：string[] ではなく List<string> として取り出す
+            //string[] up = TempData.Peek("UpdateEmpCd") as string[];
+            string up = TempData.Peek("UpdateEmpCd") as string ?? string.Empty;
+            //List<string> up = TempData.Peek("UpdateEmpCd") as List<string>;
+            //if (up == null || up.Count == 0)
+            if (string.IsNullOrEmpty(up))
             {
                 TempData["ViewTitle"] = "すでに変更されています";
                 TempData["Msg"] = "メニューに戻ってください";
 
                 return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
             }
-            string updatecd = up[0];
-            
+            //string updatecd = up[0];
+
+            string updatecd = up ?? string.Empty;
+
             EmployeeEntity info = new EmployeeEntity();
             List<SectionEntity> sectionInfo = new List<SectionEntity>();
             List<GenderEntity> genderInfo = new List<GenderEntity>();
@@ -413,7 +436,8 @@ namespace FIT_Technology.Controllers
 
                     mng.Commit();
                 }
-            }catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 TempData["ViewTitle"] = "エラーが発生しました";
                 TempData["Msg"] = "データベースの制約、または通信エラーにより処理を中断しました。データは変更されていません。";
@@ -438,6 +462,7 @@ namespace FIT_Technology.Controllers
             // 「更新確定」などの処理を経て結果画面へ
             if (btn_action == "result")
             {
+
                 List<SectionEntity> sectionInfo = new List<SectionEntity>();
                 List<GenderEntity> genderInfo = new List<GenderEntity>();
 
@@ -460,14 +485,27 @@ namespace FIT_Technology.Controllers
                     ViewBag.GenderInfo = genderInfo;
                     return View(nameof(EmployeeController.Update), employee);
                 }
-                try { using (TranMng mng = TranMng.BeginTransaction("empdb"))
+                try
                 {
-                    EmployeeDao dao = new EmployeeDao();
-                   
-                    dao.Update(employee);
-                    
-                    mng.Commit();
-                }
+                    using (TranMng mng = TranMng.BeginTransaction("empdb"))
+                    {
+                        EmployeeDao dao = new EmployeeDao();
+
+                        int updatedCount = dao.Update(employee);
+
+                        // ★追加：もし更新件数が 0件 だったら（他の人が先に更新していたら）
+                        if (updatedCount == 0)
+                        {
+                            // ★追加：データを巻き戻して、この場でエラー画面へリダイレクトする
+                            mng.Rollback();
+
+                            TempData["ViewTitle"] = "エラーが発生しました";
+                            TempData["Msg"] = "他のユーザーが同時にこの従業員情報を変更したか、データが既に削除されたため、処理を中断しました。";
+                            return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
+                        }
+
+                        mng.Commit();
+                    }
                     TempData.Remove("UpdateEmpCd");
                     TempData["ViewTitle"] = "変更が完了しました";
                     TempData["Msg"] = employee.EmpCd + " " + employee.LastNm + employee.FirstNm + "の変更が完了しました";
@@ -480,7 +518,7 @@ namespace FIT_Technology.Controllers
 
                     return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
                 }
-                
+
             }
             // 「キャンセル（戻る）」の場合は一覧画面へ戻る
             else

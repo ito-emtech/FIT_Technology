@@ -1,9 +1,7 @@
 ﻿using DynamicDll.Db;
 using FIT_Technology.Models.Entities;
-using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 using Microsoft.Data.SqlClient;
 using System.Data;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace FIT_Technology.Models.Daos
 {
@@ -37,7 +35,8 @@ namespace FIT_Technology.Models.Daos
                             GenderCd = (int)GetInt(reader["gender_cd"]),
                             BirthDate = (DateTime)reader["birth_date"],
                             SectionCd = GetString(reader["section_cd"]),
-                            EmpDate = (DateTime)reader["emp_date"]
+                            EmpDate = (DateTime)reader["emp_date"],
+                            Updated = (DateTime)reader["updated"]
                         };
                     }
                     reader.Close();
@@ -79,9 +78,8 @@ namespace FIT_Technology.Models.Daos
 
         public override int Update(EmployeeEntity entity)
         {
-            int count = 0;
-            
-            string query = @"UPDATE m_employee SET last_nm = @LastNm, first_nm = @FirstNm, last_nm_kana = @LastNmKana, first_nm_kana = @FirstNmKana, gender_cd = @GenderCd, birth_date = @BirthDate, section_cd = @SectionCd, emp_date = @EmpDate WHERE emp_cd = @EmpCd";
+
+            string query = @"UPDATE m_employee SET last_nm = @LastNm, first_nm = @FirstNm, last_nm_kana = @LastNmKana, first_nm_kana = @FirstNmKana, gender_cd = @GenderCd, birth_date = @BirthDate, section_cd = @SectionCd, emp_date = @EmpDate WHERE emp_cd = @EmpCd AND updated = @Updated";
             using (SqlCommand cmd = new SqlCommand(query, con))
             {
                 cmd.Transaction = trn;
@@ -94,17 +92,18 @@ namespace FIT_Technology.Models.Daos
                 cmd.Parameters.Add("@BirthDate", SqlDbType.Date).Value = entity.BirthDate;
                 cmd.Parameters.Add("@SectionCd", SqlDbType.Char).Value = entity.SectionCd;
                 cmd.Parameters.Add("@EmpDate", SqlDbType.Date).Value = entity.EmpDate;
+                // ★追加：画面から送られてきた「古い更新日時」をパラメーターにセット
+                cmd.Parameters.Add("@Updated", SqlDbType.DateTime2).Value = entity.Updated;
 
                 try
                 {
-                    count = cmd.ExecuteNonQuery();
+                    return cmd.ExecuteNonQuery();
                 }
                 catch (Exception ex)
                 {
                     throw;
                 }
             }
-            return count;
         }
 
         public override int Delete(EmployeeEntity entity)
@@ -151,9 +150,9 @@ namespace FIT_Technology.Models.Daos
                             GenderCd = (int)GetInt(reader["gender_cd"]),
                             BirthDate = (DateTime)reader["birth_date"],
                             SectionCd = GetString(reader["section_cd"]),
-                            EmpDate = (DateTime)reader["emp_date"]
+                            EmpDate = (DateTime)reader["emp_date"],
                             //,Created = (DateTime)reader["created"],
-                            //Updated = (DateTime)reader["updated"]
+                            Updated = (DateTime)reader["updated"]
                         };
                         result.Add(entity);
                     }
@@ -169,7 +168,6 @@ namespace FIT_Technology.Models.Daos
 
             using (SqlCommand cmd = new SqlCommand(query, con))
             {
-                // 💡 【超重要】この1行を追加してください！
                 // 親クラス（BaseDao）が持っているトランザクションオブジェクト（trn）をコマンドにセットします
                 cmd.Transaction = trn;
 
