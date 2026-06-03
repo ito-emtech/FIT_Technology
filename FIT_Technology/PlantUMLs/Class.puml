@@ -1,5 +1,5 @@
 ﻿@startuml ClassList
-title システムクラス定義一覧 (ViewModel ソース完全同期版)
+title システムクラス定義一覧 (View 構造整合性確認済)
 
 ' ========================================================
 ' 0. アプリケーション・エントリーポイント
@@ -373,15 +373,16 @@ SectionDao --|> "BaseDao`1"
 
 "BaseDao`1" ..> TranMng
 
-AccountController --> AccountService
-AccountController ..> UserEntity
-AccountController ..> EmployeeController : Menu() から RedirectToAction で遷移
-AccountController ..> DemoController : Menu() から RedirectToAction で遷移
-AccountController ..> ActionValues
-AccountController ..> DbConstants::SessionKeys
-AccountController ..> ControllerExtensions
-AccountController ..> Ctrl
-AccountController ..> SessionCheckAttribute
+' --- AccountController 関連の依存関係（詳細化済） ---
+AccountController --> AccountService : Login(HttpPost) 内で\nAuthenticate(id, pass) を実行
+AccountController ..> UserEntity : Login(HttpPost) の引数として\n入力データをバインド
+AccountController ..> EmployeeController : Menu() から RedirectToAction で遷移\n(ActionValues.Insert/List時)
+AccountController ..> DemoController : Menu() から RedirectToAction で遷移\n(ActionValues.Demo時)
+AccountController ..> ActionValues : Menu(HttpPost) 内で\n遷移先分岐スイッチの判定に使用
+AccountController ..> DbConstants::SessionKeys : Loginでのセッション保存、\nLogoutでのUserId取得に使用
+AccountController ..> ControllerExtensions : 認証失敗・コマンド不正時の\nRedirectToResult呼び出し
+AccountController ..> Ctrl : RedirectToAction 時の\nターゲットコントローラー名取得
+AccountController ..> SessionCheckAttribute : Index, Logout, Menu の\nログインセッションチェックに適用
 
 AccountService ..> AccountDao
 AccountService ..> DbConstants
@@ -391,30 +392,31 @@ AccountDao ..> UserEntity
 AccountDao ..> EntityMetaHelper
 AccountDao ..> SqlReaderExtensions
 
-EmployeeController ..> SessionCheckAttribute
-EmployeeController ..> TranMng
-EmployeeController ..> EmployeeDao
-EmployeeController ..> SectionDao
-EmployeeController ..> GenderDao
-EmployeeController ..> DemoGetLicenseDao
-EmployeeController ..> EmployeeEntity
-EmployeeController ..> SectionEntity
-EmployeeController ..> GenderEntity
-EmployeeController ..> GetLicenseEntity
-EmployeeController ..> ResultController
-EmployeeController ..> AccountController
-EmployeeController ..> Ctrl
+' --- EmployeeController 関連の依存関係（詳細化） ---
+EmployeeController ..> SessionCheckAttribute : クラス属性として指定され、\n全アクションでログイン検証を実施
+EmployeeController ..> TranMng : 各データアクセス時の\nトランザクション制御 (empdb) に使用
+EmployeeController ..> EmployeeDao : FindAll() による全件取得、Exists() による重複確認、\nInsert/Update/Delete の実行
+EmployeeController ..> SectionDao : List(HttpGet)、Insert(HttpGet/HttpPost)、\nUpdate(HttpGet/HttpPost) 内でのマスター全件取得
+EmployeeController ..> GenderDao : Insert(HttpGet/HttpPost)、\nUpdate(HttpGet/HttpPost) 内でのマスター全件取得
+EmployeeController ..> DemoGetLicenseDao : Alert(HttpPost) 内で従業員に紐づく\n保有資格(t_get_license)を事前に一括削除するため使用
+EmployeeController ..> EmployeeEntity : 各画面（一覧・登録・変更・削除）の\nバインド、受け渡し、およびDaoの操作対象オブジェクト
+EmployeeController ..> SectionEntity : 部署マスターデータの保持
+EmployeeController ..> GenderEntity : 性別マスターデータの保持
+EmployeeController ..> GetLicenseEntity : 保有資格削除データのハンドリング
+EmployeeController ..> ResultController : 各処理の正常完了時や、\nDB例外発生時のエラー表示画面への遷移先
+EmployeeController ..> AccountController : 各画面の「戻る」ボタン押下時に\nメニュー画面へ戻る際のリダイレクト先
+EmployeeController ..> Ctrl : 各種 RedirectToAction 時に\n汎用型引数からコントローラー文字列を取得
 
-DemoController ..> SessionCheckAttribute
-DemoController --> DemoEmployeeService
-DemoController --> DemoGetLicenseService
-DemoController ..> DemoController::TempKeys
-DemoController ..> LicenseMenuRowViewModel
-DemoController ..> EmployeeEntity
-DemoController ..> GetLicenseEntity
-DemoController ..> ActionValues
-DemoController ..> Ctrl
-DemoController ..> ControllerExtensions
+DemoController ..> SessionCheckAttribute : クラス属性としてセッション検証の強制
+DemoController --> DemoEmployeeService : コンストラクタで手動new、従業員・マスタ関連処理の委譲
+DemoController --> DemoGetLicenseService : コンストラクタで手動new、保有資格・マスタ関連処理の委譲
+DemoController ..> DemoController::TempKeys : 各種TempDataキー(TargetEmpCd等)の内部参照
+DemoController ..> LicenseMenuRowViewModel : LicenseMenu(HttpGet)での一覧用モデル受取
+DemoController ..> EmployeeEntity : EmployeeInsert時のバインド・表示処理
+DemoController ..> GetLicenseEntity : 資格登録(Insert)、削除確認(Alert)でのバインド、及びモデル操作
+DemoController ..> ActionValues : 外部定数(ActionValues.Insert/List/Alert)による条件分岐
+DemoController ..> Ctrl : 遷移処理の汎用コントローラー文字列解決
+DemoController ..> ControllerExtensions : 業務エラー・不正入力時のRedirectToResult呼出
 
 ' --- DemoGetLicenseService の依存関係 ---
 DemoGetLicenseService ..> TranMng
