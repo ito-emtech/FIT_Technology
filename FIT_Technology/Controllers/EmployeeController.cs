@@ -262,7 +262,7 @@ namespace FIT_Technology.Controllers
 
                     TempData.Remove("InsertActive");
                     TempData["ViewTitle"] = "登録が完了しました";
-                    TempData["Msg"] = "登録できたよ！！💛";
+                    TempData["Msg"] = employee.EmpCd + " " + employee.LastNm + employee.FirstNm + " の登録が完了しました";
                     return RedirectToAction(nameof(ResultController.Index), Ctrl.Get<ResultController>());
                 }
                 catch (Exception ex)
