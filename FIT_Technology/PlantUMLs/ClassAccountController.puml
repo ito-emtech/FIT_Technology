@@ -1,5 +1,5 @@
 ﻿@startuml ClassList
-title システムクラス定義一覧 (パッケージ内の依存関係のみ記載)
+title システムクラス定義一覧 (AccountDao 内部実装・ヘルパー依存関係確定版)
 
 ' ========================================================
 ' 1. FIT_Technology.Controllers (画面制御・MVCコントローラー)
@@ -300,6 +300,10 @@ package "FIT_Technology.Models.Constants" {
 ' 8. FIT_Technology.Models.Helpers (共通ヘルパー・拡張メソッド)
 ' ========================================================
 package "FIT_Technology.Models.Helpers" {
+    class ControllerExtensions <<static>> {
+        + {static} RedirectToResult(controller:Controller, viewTitle:string, msg:string, caption:string?, buttonView:string?) : RedirectToActionResult
+    }
+
     class Ctrl <<static>> {
         + {static} Get() : string
     }
@@ -313,6 +317,12 @@ package "FIT_Technology.Models.Helpers" {
     class SqlReaderExtensions <<static>> {
         + {static} MapToEntity(reader:SqlDataReader) : T
         + {static} HasColumn(reader:SqlDataReader, columnName:string) : bool
+    }
+
+    class "AddScoped`1"<T> {
+    }
+
+    class "ILogger`1"<T> {
     }
 }
 
@@ -329,6 +339,12 @@ package "Microsoft.AspNetCore.Mvc.Filters" {
         + <<virtual>> OnResultExecuting(context:ResultExecutedContext) : void
         + <<virtual>> OnResultExecutionAsync(context:ResultExecutedContext, next:ResultExecutionDelegate) : Task
     }
+    interface IActionFilter
+    interface IFilterMetadata
+    interface IAsyncActionFilter
+    interface IResultFilter
+    interface IAsyncResultFilter
+    interface IOrderedFilter
 }
 
 package "DynamicDll.Db" {
@@ -340,6 +356,10 @@ package "DynamicDll.Db" {
         + {abstract} Insert(entity:T) : int
         + {abstract} Update(entity:T) : int
         + {abstract} Delete(entity:T) : int
+        # {static} GetString(fieldValue:object) : string
+        # {static} GetInt(fieldValue:object) : int?
+        # {static} GetDouble(fieldValue:object) : double?
+        # {static} GetDateTime(fieldValue:object) : DateTime?
     }
 
     class TranMng {
@@ -355,5 +375,74 @@ package "DynamicDll.Db" {
 ' --- クラスのネスト（入れ子）関係 ---
 ResultConstants +-- TempDataKeys : ネストされたクラス
 DbConstants +-- SessionKeys : ネストされたクラス
+
+' --- 外部フレームワーク内の実装・継承関係 ---
+ActionFilterAttribute --|> Attribute
+ActionFilterAttribute ..|> IActionFilter
+ActionFilterAttribute ..|> IFilterMetadata
+ActionFilterAttribute ..|> IAsyncActionFilter
+ActionFilterAttribute ..|> IResultFilter
+ActionFilterAttribute ..|> IAsyncResultFilter
+ActionFilterAttribute ..|> IOrderedFilter
+
+' --- プロジェクト内クラスの継承関係 ---
+SessionCheckAttribute --|> ActionFilterAttribute : フィルター属性の継承
+
+' --- 外部アセンブリ BaseDao`1 からの継承 ---
+AccountDao --|> "BaseDao`1" : 外部DLLコンポーネントからの派生
+DemoGetLicenseDao --|> "BaseDao`1"
+DemoEmployeeDao --|> "BaseDao`1"
+EmployeeDao --|> "BaseDao`1"
+GenderDao --|> "BaseDao`1"
+GetLicenseDao --|> "BaseDao`1"
+LicenseDao --|> "BaseDao`1"
+SectionDao --|> "BaseDao`1"
+
+' --- BaseDao`1 から TranMng への依存性 ---
+"BaseDao`1" ..> TranMng : コンストラクタでの静的接続・トランザクション抽出
+
+' --- AccountController 起点 ---
+AccountController --> AccountService : ロジック呼び出し (service)
+AccountController ..> UserEntity : ログイン情報の受け取り (Login)
+AccountController ..> EmployeeController : 従業員登録・管理画面へ遷移
+AccountController ..> LicenseController : 保有資格管理画面へ遷移
+AccountController ..> DemoController : テスト画面へ遷移
+AccountController ..> ActionValues : アクション名の判定
+AccountController ..> SessionKeys : セッションキーの参照
+AccountController ..> ControllerExtensions : 拡張メソッドの利用 (this.RedirectToResult)
+AccountController ..> Ctrl : 自コントローラー名の取得
+AccountController ..> SessionCheckAttribute : 属性の適用
+
+' --- AccountService 起点 ---
+AccountService ..> AccountDao : ユーザーデータ取得のためにインスタンス化 (Authenticate)
+AccountService ..> DbConstants : 接続文字列のキー参照 (EmpDbConnection)
+AccountService ..> TranMng : トランザクション制御用の静的メソッド・クラス利用
+
+' --- AccountDao 起点（確定した詳細な依存関係） ---
+AccountDao ..> UserEntity : 操作対象エンティティ・マッピング先型引数
+AccountDao ..> EntityMetaHelper : メタデータ抽出の利用 (GetTableName / GetColumnName / GetSqlType)
+AccountDao ..> SqlReaderExtensions : 拡張メソッドの適用 (reader.MapToEntity<T>)
+
+' --- HomeController 起点 ---
+HomeController ..> AccountController : 初期リダイレクト先として指定 (Index)
+HomeController ..> Ctrl : コントローラー名取得ヘルパーの利用
+HomeController ..> ErrorViewModel : エラー情報返却用にインスタンス化 (Error)
+HomeController --> "ILogger`1" : ログ記録用 (logger)
+
+' --- ControllerExtensions 起点 ---
+ControllerExtensions ..> ResultController : Result画面(Index)へのリダイレクト指示
+ControllerExtensions ..> TempDataKeys : TempData用キーの参照
+ControllerExtensions ..> Ctrl : コントローラー名取得ヘルパーの利用
+
+' --- ResultController 起点 ---
+ResultController ..> TempDataKeys : TempDataから値を取り出すためのキー参照
+
+' --- SessionCheckAttribute 起点 ---
+SessionCheckAttribute ..> SessionKeys : セッションキーの参照
+SessionCheckAttribute ..> AccountController : 未ログイン時のリダイレクト先として指定
+SessionCheckAttribute ..> Ctrl : コントローラー名取得ヘルパーの利用
+
+' --- Data Access Layer 起点 ---
+GetLicenseDao ..> UserEntity : 戻り値・型参照
 
 @enduml

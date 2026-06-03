@@ -144,13 +144,14 @@ namespace FIT_Technology.Controllers
                     return RedirectToAction(
                         nameof(EmployeeController.List),
                         Ctrl.Get<EmployeeController>());
-                case ActionValues.License:
-                    // 保有資格管理画面へ
-                    return RedirectToAction(
-                        nameof(LicenseController.LicenseMenu),
-                        Ctrl.Get<LicenseController>());
+                //case ActionValues.License:
+                //    // 保有資格管理画面へ
+                //    // 未実装
+                //    return RedirectToAction(
+                //        nameof(LicenseController.LicenseMenu),
+                //        Ctrl.Get<LicenseController>());
                 case ActionValues.Demo:
-                    // 保有資格管理画面のテスト画面に遷移する
+                    // 保有資格管理画面に遷移する
                     return RedirectToAction(
                         nameof(DemoController.LicenseMenu),
                         Ctrl.Get<DemoController>());

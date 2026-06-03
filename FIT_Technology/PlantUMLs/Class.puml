@@ -1,11 +1,13 @@
 ﻿@startuml ClassList
-title システムクラス定義一覧 (AccountDao 内部実装・ヘルパー依存関係確定版)
+title システムクラス定義一覧 (AccountController・全レイヤー完全同期版)
 
 ' ========================================================
 ' 1. FIT_Technology.Controllers (画面制御・MVCコントローラー)
 ' ========================================================
 package "FIT_Technology.Controllers" {
     class AccountController {
+        {-} service : AccountService
+        + AccountController(service:AccountService)
         + Index() : IActionResult
         + Login() : IActionResult
         + Login(user:UserEntity) : IActionResult
@@ -15,7 +17,9 @@ package "FIT_Technology.Controllers" {
         + Menu(btn_action:string) : IActionResult
     }
 
-    class DemoController {
+    class DemoController <<[SessionCheck]>> {
+        {-} _employeeService : DemoEmployeeService
+        {-} _licenseService : DemoGetLicenseService
         + DemoController()
         + Index() : IActionResult
         + LicenseMenu() : IActionResult
@@ -30,7 +34,13 @@ package "FIT_Technology.Controllers" {
         + Alert(entities:List<GetLicenseEntity>) : IActionResult
     }
 
-    class EmployeeController {
+    class DemoController::TempKeys <<static>> {
+        + <<const>> CreateEmployee : string = "createEmployee"
+        + <<const>> DeleteLicense : string = "deleteLicense"
+        + <<const>> TargetEmpCd : string = "targetEmpCd"
+    }
+
+    class EmployeeController <<[SessionCheck]>> {
         + Index() : IActionResult
         + List() : IActionResult
         + List(empcd:List<string>, btn_action:string) : IActionResult
@@ -49,14 +59,17 @@ package "FIT_Technology.Controllers" {
         + Error() : IActionResult
     }
 
-    class LicenseController {
+    class LicenseController <<[SessionCheck]>> {
+        {-} _employeeService : DemoEmployeeService
+        {-} _licenseService : DemoGetLicenseService
+        + LicenseController()
         + Index() : IActionResult
         + LicenseMenu() : IActionResult
-        + LicenseMenu(btn_action:string) : IActionResult
+        + LicenseMenu(btn_action:string, emp_code:string) : IActionResult
         + Insert() : IActionResult
-        + Insert(btn_action:string) : IActionResult
+        + Insert(entity:GetLicenseEntity) : IActionResult
         + List() : IActionResult
-        + List(btn_action:string) : IActionResult
+        + List(btn_action:string, license_cd:List<string>) : IActionResult
         + Alert() : IActionResult
         + Alert(btn_action:string) : IActionResult
     }
@@ -179,12 +192,12 @@ package "FIT_Technology.Models.Daos" {
 
     class GetLicenseDao {
         + GetLicenseDao()
-        + <<override>> Find(pkeys:object[]) : UserEntity
+        + <<override>> Find(pkeys:object[]) : GetLicenseEntity
         + FindAll() : List<GetLicenseEntity>
         + FindWhere(emp_cd:string) : List<GetLicenseEntity>
-        + <<override>> Insert(entity:UserEntity) : int
-        + <<override>> Update(entity:UserEntity) : int
-        + <<override>> Delete(entity:UserEntity) : int
+        + <<override>> Insert(entity:GetLicenseEntity) : int
+        + <<override>> Update(entity:GetLicenseEntity) : int
+        + <<override>> Delete(entity:GetLicenseEntity) : int
     }
 
     class LicenseDao {
@@ -262,12 +275,6 @@ package "FIT_Technology.Models.Entities" {
 ' 7. FIT_Technology.Models.Constants (定数管理)
 ' ========================================================
 package "FIT_Technology.Models.Constants" {
-    class TempKeys <<static>> {
-        + <<const>> CreateEmployee : string = "createEmployee"
-        + <<const>> DeleteLicense : string = "deleteLicense"
-        + <<const>> TargetEmpCd : string = "targetEmpCd"
-    }
-
     class ActionValues <<static>> {
         + <<const>> Logout : string = "logout"
         + <<const>> Insert : string = "insert"
@@ -281,14 +288,14 @@ package "FIT_Technology.Models.Constants" {
         + <<const>> EmpDbConnection : string = "empdb"
     }
 
-    class SessionKeys <<static>> {
+    class DbConstants::SessionKeys <<static>> {
         + <<const>> UserId : string = "UserId"
     }
 
     class ResultConstants <<static>> {
     }
 
-    class TempDataKeys <<static>> {
+    class ResultConstants::TempDataKeys <<static>> {
         + <<const>> ViewTitle : string = "ViewTitle"
         + <<const>> Msg : string = "Msg"
         + <<const>> Caption : string = "Caption"
@@ -336,7 +343,7 @@ package "Microsoft.AspNetCore.Mvc.Filters" {
         + <<virtual>> OnActionExecuting(context:ActionExecutingContext) : void
         + <<virtual>> OnActionExecutionAsync(context:ActionExecutingContext, next:ActionExecutionDelegate) : Task
         + <<virtual>> OnResultExecuted(context:ResultExecutedContext) : void
-        + <<virtual>> OnResultExecuting(context:ResultExecutedContext) : void
+        + <<virtual>> OnResultExecuting(context:ResultExecutingContext) : void
         + <<virtual>> OnResultExecutionAsync(context:ResultExecutedContext, next:ResultExecutionDelegate) : Task
     }
     interface IActionFilter
@@ -365,6 +372,8 @@ package "DynamicDll.Db" {
     class TranMng {
         + {static} Transaction : SqlTransaction <<get>>
         + {static} BeginTransaction(connectionKey:string) : TranMng
+        + Commit() : void
+        + Rollback() : void
     }
 }
 
@@ -373,8 +382,9 @@ package "DynamicDll.Db" {
 ' ========================================================
 
 ' --- クラスのネスト（入れ子）関係 ---
-ResultConstants +-- TempDataKeys : ネストされたクラス
-DbConstants +-- SessionKeys : ネストされたクラス
+ResultConstants +-- ResultConstants::TempDataKeys
+DbConstants +-- DbConstants::SessionKeys
+DemoController +-- DemoController::TempKeys
 
 ' --- 外部フレームワーク内の実装・継承関係 ---
 ActionFilterAttribute --|> Attribute
@@ -389,7 +399,7 @@ ActionFilterAttribute ..|> IOrderedFilter
 SessionCheckAttribute --|> ActionFilterAttribute : フィルター属性の継承
 
 ' --- 外部アセンブリ BaseDao`1 からの継承 ---
-AccountDao --|> "BaseDao`1" : 外部DLLコンポーネントからの派生
+AccountDao --|> "BaseDao`1"
 DemoGetLicenseDao --|> "BaseDao`1"
 DemoEmployeeDao --|> "BaseDao`1"
 EmployeeDao --|> "BaseDao`1"
@@ -402,26 +412,76 @@ SectionDao --|> "BaseDao`1"
 "BaseDao`1" ..> TranMng : コンストラクタでの静的接続・トランザクション抽出
 
 ' --- AccountController 起点 ---
-AccountController --> AccountService : ロジック呼び出し (service)
+AccountController --> AccountService : プライマリコンストラクタによる参照保持 (service)
 AccountController ..> UserEntity : ログイン情報の受け取り (Login)
-AccountController ..> EmployeeController : 従業員登録・管理画面へ遷移
-AccountController ..> LicenseController : 保有資格管理画面へ遷移
-AccountController ..> DemoController : テスト画面へ遷移
-AccountController ..> ActionValues : アクション名の判定
-AccountController ..> SessionKeys : セッションキーの参照
+AccountController ..> EmployeeController : 従業員登録・一覧画面へ遷移
+AccountController ..> DemoController : 保有資格管理画面(Demo)へ遷移
+AccountController ..> ActionValues : アクション定数の判定参照
+AccountController ..> DbConstants::SessionKeys : セッションキーの参照
 AccountController ..> ControllerExtensions : 拡張メソッドの利用 (this.RedirectToResult)
 AccountController ..> Ctrl : 自コントローラー名の取得
-AccountController ..> SessionCheckAttribute : 属性の適用
+AccountController ..> SessionCheckAttribute : 属性の適用 [SessionCheck]
 
 ' --- AccountService 起点 ---
 AccountService ..> AccountDao : ユーザーデータ取得のためにインスタンス化 (Authenticate)
 AccountService ..> DbConstants : 接続文字列のキー参照 (EmpDbConnection)
 AccountService ..> TranMng : トランザクション制御用の静的メソッド・クラス利用
 
-' --- AccountDao 起点（確定した詳細な依存関係） ---
+' --- AccountDao 起点 ---
 AccountDao ..> UserEntity : 操作対象エンティティ・マッピング先型引数
 AccountDao ..> EntityMetaHelper : メタデータ抽出の利用 (GetTableName / GetColumnName / GetSqlType)
 AccountDao ..> SqlReaderExtensions : 拡張メソッドの適用 (reader.MapToEntity<T>)
+
+' --- EmployeeController 起点 ---
+EmployeeController ..> SessionCheckAttribute : 属性の適用 [SessionCheck]
+EmployeeController ..> TranMng : トランザクション管理の利用 (TranMng.BeginTransaction("empdb"))
+EmployeeController ..> EmployeeDao : 直接利用 (FindAll, Find, Insert, Update, Delete, Exists)
+EmployeeController ..> SectionDao : 直接利用 (FindAll)
+EmployeeController ..> GenderDao : 直接利用 (FindAll)
+EmployeeController ..> DemoGetLicenseDao : 直接利用 (FindByEmpCd, Delete)
+EmployeeController ..> EmployeeEntity : モデル連携
+EmployeeController ..> SectionEntity : マスターデータ連携
+EmployeeController ..> GenderEntity : マスターデータ連携
+EmployeeController ..> GetLicenseEntity : カスケード連携
+EmployeeController ..> ResultController : リダイレクト先
+EmployeeController ..> AccountController : リダイレクト先 (Menu)
+EmployeeController ..> Ctrl : ヘルパー利用
+
+' --- LicenseController 起点 ---
+LicenseController ..> SessionCheckAttribute : 属性の適用 [SessionCheck]
+LicenseController --> DemoEmployeeService : フィールドとしてコンストラクタでインスタンス化保持 (_employeeService)
+LicenseController --> DemoGetLicenseService : フィールドとしてコンストラクタでインスタンス化保持 (_licenseService)
+LicenseController ..> TranMng : トランザクション管理の利用 (BeginTransaction / Commit / Rollback)
+LicenseController ..> DbConstants : 接続文字列定数のキー参照 (EmpDbConnection)
+LicenseController ..> EmployeeDao : 従業員データの個別・全件抽出のために直接インスタンス化利用 (FindAll, Find)
+LicenseController ..> GetLicenseDao : 保有資格の登録・条件抽出のために直接インスタンス化利用 (Insert, FindWhere, Find)
+LicenseController ..> EmployeeEntity : 画面バインドおよび参照用エンティティ
+LicenseController ..> GetLicenseEntity : 登録バインドおよび資格一覧表示用エンティティ
+LicenseController ..> LicenseEntity : サービス経由でのマスター型参照
+LicenseController ..> ResultController : 正常登録・エラー発生時のリダイレクト先
+LicenseController ..> ControllerExtensions : 例外発生時のポップアップ拡張メソッド利用 (this.RedirectToResult)
+LicenseController ..> Ctrl : コントローラー名取得ヘルパーの利用 (Ctrl.Get<T>)
+
+' --- DemoController 起点 ---
+DemoController ..> SessionCheckAttribute : 属性の適用 [SessionCheck]
+DemoController --> DemoEmployeeService : フィールドとしてインスタンス化保持 (_employeeService)
+DemoController --> DemoGetLicenseService : フィールドとしてインスタンス化保持 (_licenseService)
+DemoController ..> DemoController::TempKeys : 状態用TempDataキーの参照・利用
+DemoController ..> LicenseMenuRowViewModel : メニュー表示用ViewModelとの連携
+DemoController ..> EmployeeEntity : 従業員データの登録・参照モデル
+DemoController ..> GetLicenseEntity : 保有資格の登録・一覧・一括削除用モデル
+DemoController ..> ActionValues : アクション文字判定定数の参照
+DemoController ..> Ctrl : コントローラー名取得ヘルパーの利用 (Ctrl.Get<DemoController>)
+DemoController ..> ControllerExtensions : 結果表示画面への安全なリダイレクト呼び出し (this.RedirectToResult)
+
+' --- DemoEmployeeService 起点 ---
+DemoEmployeeService ..> DemoEmployeeDao : データアクセスのため内部利用
+DemoEmployeeService ..> SectionDao : 内部マスタデータ取得
+DemoEmployeeService ..> GenderDao : 内部マスタデータ取得
+
+' --- DemoGetLicenseService 起点 ---
+DemoGetLicenseService ..> DemoGetLicenseDao : データアクセスのため内部利用
+DemoGetLicenseService ..> LicenseDao : 内部資格マスタデータ取得
 
 ' --- HomeController 起点 ---
 HomeController ..> AccountController : 初期リダイレクト先として指定 (Index)
@@ -431,18 +491,14 @@ HomeController --> "ILogger`1" : ログ記録用 (logger)
 
 ' --- ControllerExtensions 起点 ---
 ControllerExtensions ..> ResultController : Result画面(Index)へのリダイレクト指示
-ControllerExtensions ..> TempDataKeys : TempData用キーの参照
+ControllerExtensions ..> ResultConstants::TempDataKeys : TempData用キーの参照
 ControllerExtensions ..> Ctrl : コントローラー名取得ヘルパーの利用
 
 ' --- ResultController 起点 ---
-ResultController ..> TempDataKeys : TempDataから値を取り出すためのキー参照
+ResultController ..> ResultConstants::TempDataKeys : TempDataから値を取り出すためのキー参照
 
 ' --- SessionCheckAttribute 起点 ---
-SessionCheckAttribute ..> SessionKeys : セッションキーの参照
+SessionCheckAttribute ..> DbConstants::SessionKeys : セッションキーの参照
 SessionCheckAttribute ..> AccountController : 未ログイン時のリダイレクト先として指定
 SessionCheckAttribute ..> Ctrl : コントローラー名取得ヘルパーの利用
-
-' --- Data Access Layer 起点 ---
-GetLicenseDao ..> UserEntity : 戻り値・型参照
-
 @enduml
