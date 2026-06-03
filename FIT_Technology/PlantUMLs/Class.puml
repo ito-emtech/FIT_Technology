@@ -1,5 +1,5 @@
 ﻿@startuml ClassList
-title システムクラス定義一覧 (AccountController・全レイヤー完全同期版)
+title システムクラス定義一覧 (Service層コード完全同期版)
 
 ' ========================================================
 ' 1. FIT_Technology.Controllers (画面制御・MVCコントローラー)
@@ -343,7 +343,7 @@ package "Microsoft.AspNetCore.Mvc.Filters" {
         + <<virtual>> OnActionExecuting(context:ActionExecutingContext) : void
         + <<virtual>> OnActionExecutionAsync(context:ActionExecutingContext, next:ActionExecutionDelegate) : Task
         + <<virtual>> OnResultExecuted(context:ResultExecutedContext) : void
-        + <<virtual>> OnResultExecuting(context:ResultExecutingContext) : void
+        + <<virtual>> OnResultExecuting(context:ResultExecutedContext) : void
         + <<virtual>> OnResultExecutionAsync(context:ResultExecutedContext, next:ResultExecutionDelegate) : Task
     }
     interface IActionFilter
@@ -474,14 +474,24 @@ DemoController ..> ActionValues : アクション文字判定定数の参照
 DemoController ..> Ctrl : コントローラー名取得ヘルパーの利用 (Ctrl.Get<DemoController>)
 DemoController ..> ControllerExtensions : 結果表示画面への安全なリダイレクト呼び出し (this.RedirectToResult)
 
-' --- DemoEmployeeService 起点 ---
-DemoEmployeeService ..> DemoEmployeeDao : データアクセスのため内部利用
-DemoEmployeeService ..> SectionDao : 内部マスタデータ取得
-DemoEmployeeService ..> GenderDao : 内部マスタデータ取得
-
 ' --- DemoGetLicenseService 起点 ---
-DemoGetLicenseService ..> DemoGetLicenseDao : データアクセスのため内部利用
-DemoGetLicenseService ..> LicenseDao : 内部資格マスタデータ取得
+DemoGetLicenseService ..> TranMng : トランザクション管理の利用 (BeginTransaction / Commit)
+DemoGetLicenseService ..> DbConstants : 接続文字列のキー参照 (EmpDbConnection)
+DemoGetLicenseService ..> DemoGetLicenseDao : 内部での生成と利用 (Find / FindByEmpCd / Insert / Delete)
+DemoGetLicenseService ..> LicenseDao : 内部での生成と利用 (FindAll)
+DemoGetLicenseService ..> GetLicenseEntity : メソッド引数・戻り値・コレクションの要素型
+DemoGetLicenseService ..> LicenseEntity : 戻り値コレクションの要素型
+
+' --- DemoEmployeeService 起点 ---
+DemoEmployeeService ..> TranMng : トランザクション管理の利用 (BeginTransaction)
+DemoEmployeeService ..> DbConstants : 接続文字列のキー参照 (EmpDbConnection)
+DemoEmployeeService ..> DemoEmployeeDao : 内部での生成と利用 (FindAllForLicenseMenu / FindAll / Find / Insert)
+DemoEmployeeService ..> SectionDao : 内部での生成と利用 (FindAll)
+DemoEmployeeService ..> GenderDao : 内部での生成と利用 (FindAll)
+DemoEmployeeService ..> LicenseMenuRowViewModel : 戻り値コレクションの要素型
+DemoEmployeeService ..> EmployeeEntity : メソッド引数・戻り値・コレクションの要素型
+DemoEmployeeService ..> SectionEntity : 戻り値コレクションの要素型
+DemoEmployeeService ..> GenderEntity : 戻り値コレクションの要素型
 
 ' --- HomeController 起点 ---
 HomeController ..> AccountController : 初期リダイレクト先として指定 (Index)
