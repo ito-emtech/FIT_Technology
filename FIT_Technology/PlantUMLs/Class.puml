@@ -1,5 +1,5 @@
 ﻿@startuml ClassList
-title システムクラス定義一覧 (C# 名前空間・パッケージ構造準拠版)
+title システムクラス定義一覧 (AccountDao 基底クラス・実装依存反映版)
 
 ' ========================================================
 ' 1. FIT_Technology.Controllers (画面制御・MVCコントローラー)
@@ -131,9 +131,18 @@ package "FIT_Technology.Models.Services" {
 ' 5. FIT_Technology.Models.Daos (データアクセス層)
 ' ========================================================
 package "FIT_Technology.Models.Daos" {
+    abstract class "BaseDao`1"<T> {
+        # con : SqlConnection
+        # trn : SqlTransaction
+        + {abstract} Find(params pkeys:object[]) : T
+        + {abstract} Insert(entity:T) : int
+        + {abstract} Update(entity:T) : int
+        + {abstract} Delete(entity:T) : int
+    }
+
     class AccountDao {
         + AccountDao()
-        + <<override>> Find(pkeys:object[]) : UserEntity
+        + <<override>> Find(params pkeys:object[]) : UserEntity
         + <<override>> Insert(entity:UserEntity) : int
         + <<override>> Update(entity:UserEntity) : int
         + <<override>> Delete(entity:UserEntity) : int
@@ -297,7 +306,7 @@ package "FIT_Technology.Models.Constants" {
 }
 
 ' ========================================================
-' 8. FIT_Technology.Models.Helpers (共通ヘルパー・DI定義)
+' 8. FIT_Technology.Models.Helpers (共通ヘルパー・拡張メソッド)
 ' ========================================================
 package "FIT_Technology.Models.Helpers" {
     class ControllerExtensions <<static>> {
@@ -335,7 +344,7 @@ package "FIT_Technology.Models.Helpers" {
 }
 
 ' ========================================================
-' 9. External Framework (Microsoft.AspNetCore.Mvc.Filters)
+' 9. External Frameworks & Libraries
 ' ========================================================
 package "Microsoft.AspNetCore.Mvc.Filters" {
     abstract class ActionFilterAttribute {
@@ -347,13 +356,18 @@ package "Microsoft.AspNetCore.Mvc.Filters" {
         + <<virtual>> OnResultExecuting(context:ResultExecutingContext) : void
         + <<virtual>> OnResultExecutionAsync(context:ResultExecutingContext, next:ResultExecutionDelegate) : Task
     }
-    
     interface IActionFilter
     interface IFilterMetadata
     interface IAsyncActionFilter
     interface IResultFilter
     interface IAsyncResultFilter
     interface IOrderedFilter
+}
+
+package "DynamicDll.Db" {
+    class TranMng {
+        + {static} BeginTransaction(connectionKey:string) : TranMng
+    }
 }
 
 ' ========================================================
@@ -375,6 +389,7 @@ ActionFilterAttribute ..|> IOrderedFilter
 
 ' --- プロジェクト内クラスの継承関係 ---
 SessionCheckAttribute --|> ActionFilterAttribute : フィルター属性の継承
+AccountDao --|> "BaseDao`1" : ジェネリック基底クラスの継承
 
 ' --- AccountController 起点 ---
 AccountController --> AccountService : ロジック呼び出し (service)
@@ -387,6 +402,15 @@ AccountController ..> SessionKeys : セッションキーの参照
 AccountController ..> ControllerExtensions : 拡張メソッドの利用 (this.RedirectToResult)
 AccountController ..> Ctrl : 自コントローラー名の取得
 AccountController ..> SessionCheckAttribute : 属性の適用
+
+' --- AccountService 起点 ---
+AccountService ..> AccountDao : ユーザーデータ取得のためにインスタンス化 (Authenticate)
+AccountService ..> DbConstants : 接続文字列のキー参照 (EmpDbConnection)
+AccountService ..> TranMng : トランザクション制御用の静的メソッド・クラス利用
+
+' --- AccountDao 起点 (新規追加) ---
+AccountDao ..> EntityMetaHelper : テーブル・カラム等のメタデータ取得 (Find)
+AccountDao ..> SqlReaderExtensions : ORMマッピング拡張メソッドの利用 (MapToEntity)
 
 ' --- HomeController 起点 ---
 HomeController ..> AccountController : 初期リダイレクト先として指定 (Index)
