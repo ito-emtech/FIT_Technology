@@ -1,0 +1,325 @@
+﻿@startuml ClassList
+title システムクラス定義一覧 (パッケージ分け・関係線なし)
+
+' ========================================================
+' 1. Presentation Layer (画面制御・MVCコントローラー)
+' ========================================================
+package "Presentation Layer (MVC)" {
+    class AccountController {
+        + Index() : IActionResult
+        + Login() : IActionResult
+        + Login(user:UserEntity) : IActionResult
+        + Logout() : IActionResult
+        + Logout(btn_action:string) : IActionResult
+        + Menu() : IActionResult
+        + Menu(btn_action:string) : IActionResult
+    }
+
+    class DemoController {
+        + DemoController()
+        + Index() : IActionResult
+        + LicenseMenu() : IActionResult
+        + LicenseMenu(btn_action:string, emp_cd:string) : IActionResult
+        + EmployeeInsert() : IActionResult
+        + EmployeeInsert(entity:EmployeeEntity) : IActionResult
+        + Insert() : IActionResult
+        + Insert(entity:GetLicenseEntity) : IActionResult
+        + List() : IActionResult
+        + List(btn_action:string, license_cd:string[]) : IActionResult
+        + Alert() : IActionResult
+        + Alert(entities:List<GetLicenseEntity>) : IActionResult
+    }
+
+    class EmployeeController {
+        + Index() : IActionResult
+        + List() : IActionResult
+        + List(empcd:List<string>, btn_action:string) : IActionResult
+        + Insert() : IActionResult
+        + Insert(employee:EmployeeEntity, btn_action:string) : IActionResult
+        + Alert() : IActionResult
+        + Alert(deleteEmp:List<EmployeeEntity>, btn_action:string) : IActionResult
+        + Update() : IActionResult
+        + Update(employee:EmployeeEntity, btn_action:string) : IActionResult
+    }
+
+    class HomeController {
+        + HomeController(logger:ILogger<HomeController>)
+        + Index() : IActionResult
+        + Privacy() : IActionResult
+        + Error() : IActionResult
+    }
+
+    class LicenseController {
+        + Index() : IActionResult
+        + LicenseMenu() : IActionResult
+        + LicenseMenu(btn_action:string) : IActionResult
+        + Insert() : IActionResult
+        + Insert(btn_action:string) : IActionResult
+        + List() : IActionResult
+        + List(btn_action:string) : IActionResult
+        + Alert() : IActionResult
+        + Alert(btn_action:string) : IActionResult
+    }
+
+    class ResultController {
+        + Index() : IActionResult
+    }
+
+    class SessionCheckAttribute {
+        + <<override>> OnActionExecuting(context:ActionExecutingContext) : void
+    }
+
+    class ErrorViewModel {
+        + RequestId : string? <<get>> <<set>>
+        + ShowRequestId : bool <<get>>
+    }
+
+    class LicenseMenuRowViewModel {
+        + EmpCd : string <<get>> <<set>>
+        + LastNm : string <<get>> <<set>>
+        + FirstNm : string <<get>> <<set>>
+        + LastNmKana : string <<get>> <<set>>
+        + FirstNmKana : string <<get>> <<set>>
+        + GenderCd : int <<get>> <<set>>
+        + GenderNm : string <<get>> <<set>>
+        + SectionCd : string <<get>> <<set>>
+        + SectionNm : string <<get>> <<set>>
+        + DisplaySection : string <<get>>
+        + BirthDate : DateTime
+        + EmpDate : DateTime
+    }
+}
+
+' ========================================================
+' 2. Business Logic Layer (業務ロジック)
+' ========================================================
+package "Business Logic Layer" {
+    class AccountService {
+        + Authenticate(userid:string, password:string) : bool
+    }
+
+    class DemoGetLicenseService {
+        + GetLicense(empCd:string, licenseCd:string) : GetLicenseEntity
+        + GetLicensesByEmpCd(empCd:string) : List<GetLicenseEntity>
+        + RegisterLicense(entity:GetLicenseEntity) : bool
+        + RemoveLicense(entity:GetLicenseEntity) : bool
+        + RemoveLicenses(entities:List<GetLicenseEntity>) : bool
+        + GetLicenses() : List<LicenseEntity>
+    }
+
+    class DemoEmployeeService {
+        + GetLicenseMenuRows() : List<LicenseMenuRowViewModel>
+        + GetEmployees() : List<EmployeeEntity>
+        + GetEmployee(empCd:string) : EmployeeEntity
+        + RegisterEmployee(entity:EmployeeEntity) : bool
+        + GetSections() : List<SectionEntity>
+        + GetGenders() : List<GenderEntity>
+    }
+}
+
+' ========================================================
+' 3. Data Access Layer (データベース操作)
+' ========================================================
+package "Data Access Layer" {
+    class AccountDao {
+        + AccountDao()
+        + <<override>> Find(pkeys:object[]) : UserEntity
+        + <<override>> Insert(entity:UserEntity) : int
+        + <<override>> Update(entity:UserEntity) : int
+        + <<override>> Delete(entity:UserEntity) : int
+    }
+
+    class DemoGetLicenseDao {
+        + DemoGetLicenseDao()
+        + <<override>> Find(pkeys:object[]) : GetLicenseEntity
+        + FindByEmpCd(empCd:string) : List<GetLicenseEntity>
+        + <<override>> Insert(entity:GetLicenseEntity) : int
+        + <<override>> Update(entity:GetLicenseEntity) : int
+        + <<override>> Delete(entity:GetLicenseEntity) : int
+    }
+
+    class DemoEmployeeDao {
+        + DemoEmployeeDao()
+        + <<override>> Find(pkeys:object[]) : EmployeeEntity
+        + FindAll() : List<EmployeeEntity>
+        + FindAllForLicenseMenu() : List<LicenseMenuRowViewModel>
+        + <<override>> Insert(entity:EmployeeEntity) : int
+        + <<override>> Update(entity:EmployeeEntity) : int
+        + <<override>> Delete(entity:EmployeeEntity) : int
+    }
+
+    class EmployeeDao {
+        + EmployeeDao()
+        + <<override>> Find(pkeys:object[]) : EmployeeEntity
+        + <<override>> Insert(entity:EmployeeEntity) : int
+        + <<override>> Update(entity:EmployeeEntity) : int
+        + <<override>> Delete(entity:EmployeeEntity) : int
+        + FindAll() : List<EmployeeEntity>
+        + Exists(empcd:string) : bool
+    }
+
+    class GenderDao {
+        + GenderDao()
+        + <<override>> Find(pkeys:object[]) : GenderEntity
+        + FindAll() : List<GenderEntity>
+        + <<override>> Insert(entity:GenderEntity) : int
+        + <<override>> Update(entity:GenderEntity) : int
+        + <<override>> Delete(entity:GenderEntity) : int
+    }
+
+    class GetLicenseDao {
+        + GetLicenseDao()
+        + <<override>> Find(pkeys:object[]) : UserEntity
+        + FindAll() : List<GetLicenseEntity>
+        + FindWhere(emp_cd:string) : List<GetLicenseEntity>
+        + <<override>> Insert(entity:UserEntity) : int
+        + <<override>> Update(entity:UserEntity) : int
+        + <<override>> Delete(entity:UserEntity) : int
+    }
+
+    class LicenseDao {
+        + LicenseDao()
+        + <<override>> Find(pkeys:object[]) : LicenseEntity
+        + FindAll() : List<LicenseEntity>
+        + <<override>> Insert(entity:LicenseEntity) : int
+        + <<override>> Update(entity:LicenseEntity) : int
+        + <<override>> Delete(entity:LicenseEntity) : int
+    }
+
+    class SectionDao {
+        + SectionDao()
+        + <<override>> Find(pkeys:object[]) : SectionEntity
+        + FindAll() : List<SectionEntity>
+        + <<override>> Insert(entity:SectionEntity) : int
+        + <<override>> Update(entity:SectionEntity) : int
+        + <<override>> Delete(entity:SectionEntity) : int
+    }
+}
+
+' ========================================================
+' 4. Entities (データ構造・ドメインモデル)
+' ========================================================
+package "Entities" {
+    class EmployeeEntity {
+        + EmpCd : string <<get>> <<set>>
+        + LastNm : string <<get>> <<set>>
+        + FirstNm : string <<get>> <<set>>
+        + LastNmKana : string <<get>> <<set>>
+        + FirstNmKana : string <<get>> <<set>>
+        + GenderCd : int <<get>> <<set>>
+        + SectionCd : string <<get>> <<set>>
+        + BirthDate : DateTime
+        + EmpDate : DateTime
+        + Created : DateTime
+        + Updated : DateTime
+    }
+
+    class GenderEntity {
+        + GenderCd : int <<get>> <<set>>
+        + GenderNm : string <<get>> <<set>>
+    }
+
+    class GetLicenseEntity {
+        + EmpCd : string <<get>> <<set>>
+        + LicenseCd : string <<get>> <<set>>
+        + LicenseNm : string <<get>> <<set>>
+        + DisplayLicenseText : string <<get>>
+        + GetLicenseDate : DateTime
+        + Created : DateTime
+        + Updated : DateTime
+    }
+
+    class LicenseEntity {
+        + LicenseCd : string <<get>> <<set>>
+        + LicenseNm : string <<get>> <<set>>
+        + DisplayLicenseText : string <<get>>
+    }
+
+    class SectionEntity {
+        + SectionCd : string <<get>> <<set>>
+        + SectionNm : string <<get>> <<set>>
+    }
+
+    class UserEntity {
+        + UserId : string <<get>> <<set>>
+        + Password : string <<get>> <<set>>
+        + Created : DateTime
+        + Updated : DateTime
+    }
+}
+
+' ========================================================
+' 5. Infrastructure & Constants (共通定数・拡張ヘルパーなど)
+' ========================================================
+package "Infrastructure & Constants" {
+    class TempKeys <<static>> {
+        + <<const>> CreateEmployee : string = "createEmployee"
+        + <<const>> DeleteLicense : string = "deleteLicense"
+        + <<const>> TargetEmpCd : string = "targetEmpCd"
+    }
+
+    class ActionValues <<static>> {
+        + <<const>> Logout : string = "logout"
+        + <<const>> Insert : string = "insert"
+        + <<const>> List : string = "list"
+        + <<const>> License : string = "license"
+        + <<const>> Alert : string = "alert"
+        + <<const>> Demo : string = "Demo"
+    }
+
+    class DbConstants <<static>> {
+        + <<const>> EmpDbConnection : string = "empdb"
+    }
+
+    class SessionKeys <<static>> {
+        + <<const>> UserId : string = "UserId"
+    }
+
+    class ResultConstants <<static>> {
+    }
+
+    class TempDataKeys <<static>> {
+        + <<const>> ViewTitle : string = "ViewTitle"
+        + <<const>> Msg : string = "Msg"
+        + <<const>> Caption : string = "Caption"
+        + <<const>> ButtonView : string = "ButtonView"
+    }
+
+    class ControllerExtensions <<static>> {
+        + {static} RedirectToResult(controller:Controller, viewTitle:string, msg:string, caption:string?, buttonView:string?) : RedirectToActionResult
+    }
+
+    class Ctrl <<static>> {
+        + {static} Get() : string
+    }
+
+    class EntityHelpers <<static>> {
+        + {static} GetTableName() : string
+        + {static} GetColumnName(prop:PropertyInfo) : string
+        + {static} GetSqlType(prop:PropertyInfo) : SqlDbType
+        + {static} MapEntity(reader:SqlDataReader) : T
+        - {static} HasColumn(reader:SqlDataReader, columnName:string) : bool
+    }
+
+    class EntityMetaHelper <<static>> {
+        + {static} GetTableName() : string
+        + {static} GetColumnName(prop:PropertyInfo) : string
+        + {static} GetSqlType(prop:PropertyInfo) : SqlDbType
+    }
+
+    class SqlReaderExtensions <<static>> {
+        + {static} MapToEntity(reader:SqlDataReader) : T
+        + {static} HasColumn(reader:SqlDataReader, columnName:string) : bool
+    }
+
+    class "AddScoped`1"<T> {
+    }
+
+    class "ILogger`1"<T> {
+    }
+    
+    class Class {
+    }
+}
+
+@enduml
