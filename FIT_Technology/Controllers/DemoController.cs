@@ -15,7 +15,7 @@ namespace FIT_Technology.Controllers
     {
         // 2つのサービスをプライベート変数として保持
         private readonly DemoEmployeeService _employeeService;
-        private readonly DemoGetLicenseService _licenseService; // ★追加
+        private readonly DemoGetLicenseService _licenseService;
 
         /// <summary>
         /// コンストラクタで各サービスをインスタンス化
@@ -23,7 +23,7 @@ namespace FIT_Technology.Controllers
         public DemoController()
         {
             _employeeService = new DemoEmployeeService();
-            _licenseService = new DemoGetLicenseService(); // ★追加
+            _licenseService = new DemoGetLicenseService();
         }
 
         public static class TempKeys

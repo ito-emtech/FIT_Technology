@@ -1,5 +1,5 @@
 ﻿@startuml ClassList
-title システムクラス定義一覧 (HomeController・ErrorViewModel 削除版)
+title システムクラス定義一覧 (ViewModel ソース完全同期版)
 
 ' ========================================================
 ' 0. アプリケーション・エントリーポイント
@@ -59,21 +59,6 @@ package "FIT_Technology.Controllers" {
         + Update(employee:EmployeeEntity, btn_action:string) : IActionResult
     }
 
-    class LicenseController <<[SessionCheck]>> {
-        {-} _employeeService : DemoEmployeeService
-        {-} _licenseService : DemoGetLicenseService
-        + LicenseController()
-        + Index() : IActionResult
-        + LicenseMenu() : IActionResult
-        + LicenseMenu(btn_action:string, emp_code:string) : IActionResult
-        + Insert() : IActionResult
-        + Insert(entity:GetLicenseEntity) : IActionResult
-        + List() : IActionResult
-        + List(btn_action:string, license_cd:List<string>) : IActionResult
-        + Alert() : IActionResult
-        + Alert(btn_action:string) : IActionResult
-    }
-
     class ResultController {
         + Index() : IActionResult
     }
@@ -93,18 +78,18 @@ package "FIT_Technology.Filters" {
 ' ========================================================
 package "FIT_Technology.Models.ViewModels" {
     class LicenseMenuRowViewModel {
-        + EmpCd : string <<get>> <<set>>
-        + LastNm : string <<get>> <<set>>
-        + FirstNm : string <<get>> <<set>>
-        + LastNmKana : string <<get>> <<set>>
-        + FirstNmKana : string <<get>> <<set>>
-        + GenderCd : int <<get>> <<set>>
-        + GenderNm : string <<get>> <<set>>
-        + SectionCd : string <<get>> <<set>>
-        + SectionNm : string <<get>> <<set>>
+        + <<[Column("emp_cd")]>> EmpCd : string <<get>> <<set>>
+        + <<[Column("last_nm")]>> LastNm : string <<get>> <<set>>
+        + <<[Column("first_nm")]>> FirstNm : string <<get>> <<set>>
+        + <<[Column("last_nm_kana")]>> LastNmKana : string <<get>> <<set>>
+        + <<[Column("first_nm_kana")]>> FirstNmKana : string <<get>> <<set>>
+        + <<[Column("gender_cd")]>> GenderCd : int <<get>> <<set>>
+        + <<[Column("gender_nm")]>> GenderNm : string <<get>> <<set>>
+        + <<[Column("birth_date")]>> BirthDate : DateTime <<get>> <<set>>
+        + <<[Column("section_cd")]>> SectionCd : string <<get>> <<set>>
+        + <<[Column("section_nm")]>> SectionNm : string <<get>> <<set>>
+        + <<[Column("emp_date")]>> EmpDate : DateTime <<get>> <<set>>
         + DisplaySection : string <<get>>
-        + BirthDate : DateTime
-        + EmpDate : DateTime
     }
 }
 
@@ -320,12 +305,6 @@ package "FIT_Technology.Models.Helpers" {
         + {static} MapToEntity(reader:SqlDataReader) : T
         + {static} HasColumn(reader:SqlDataReader, columnName:string) : bool
     }
-
-    class "AddScoped`1"<T> {
-    }
-
-    class "ILogger`1"<T> {
-    }
 }
 
 ' ========================================================
@@ -333,20 +312,15 @@ package "FIT_Technology.Models.Helpers" {
 ' ========================================================
 package "Microsoft.AspNetCore.Mvc.Filters" {
     abstract class ActionFilterAttribute {
-        + Order : int <<get>> <<set>>
-        + <<virtual>> OnActionExecuted(context:ActionExecutedContext) : void
-        + <<virtual>> OnActionExecuting(context:ActionExecutingContext) : void
-        + <<virtual>> OnActionExecutionAsync(context:ActionExecutingContext, next:ActionExecutionDelegate) : Task
-        + <<virtual>> OnResultExecuted(context:ResultExecutedContext) : void
-        + <<virtual>> OnResultExecuting(context:ResultExecutedContext) : void
-        + <<virtual>> OnResultExecutionAsync(context:ResultExecutedContext, next:ResultExecutionDelegate) : Task
+        note right: Framework共通クラスのため\n内部インターフェース関係線は省略
     }
-    interface IActionFilter
-    interface IFilterMetadata
-    interface IAsyncActionFilter
-    interface IResultFilter
-    interface IAsyncResultFilter
-    interface IOrderedFilter
+}
+
+package "Microsoft.Extensions.DependencyInjection" {
+    class ServiceCollectionServiceExtensions <<static>> {
+        + {static} AddKeyedScoped(services:IServiceCollection, serviceType:Type, serviceKey:object?) : IServiceCollection
+        note bottom: AddScoped などの拡張メソッド定義元
+    }
 }
 
 package "DynamicDll.Db" {
@@ -377,22 +351,15 @@ package "DynamicDll.Db" {
 ' ========================================================
 
 ' --- Program.cs からのマッピング依存関係 ---
-Program ..> "AddScoped`1" : DIコンテナ生成利用
-Program ..> AccountService : スコープ(AddScoped)としてコンテナに登録
+Program ..> ServiceCollectionServiceExtensions : 拡張メソッド呼び出し (DIサービス登録)
+Program ..> AccountService : スコープ(AddScoped)としてコンテナに登録対象
 Program ..> AccountController : デフォルトルートとして指定 ({controller=Account}/{action=Login})
 
 ResultConstants +-- ResultConstants::TempDataKeys
 DbConstants +-- DbConstants::SessionKeys
 DemoController +-- DemoController::TempKeys
 
-ActionFilterAttribute --|> Attribute
-ActionFilterAttribute ..|> IActionFilter
-ActionFilterAttribute ..|> IFilterMetadata
-ActionFilterAttribute ..|> IAsyncActionFilter
-ActionFilterAttribute ..|> IResultFilter
-ActionFilterAttribute ..|> IAsyncResultFilter
-ActionFilterAttribute ..|> IOrderedFilter
-
+' --- ActionFilter関係の整理 ---
 SessionCheckAttribute --|> ActionFilterAttribute
 
 AccountDao --|> "BaseDao`1"
@@ -408,8 +375,8 @@ SectionDao --|> "BaseDao`1"
 
 AccountController --> AccountService
 AccountController ..> UserEntity
-AccountController ..> EmployeeController
-AccountController ..> DemoController
+AccountController ..> EmployeeController : Menu() から RedirectToAction で遷移
+AccountController ..> DemoController : Menu() から RedirectToAction で遷移
 AccountController ..> ActionValues
 AccountController ..> DbConstants::SessionKeys
 AccountController ..> ControllerExtensions
@@ -438,20 +405,6 @@ EmployeeController ..> ResultController
 EmployeeController ..> AccountController
 EmployeeController ..> Ctrl
 
-LicenseController ..> SessionCheckAttribute
-LicenseController --> DemoEmployeeService
-LicenseController --> DemoGetLicenseService
-LicenseController ..> TranMng
-LicenseController ..> DbConstants
-LicenseController ..> EmployeeDao
-LicenseController ..> GetLicenseDao
-LicenseController ..> EmployeeEntity
-LicenseController ..> GetLicenseEntity
-LicenseController ..> LicenseEntity
-LicenseController ..> ResultController
-LicenseController ..> ControllerExtensions
-LicenseController ..> Ctrl
-
 DemoController ..> SessionCheckAttribute
 DemoController --> DemoEmployeeService
 DemoController --> DemoGetLicenseService
@@ -463,18 +416,20 @@ DemoController ..> ActionValues
 DemoController ..> Ctrl
 DemoController ..> ControllerExtensions
 
+' --- DemoGetLicenseService の依存関係 ---
 DemoGetLicenseService ..> TranMng
 DemoGetLicenseService ..> DbConstants
-DemoGetLicenseService --> DemoGetLicenseDao : 生成・利用
-DemoGetLicenseService ..> LicenseDao
+DemoGetLicenseService --> DemoGetLicenseDao : 生成・利用(new)
+DemoGetLicenseService --> LicenseDao : 生成・利用(new)
 DemoGetLicenseService ..> GetLicenseEntity
 DemoGetLicenseService ..> LicenseEntity
 
+' --- DemoEmployeeService の依存関係 ---
 DemoEmployeeService ..> TranMng
 DemoEmployeeService ..> DbConstants
-DemoEmployeeService --> DemoEmployeeDao : 生成・利用
-DemoEmployeeService ..> SectionDao
-DemoEmployeeService ..> GenderDao
+DemoEmployeeService --> DemoEmployeeDao : 生成・利用(new)
+DemoEmployeeService --> SectionDao : 生成・利用(new)
+DemoEmployeeService --> GenderDao : 生成・利用(new)
 DemoEmployeeService ..> LicenseMenuRowViewModel
 DemoEmployeeService ..> EmployeeEntity
 DemoEmployeeService ..> SectionEntity
